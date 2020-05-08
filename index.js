@@ -1,8 +1,9 @@
 import JSZip from 'jszip';
+import { addFilesToContainer } from './src/html-to-docx';
 
 async function generateContainer(htmlString, documentOptions) {
   const zip = new JSZip();
-  // eslint-disable-next-line no-undef
+
   addFilesToContainer(zip, htmlString, documentOptions);
 
   const buffer = await zip.generateAsync({ type: 'arraybuffer' });
