@@ -26,5 +26,8 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^2.5.0",
     "prettier": "^2.0.5"
+  },
+  "dependencies": {
+    "jszip": "^3.4.0"
   }
 }
