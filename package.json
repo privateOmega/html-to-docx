@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/privateOmega/html-to-docx/issues"
   },
-  "homepage": "https://github.com/privateOmega/html-to-docx#readme"
+  "homepage": "https://github.com/privateOmega/html-to-docx#readme",
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "prettier": "^2.0.5"
+  }
 }
