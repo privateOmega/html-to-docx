@@ -1,0 +1,19 @@
+{
+  "name": "html-to-docx",
+  "version": "1.0.0",
+  "description": "HTML to DOCX converter",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/privateOmega/html-to-docx.git"
+  },
+  "author": "privateOmega <privateOmega@protonmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/privateOmega/html-to-docx/issues"
+  },
+  "homepage": "https://github.com/privateOmega/html-to-docx#readme"
+}
