@@ -1,4 +1,5 @@
 import { contentTypesXML, generateCoreXML, generateDocumentRelsXML, relsXML } from './schemas';
+import { renderDocumentFile } from './helpers';
 
 const defaultDocumentOptions = {
   orientation: 'portrait',
