@@ -75,7 +75,7 @@ function renderDocumentFile(docxDocumentInstance) {
 
   const xmlFragment = fragment();
 
-  const xmlString = convertVTreeToXML(vTree, xmlFragment);
+  const xmlString = convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
 
   return xmlString;
 }

@@ -1,3 +1,5 @@
+import { fragment } from 'xmlbuilder2';
+
 import {
   generateCoreXML,
   generateStylesXML,
@@ -51,9 +53,11 @@ class DocxDocument {
     this.createdAt = createdAt || new Date();
     this.modifiedAt = modifiedAt || new Date();
 
-    this.styles = [];
-    this.numbering = [];
-    this.documentRels = [];
+    this.lastNumberingId = 0;
+    this.lastDocumentRelsId = 0;
+    this.stylesObjects = [];
+    this.numberingObjects = [];
+    this.documentRelsObjects = [];
     this.documentXML = null;
 
     this.convert = this.convert.bind(this);
@@ -90,7 +94,7 @@ class DocxDocument {
       this.height,
       this.orientation,
       this.margins,
-      this.documentXML.toString({ prettyPrint: true })
+      this.documentXML ? this.documentXML.toString({ prettyPrint: true }) : ''
     );
   }
 
@@ -104,8 +108,21 @@ class DocxDocument {
 
   // eslint-disable-next-line class-methods-use-this
   generateNumberingXML() {
-    // TODO: Convert numbering array into appropriate XML
-    const numberingInstancesXML = '';
+    const numberingInstancesXML = this.numberingObjects.reduce(
+      // eslint-disable-next-line array-callback-return
+      (xmlFragment, { numberingId, ordered }) => {
+        xmlFragment
+          .ele('@w', 'num')
+          .att('@w', 'numId', String(numberingId))
+          .ele('@w', 'abstractNumId')
+          .att('@w', 'val', ordered ? '1' : '2')
+          .up()
+          .up();
+      },
+      fragment({
+        namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+      })
+    );
 
     return generateNumberingXML(numberingInstancesXML);
   }
@@ -116,6 +133,13 @@ class DocxDocument {
     const documentRelationshipsXML = '';
 
     return generateDocumentRelsXML(documentRelationshipsXML);
+  }
+
+  createOrderedList(ordered = false) {
+    this.lastNumberingId += 1;
+    this.numberingObjects.push({ numberingId: this.lastNumberingId, ordered });
+
+    return this.lastNumberingId;
   }
 }
 
