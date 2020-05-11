@@ -4,6 +4,7 @@ import {
   generateDocumentRelsXML,
   relsXML,
   generateNumberingXML,
+  generateStylesXML,
 } from './schemas';
 import { renderDocumentFile } from './helpers';
 
@@ -33,7 +34,7 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions) {
     // eslint-disable-next-line no-undef
     .file('document.xml', renderDocumentFile(documentOptions, htmlString), { createFolders: false })
     // eslint-disable-next-line no-undef
-    .file('styles.xml', Buffer.from(stylesXML, 'utf-8'), { createFolders: false })
+    .file('styles.xml', Buffer.from(generateStylesXML(), 'utf-8'), { createFolders: false })
     .file('numbering.xml', Buffer.from(generateNumberingXML(), 'utf-8'), { createFolders: false })
     .folder('_rels')
     .file('document.xml.res', Buffer.from(generateDocumentRelsXML(), 'utf-8'), {
