@@ -31,10 +31,9 @@ function renderDocumentFile(documentOptions, htmlString) {
 
   const xmlFragment = fragment();
 
-  // eslint-disable-next-line no-unused-vars
   const xmlString = convertVTreeToXML(vTree, xmlFragment);
 
-  return template(width, height, orientation, margins);
+  return template(width, height, orientation, margins, xmlString.toString({ prettyPrint: true }));
 }
 
 export default renderDocumentFile;

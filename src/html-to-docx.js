@@ -24,11 +24,9 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions) {
 
   zip.folder('_rels').file('.rels', Buffer.from(relsXML, 'utf-8'), { createFolders: false });
 
-  zip
-    .folder('docProps')
-    .file('core.xml', Buffer.from(generateCoreXML(...documentOptions), 'utf-8'), {
-      createFolders: false,
-    });
+  zip.folder('docProps').file('core.xml', Buffer.from(generateCoreXML(documentOptions), 'utf-8'), {
+    createFolders: false,
+  });
 
   zip
     .folder('word')
@@ -38,8 +36,7 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions) {
     .file('styles.xml', Buffer.from(stylesXML, 'utf-8'), { createFolders: false })
     .file('numbering.xml', Buffer.from(generateNumberingXML(), 'utf-8'), { createFolders: false })
     .folder('_rels')
-    // eslint-disable-next-line no-undef
-    .file('document.xml.res', Buffer.from(generateDocumentRelsXML(documentXMLRels), 'utf-8'), {
+    .file('document.xml.res', Buffer.from(generateDocumentRelsXML(), 'utf-8'), {
       createFolders: false,
     });
 
