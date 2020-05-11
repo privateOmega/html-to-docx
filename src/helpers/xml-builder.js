@@ -1,5 +1,9 @@
 /* eslint-disable no-unused-vars */
 
+const buildLineBreak = (xmlFragment) => {
+  xmlFragment.ele('w:br').up();
+};
+
 const buildTextElement = (xmlFragment, text) => {
   xmlFragment.ele('w:t').txt(text);
 };
@@ -17,14 +21,33 @@ const buildRun = (xmlFragment) => {
   xmlFragment.up();
 };
 
-/* const buildParagraphBorder = (xmlFragment) => {
-  xmlFragment.ele('w:pBdr');
-  // Add border styles within it
-  xmlFragment.up();
-}; */
-
 const buildNumberingProperties = (xmlFragment) => {
   xmlFragment.ele('w:numPr').ele('w:ilvl').ele('w:numId').up();
+};
+
+const buildNumberingInstances = (xmlFragment) => {
+  xmlFragment.ele('w:num').ele('w:abstractNumId').up();
+};
+
+const buildSpacing = (xmlFragment) => {
+  xmlFragment.ele('w:spacing').up();
+};
+
+const buildShading = (xmlFragment, fillColorCode) => {
+  xmlFragment
+    .ele('w:shd')
+    // background color for text
+    .att('w:fill', fillColorCode)
+    .att('w:color', 'auto')
+    .att('w:val', 'clear');
+};
+
+const buildIndentation = (xmlFragment) => {
+  xmlFragment.ele('w:ind').up();
+};
+
+const buildHorizontalAlignment = (xmlFragment) => {
+  xmlFragment.ele('w:jc').up();
 };
 
 const buildParagraphProperties = (xmlFragment, styles) => {
@@ -85,4 +108,12 @@ const buildHyperlink = (xmlFragment) => {
   xmlFragment.up();
 };
 
-export { buildParagraph, buildTable, buildHyperlink };
+export {
+  buildParagraph,
+  buildTable,
+  buildHyperlink,
+  buildNumberingInstances,
+  buildLineBreak,
+  buildHorizontalAlignment,
+  buildIndentation,
+};
