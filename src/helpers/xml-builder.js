@@ -116,4 +116,5 @@ export {
   buildLineBreak,
   buildHorizontalAlignment,
   buildIndentation,
+  buildTextElement,
 };
