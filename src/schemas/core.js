@@ -1,4 +1,4 @@
-const generateCoreXML = (
+const generateCoreXML = ({
   title = '',
   subject = '',
   creator = 'html-to-docx',
@@ -7,8 +7,8 @@ const generateCoreXML = (
   lastModifiedBy = 'html-to-docx',
   revision = 1,
   createdAt = new Date(),
-  modifiedAt = new Date()
-) => {
+  modifiedAt = new Date(),
+}) => {
   return `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 

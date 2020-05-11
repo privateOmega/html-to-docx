@@ -1,7 +1,7 @@
 import JSZip from 'jszip';
 import { addFilesToContainer } from './src/html-to-docx';
 
-async function generateContainer(htmlString, documentOptions) {
+async function generateContainer(htmlString, documentOptions = {}) {
   const zip = new JSZip();
 
   addFilesToContainer(zip, htmlString, documentOptions);
