@@ -28,7 +28,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'ol':
     case 'ul':
       // eslint-disable-next-line no-case-declarations
-      const numberingId = docxDocumentInstance.createOrderedList(vNode.tagName === 'ol');
+      const numberingId = docxDocumentInstance.createNumbering(vNode.tagName === 'ol');
       // eslint-disable-next-line no-plusplus
       for (let index = 0; index < vNode.children.length; index++) {
         const childVNode = vNode.children[index];

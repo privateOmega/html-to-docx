@@ -4,7 +4,7 @@ import {
   generateCoreXML,
   generateStylesXML,
   generateNumberingXMLTemplate,
-  generateDocumentRelsXML,
+  generateDocumentRelsXMLTemplate,
 } from './schemas';
 import { renderDocumentFile } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
@@ -106,7 +106,6 @@ class DocxDocument {
     return generateStylesXML(stylingInstancesXML);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   generateNumberingXML() {
     const numberingXML = create(
       { encoding: 'UTF-8', standalone: true },
@@ -137,19 +136,57 @@ class DocxDocument {
     return numberingXML.toString({ prettyPrint: true });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   generateDocumentRelsXML() {
-    // TODO: Convert documentRels array into appropriate XML
-    const documentRelationshipsXML = '';
+    const documentRelsXML = create(
+      { encoding: 'UTF-8', standalone: true },
+      generateDocumentRelsXMLTemplate()
+    );
 
-    return generateDocumentRelsXML(documentRelationshipsXML);
+    this.documentRelsObjects.forEach(
+      // eslint-disable-next-line array-callback-return
+      ({ relationshipId, type, target, targetMode }) => {
+        const relationshipFragment = fragment()
+          .ele('Relationship')
+          .att('Id', `rId${relationshipId}`)
+          .att('Type', type)
+          .att('Target', target)
+          .att('TargetMode', targetMode)
+          .up();
+        documentRelsXML.root().import(relationshipFragment);
+      }
+    );
+
+    return documentRelsXML.toString({ prettyPrint: true });
   }
 
-  createOrderedList(ordered = false) {
+  createNumbering(ordered = false) {
     this.lastNumberingId += 1;
     this.numberingObjects.push({ numberingId: this.lastNumberingId, ordered });
 
     return this.lastNumberingId;
+  }
+
+  createDocumentRelationships(type, target, targetMode = 'External') {
+    this.lastDocumentRelsId += 1;
+    let relationshipType;
+    switch (type) {
+      case 'hyperlink':
+        relationshipType = 'http://schemas.microsoft.com/office/2006/relationships/hyperlink';
+        break;
+      case 'image':
+        relationshipType = 'http://schemas.microsoft.com/office/2006/relationships/image';
+        break;
+      default:
+        break;
+    }
+    this.numberingObjects.push({
+      relationshipId: this.lastDocumentRelsId,
+      type: relationshipType,
+      target,
+      targetMode,
+    });
+
+    return this.lastDocumentRelsId;
   }
 }
 
