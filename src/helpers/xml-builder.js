@@ -326,6 +326,169 @@ const buildHyperlink = () => {
   return hyperlinkFragment;
 };
 
+const buildShapeProperties = () => {
+  const shapeProperties = fragment({
+    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+  }).ele('@pic', 'spPr');
+
+  shapeProperties.up();
+
+  return shapeProperties;
+};
+
+const buildBinaryLargeImageOrPicture = (relationshipId) => {
+  const binaryLargeImageOrPictureFragment = fragment({
+    namespaceAlias: {
+      a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
+      r: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+    },
+  })
+    .ele('@a', 'blip')
+    .att('@r', 'embed', `rId${relationshipId}`)
+    // FIXME: possible values 'email', 'none', 'print', 'hqprint', 'screen'
+    .att('cstate', 'print');
+
+  binaryLargeImageOrPictureFragment.up();
+
+  return binaryLargeImageOrPictureFragment;
+};
+
+const buildBinaryLargeImageOrPictureFill = () => {
+  const binaryLargeImageOrPictureFillFragment = fragment({
+    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+  }).ele('@pic', 'blipFill');
+  const binaryLargeImageOrPictureFragment = buildBinaryLargeImageOrPicture();
+  binaryLargeImageOrPictureFillFragment.import(binaryLargeImageOrPictureFragment);
+  binaryLargeImageOrPictureFillFragment.up();
+
+  return binaryLargeImageOrPictureFillFragment;
+};
+
+const buildNonVisualPictureDrawingProperties = () => {
+  const nonVisualPictureDrawingPropertiesFragment = fragment({
+    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+  }).ele('@pic', 'cNvPicPr');
+
+  nonVisualPictureDrawingPropertiesFragment.up();
+
+  return nonVisualPictureDrawingPropertiesFragment;
+};
+
+const buildNonVisualDrawingProperties = (
+  pictureId,
+  pictureNameWithExtension,
+  pictureTitle,
+  pictureDescription
+) => {
+  const nonVisualDrawingPropertiesFragment = fragment({
+    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+  })
+    .ele('@pic', 'cNvPr')
+    .att('id', pictureId)
+    .att('name', pictureNameWithExtension)
+    .att('title', pictureTitle)
+    .att('descr', pictureDescription);
+
+  nonVisualDrawingPropertiesFragment.up();
+
+  return nonVisualDrawingPropertiesFragment;
+};
+
+const buildNonVisualPictureProperties = () => {
+  const nonVisualPicturePropertiesFragment = fragment({
+    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+  }).ele('@pic', 'nvPicPr');
+  // TODO: Handle picture attributes
+  const nonVisualDrawingPropertiesFragment = buildNonVisualDrawingProperties();
+  nonVisualPicturePropertiesFragment.import(nonVisualDrawingPropertiesFragment);
+  const nonVisualPictureDrawingPropertiesFragment = buildNonVisualPictureDrawingProperties();
+  nonVisualPicturePropertiesFragment.import(nonVisualPictureDrawingPropertiesFragment);
+  nonVisualPicturePropertiesFragment.up();
+
+  return nonVisualPicturePropertiesFragment;
+};
+
+const buildPicture = () => {
+  const pictureFragment = fragment({
+    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+  }).ele('@pic', 'pic');
+  const nonVisualPicturePropertiesFragment = buildNonVisualPictureProperties();
+  pictureFragment.import(nonVisualPicturePropertiesFragment);
+  const binaryLargeImageOrPictureFill = buildBinaryLargeImageOrPictureFill();
+  pictureFragment.import(binaryLargeImageOrPictureFill);
+  const shapeProperties = buildShapeProperties();
+  pictureFragment.import(shapeProperties);
+  pictureFragment.up();
+
+  return pictureFragment;
+};
+
+const buildGraphicData = (type) => {
+  const graphicDataFragment = fragment({
+    namespaceAlias: {
+      a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
+    },
+  }).ele('@a', 'graphicData');
+  if (type === 'picture') {
+    const pictureFragment = buildPicture();
+    pictureFragment.import(graphicDataFragment);
+  }
+  graphicDataFragment.up();
+
+  return graphicDataFragment;
+};
+
+const buildGraphic = () => {
+  const graphicFragment = fragment({
+    namespaceAlias: {
+      a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
+    },
+  }).ele('@a', 'graphic');
+  // TODO: Handle drawing type
+  const graphicDataFragment = buildGraphicData();
+  graphicFragment.import(graphicDataFragment);
+  graphicFragment.up();
+
+  return graphicFragment;
+};
+
+const buildAnchoredDrawing = () => {
+  const anchoredDrawingFragment = fragment({
+    namespaceAlias: {
+      wp: 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+    },
+  }).ele('@wp', 'anchor');
+  const graphicFragment = buildGraphic();
+  anchoredDrawingFragment.import(graphicFragment);
+
+  return anchoredDrawingFragment;
+};
+
+const buildInlineDrawing = () => {
+  const inlineDrawingFragment = fragment({
+    namespaceAlias: {
+      wp: 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+    },
+  }).ele('@wp', 'inline');
+  const graphicFragment = buildGraphic();
+  inlineDrawingFragment.import(graphicFragment);
+
+  return inlineDrawingFragment;
+};
+
+const buildDrawing = (vNode, type, attributes) => {
+  const drawingFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'drawing');
+  // TODO: Branch if image is inline or anchored
+  const inlineOrAnchoredDrawingFragment =
+    type === 'inline' ? buildInlineDrawing() : buildAnchoredDrawing();
+  drawingFragment.import(inlineOrAnchoredDrawingFragment);
+  drawingFragment.up();
+
+  return drawingFragment;
+};
+
 export {
   buildParagraph,
   buildTable,
@@ -338,4 +501,5 @@ export {
   buildBold,
   buildItalics,
   buildUnderline,
+  buildDrawing,
 };
