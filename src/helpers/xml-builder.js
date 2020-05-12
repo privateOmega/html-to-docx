@@ -1,192 +1,329 @@
 /* eslint-disable no-unused-vars */
+import { fragment } from 'xmlbuilder2';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
 
-const buildBold = (xmlFragment) => {
-  xmlFragment.ele('w:b').up();
+const buildBold = () => {
+  const boldFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'b')
+    .up();
+
+  return boldFragment;
 };
 
-const buildItalics = (xmlFragment) => {
-  xmlFragment.ele('w:i').up();
+const buildItalics = () => {
+  const italicsFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'i')
+    .up();
+
+  return italicsFragment;
 };
 
-const buildUnderline = (xmlFragment) => {
-  xmlFragment.ele('w:u').up();
+const buildUnderline = () => {
+  const underlineFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'u')
+    .up();
+
+  return underlineFragment;
 };
 
-const buildLineBreak = (xmlFragment) => {
-  xmlFragment.ele('w:br').up();
+const buildLineBreak = () => {
+  const lineBreakFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'br')
+    .up();
+
+  return lineBreakFragment;
 };
 
-const buildTextElement = (xmlFragment, text) => {
-  xmlFragment.ele('w:t').txt(text).up();
+const buildTextElement = (text) => {
+  const textFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 't')
+    .txt(text)
+    .up();
+
+  return textFragment;
 };
 
-const buildRunProperties = (xmlFragment) => {
-  xmlFragment.ele('w:rPr');
+const buildRunProperties = () => {
+  const runPropertiesFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'rPr');
   // TODO: Add styles within it
-  xmlFragment.up();
+  runPropertiesFragment.up();
+
+  return runPropertiesFragment;
 };
 
-const buildRun = (xmlFragment, vNode) => {
-  xmlFragment.ele('w:r');
-  buildRunProperties(xmlFragment);
+const buildRun = (vNode) => {
+  const runFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'r');
+  const runPropertiesFragment = buildRunProperties();
+  runFragment.import(runPropertiesFragment);
   if (isVText(vNode)) {
-    buildTextElement(xmlFragment);
+    const textFragment = buildTextElement(vNode.text);
+    runFragment.import(textFragment);
   }
-  xmlFragment.up();
+  runFragment.up();
+
+  return runFragment;
 };
 
-const buildNumberingProperties = (xmlFragment, levelId, numberingId) => {
-  xmlFragment
-    .ele('w:numPr')
-    .ele('w:ilvl')
-    .att('w:val', String(levelId))
-    .ele('w:numId')
-    .att('w:val', String(numberingId))
+const buildNumberingProperties = (levelId, numberingId) => {
+  const numberingPropertiesFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'numPr')
+    .ele('@w', 'ilvl')
+    .att('@w', 'val', String(levelId))
+    .up()
+    .ele('@w', 'numId')
+    .att('@w', 'val', String(numberingId))
     .up()
     .up();
+
+  return numberingPropertiesFragment;
 };
 
-const buildNumberingInstances = (xmlFragment) => {
-  xmlFragment.ele('w:num').ele('w:abstractNumId').up();
-};
-
-const buildSpacing = (xmlFragment) => {
-  xmlFragment.ele('w:spacing').up();
-};
-
-const buildShading = (xmlFragment, fillColorCode) => {
-  xmlFragment
-    .ele('w:shd')
-    // background color for text
-    .att('w:fill', fillColorCode)
-    .att('w:color', 'auto')
-    .att('w:val', 'clear')
+const buildNumberingInstances = () => {
+  const numberingInstancesFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'num')
+    .ele('@w', 'abstractNumId')
+    .up()
     .up();
+
+  return numberingInstancesFragment;
 };
 
-const buildIndentation = (xmlFragment) => {
-  xmlFragment.ele('w:ind').up();
+const buildSpacing = () => {
+  const spacingFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'spacing')
+    .up();
+
+  return spacingFragment;
 };
 
-const buildHorizontalAlignment = (xmlFragment) => {
-  xmlFragment.ele('w:jc').up();
+const buildShading = (fillColorCode) => {
+  const shadingFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'shd')
+    // background color for text
+    .att('@w', 'fill', fillColorCode)
+    .att('@w', 'color', 'auto')
+    .att('@w', 'val', 'clear')
+    .up();
+
+  return shadingFragment;
 };
 
-const buildParagraphProperties = (xmlFragment, attributes, styles) => {
-  xmlFragment.ele('w:pPr');
+const buildIndentation = () => {
+  const indentationFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'ind')
+    .up();
+
+  return indentationFragment;
+};
+
+const buildHorizontalAlignment = () => {
+  const horizontalAlignmentFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  })
+    .ele('@w', 'jc')
+    .up();
+
+  return horizontalAlignmentFragment;
+};
+
+const buildParagraphProperties = (attributes, styles) => {
+  const paragraphPropertiesFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'pPr');
   if (attributes && Object.prototype.hasOwnProperty.call(attributes, 'numbering')) {
     const { levelId, numberingId } = attributes.numbering;
-    buildNumberingProperties(xmlFragment, levelId, numberingId);
+    const numberingPropertiesFragment = buildNumberingProperties(levelId, numberingId);
+    paragraphPropertiesFragment.import(numberingPropertiesFragment);
   }
   // TODO: Add styles within it
-  xmlFragment.up();
+  paragraphPropertiesFragment.up();
+
+  return paragraphPropertiesFragment;
 };
 
-const buildParagraph = (xmlFragment, vNode, attributes) => {
-  xmlFragment.ele('w:p');
-  buildParagraphProperties(xmlFragment, attributes, vNode.properties.attributes.style);
+const buildParagraph = (vNode, attributes) => {
+  const paragraphFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'p');
+  const paragraphPropertiesFragment = buildParagraphProperties(
+    attributes,
+    isVNode(vNode) ? vNode.properties.attributes.style : {}
+  );
+  paragraphFragment.import(paragraphPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      if (childVNode.tagName === 'span') {
-        throw new Error('Unsupported');
-      }
-      buildRun(xmlFragment, childVNode);
+      // FIXME: Handle <span>
+      const runFragment = buildRun(childVNode);
+      paragraphFragment.import(runFragment);
     }
   } else {
     // In case paragraphs has to be rendered where vText is present. Eg. table-cell
-    buildRun(xmlFragment, vNode);
+    const runFragment = buildRun(vNode);
+    paragraphFragment.import(runFragment);
   }
-  xmlFragment.up();
+  paragraphFragment.up();
+
+  return paragraphFragment;
 };
 
-const buildTableCellProperties = (xmlFragment, styles) => {
-  xmlFragment.ele('w:tcPr');
+const buildTableCellProperties = (styles) => {
+  const tableCellPropertiesFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'tcPr');
   // TODO: Add styles within it
-  xmlFragment.up();
+  tableCellPropertiesFragment.up();
+
+  return tableCellPropertiesFragment;
 };
 
-const buildTableCell = (xmlFragment, vNode) => {
-  xmlFragment.ele('w:tc');
-  buildTableCellProperties(xmlFragment);
+const buildTableCell = (vNode) => {
+  const tableCellFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'tc');
+  const tableCellPropertiesFragment = buildTableCellProperties();
+  tableCellFragment.import(tableCellPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (isVText(childVNode)) {
-        buildParagraph(xmlFragment, childVNode);
+        const paragraphFragment = buildParagraph(childVNode);
+        tableCellFragment.import(paragraphFragment);
       }
     }
   }
-  xmlFragment.up();
+  tableCellFragment.up();
+
+  return tableCellFragment;
 };
 
-const buildTableRow = (xmlFragment, vNode) => {
-  xmlFragment.ele('w:tr');
+const buildTableRow = (vNode) => {
+  const tableRowFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'tr');
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'td') {
-        buildTableCell(xmlFragment, childVNode);
+        const tableCellFragment = buildTableCell(childVNode);
+        tableRowFragment.import(tableCellFragment);
       }
     }
   }
-  buildTableCell(xmlFragment);
-  xmlFragment.up();
+  tableRowFragment.up();
+
+  return tableRowFragment;
 };
 
-const buildTableGridCol = (xmlFragment) => {
-  xmlFragment.ele('w:gridCol').up();
+const buildTableGridCol = () => {
+  const tableGridColFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'gridCol');
+
+  return tableGridColFragment;
 };
 
-const buildTableGrid = (xmlFragment, vNode) => {
-  xmlFragment.ele('w:tblGrid');
+const buildTableGrid = (vNode) => {
+  const tableGridFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'tblGrid');
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'col') {
-        buildTableGridCol(xmlFragment);
+        const tableGridColFragment = buildTableGridCol();
+        tableGridFragment.import(tableGridColFragment);
       }
     }
   }
-  xmlFragment.up();
+  tableGridFragment.up();
+
+  return tableGridFragment;
 };
 
-const buildTableProperties = (xmlFragment, styles) => {
-  xmlFragment.ele('w:tblPr');
+const buildTableProperties = (styles) => {
+  const tablePropertiesFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'tblPr');
   // TODO: Add styles within it
-  xmlFragment.up();
+  tablePropertiesFragment.up();
+
+  return tablePropertiesFragment;
 };
 
-const buildTable = (xmlFragment, vNode) => {
-  xmlFragment.ele('w:tbl');
-  buildTableProperties(xmlFragment);
+const buildTable = (vNode) => {
+  const tableFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'tbl');
+  const tablePropertiesFragment = buildTableProperties();
+  tableFragment.import(tablePropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'colgroup') {
-        buildTableGrid(xmlFragment, childVNode);
+        const tableGridFragment = buildTableGrid(childVNode);
+        tableFragment.import(tableGridFragment);
+      } else if (childVNode.tagName === 'tbody') {
+        // eslint-disable-next-line no-plusplus
+        for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
+          const grandChildVNode = childVNode.children[index];
+          if (grandChildVNode.tagName === 'tr') {
+            const tableRowFragment = buildTableRow(grandChildVNode);
+            tableFragment.import(tableRowFragment);
+          }
+        }
       } else if (childVNode.tagName === 'tr') {
-        buildTableRow(xmlFragment, childVNode);
+        const tableRowFragment = buildTableRow(childVNode);
+        tableFragment.import(tableRowFragment);
       }
     }
   }
+  tableFragment.up();
 
-  xmlFragment.up();
+  return tableFragment;
 };
 
-const buildHyperlink = (xmlFragment) => {
+const buildHyperlink = () => {
   // Relationship for external hyperlinks r:id="rId4"
-  xmlFragment.ele('w:hyperlink');
-  buildRun(xmlFragment);
-  xmlFragment.up();
+  const hyperlinkFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  }).ele('@w', 'hyperlink');
+  const runFragment = buildRun();
+  hyperlinkFragment.import(runFragment);
+  hyperlinkFragment.up();
+
+  return hyperlinkFragment;
 };
 
 export {

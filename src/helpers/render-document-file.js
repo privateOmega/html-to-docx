@@ -16,10 +16,14 @@ const convertHTML = require('html-to-vdom')({
 function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
   switch (vNode.tagName) {
     case 'p':
-      xmlBuilder.buildParagraph(xmlFragment, vNode);
+      // eslint-disable-next-line no-case-declarations
+      const paragraphFragment = xmlBuilder.buildParagraph(vNode);
+      xmlFragment.import(paragraphFragment);
       return;
     case 'table':
-      xmlBuilder.buildTable(xmlFragment, vNode);
+      // eslint-disable-next-line no-case-declarations
+      const tableFragment = xmlBuilder.buildTable(vNode);
+      xmlFragment.import(tableFragment);
       return;
     case 'ol':
     case 'ul':
@@ -29,9 +33,11 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       for (let index = 0; index < vNode.children.length; index++) {
         const childVNode = vNode.children[index];
         if (childVNode.tagName === 'li') {
-          xmlBuilder.buildParagraph(xmlFragment, childVNode, {
+          // eslint-disable-next-line no-shadow
+          const paragraphFragment = xmlBuilder.buildParagraph(childVNode, {
             numbering: { levelId: 0, numberingId },
           });
+          xmlFragment.import(paragraphFragment);
         }
       }
       return;
@@ -73,11 +79,13 @@ function renderDocumentFile(docxDocumentInstance) {
   // eslint-disable-next-line no-unused-vars
   const vTree = convertHTML(docxDocumentInstance.htmlString);
 
-  const xmlFragment = fragment();
+  const xmlFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  });
 
-  const xmlString = convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
+  const populatedXmlFragment = convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
 
-  return xmlString;
+  return populatedXmlFragment;
 }
 
 export default renderDocumentFile;
