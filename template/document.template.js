@@ -8,7 +8,7 @@ export const defaultMargins = {
   gutter: 0,
 };
 
-const template = (width, height, orientation, margins, xmlString) => {
+const generateDocumentTemplate = (width, height, orientation, margins) => {
   return `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
@@ -39,7 +39,6 @@ const template = (width, height, orientation, margins, xmlString) => {
         xmlns:ns25="http://schemas.openxmlformats.org/drawingml/2006/compatibility"
         xmlns:ns26="http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas">
         <w:body>
-            ${xmlString}
             <w:sectPr>
                 <w:pgSz w:w="${width}" w:h="${height}" w:orient="${orientation}" />
                 <w:pgMar w:top="${margins.top}"
@@ -55,4 +54,4 @@ const template = (width, height, orientation, margins, xmlString) => {
   `;
 };
 
-export default template;
+export default generateDocumentTemplate;

@@ -7,7 +7,7 @@ import {
   generateDocumentRelsXML,
 } from './schemas';
 import { renderDocumentFile } from './helpers';
-import template from '../template/document.template';
+import generateDocumentTemplate from '../template/document.template';
 
 const landscapeMargins = {
   top: 1800,
@@ -89,13 +89,13 @@ class DocxDocument {
   }
 
   generateDocumentXML() {
-    return template(
-      this.width,
-      this.height,
-      this.orientation,
-      this.margins,
-      this.documentXML ? this.documentXML.toString({ prettyPrint: true }) : ''
+    const documentXML = create(
+      { encoding: 'UTF-8', standalone: true },
+      generateDocumentTemplate(this.width, this.height, this.orientation, this.margins)
     );
+    documentXML.root().first().import(this.documentXML);
+
+    return documentXML.toString({ prettyPrint: true });
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -108,7 +108,10 @@ class DocxDocument {
 
   // eslint-disable-next-line class-methods-use-this
   generateNumberingXML() {
-    const numberingXML = create(generateNumberingXMLTemplate());
+    const numberingXML = create(
+      { encoding: 'UTF-8', standalone: true },
+      generateNumberingXMLTemplate()
+    );
 
     const xmlFragment = fragment({
       namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
