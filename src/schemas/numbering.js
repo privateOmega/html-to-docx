@@ -1,8 +1,8 @@
-const generateNumberingXML = (numberingInstancesXML = '') => {
+const generateNumberingXMLTemplate = () => {
   return `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-        <w:numbering>
+        <w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
             <w:abstractNum w:abstractNumId="1">
                 <w:nsid w:val="FFFFFF7F" />
                 <w:multiLevelType w:val="singleLevel" />
@@ -35,9 +35,8 @@ const generateNumberingXML = (numberingInstancesXML = '') => {
                     </w:pPr>
                 </w:lvl>
             </w:abstractNum>
-            ${numberingInstancesXML}
         </w:numbering>
     `;
 };
 
-export default generateNumberingXML;
+export default generateNumberingXMLTemplate;

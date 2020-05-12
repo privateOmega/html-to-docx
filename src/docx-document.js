@@ -1,9 +1,9 @@
-import { fragment } from 'xmlbuilder2';
+import { create, fragment } from 'xmlbuilder2';
 
 import {
   generateCoreXML,
   generateStylesXML,
-  generateNumberingXML,
+  generateNumberingXMLTemplate,
   generateDocumentRelsXML,
 } from './schemas';
 import { renderDocumentFile } from './helpers';
@@ -108,6 +108,8 @@ class DocxDocument {
 
   // eslint-disable-next-line class-methods-use-this
   generateNumberingXML() {
+    const numberingXML = create(generateNumberingXMLTemplate());
+
     const xmlFragment = fragment({
       namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
     });
@@ -127,8 +129,9 @@ class DocxDocument {
         xmlFragment.import(numberingFragment);
       }
     );
+    numberingXML.root().import(xmlFragment);
 
-    return generateNumberingXML(xmlFragment.toString({ prettyPrint: true }) || '');
+    return numberingXML.toString({ prettyPrint: true });
   }
 
   // eslint-disable-next-line class-methods-use-this
