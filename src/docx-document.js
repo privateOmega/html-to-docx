@@ -108,23 +108,27 @@ class DocxDocument {
 
   // eslint-disable-next-line class-methods-use-this
   generateNumberingXML() {
-    const numberingInstancesXML = this.numberingObjects.reduce(
+    const xmlFragment = fragment({
+      namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    });
+
+    this.numberingObjects.forEach(
       // eslint-disable-next-line array-callback-return
-      (xmlFragment, { numberingId, ordered }) => {
-        xmlFragment
+      ({ numberingId, ordered }) => {
+        const numberingFragment = fragment({
+          namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+        })
           .ele('@w', 'num')
           .att('@w', 'numId', String(numberingId))
           .ele('@w', 'abstractNumId')
           .att('@w', 'val', ordered ? '1' : '2')
           .up()
           .up();
-      },
-      fragment({
-        namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
-      })
+        xmlFragment.import(numberingFragment);
+      }
     );
 
-    return generateNumberingXML(numberingInstancesXML);
+    return generateNumberingXML(xmlFragment.toString({ prettyPrint: true }) || '');
   }
 
   // eslint-disable-next-line class-methods-use-this
