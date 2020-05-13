@@ -68,7 +68,7 @@ const buildRunProperties = () => {
   return runPropertiesFragment;
 };
 
-const buildRun = (vNode) => {
+const buildRun = (vNode, attributes) => {
   const runFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
@@ -77,6 +77,11 @@ const buildRun = (vNode) => {
   if (isVText(vNode)) {
     const textFragment = buildTextElement(vNode.text);
     runFragment.import(textFragment);
+  } else if (attributes && attributes.type === 'picture') {
+    const { type, inlineOrAnchored, ...otherAttributes } = attributes;
+    // eslint-disable-next-line no-use-before-define
+    const imageFragment = buildDrawing(inlineOrAnchored, type, otherAttributes);
+    runFragment.import(imageFragment);
   }
   runFragment.up();
 
@@ -189,7 +194,8 @@ const buildParagraph = (vNode, attributes) => {
     }
   } else {
     // In case paragraphs has to be rendered where vText is present. Eg. table-cell
-    const runFragment = buildRun(vNode);
+    // Or in case the vNode is something like img
+    const runFragment = buildRun(vNode, attributes);
     paragraphFragment.import(runFragment);
   }
   paragraphFragment.up();

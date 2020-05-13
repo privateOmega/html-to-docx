@@ -51,11 +51,14 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
           'image',
           `media/${response.fileNameWithExtension}`
         );
-        const imageFragment = xmlBuilder.buildDrawing(false, 'picture', {
+        const imageFragment = xmlBuilder.buildParagraph(vNode, {
+          type: 'picture',
+          inlineOrAnchored: false,
           relationshipId: documentRelsId,
           ...response,
         });
         xmlFragment.import(imageFragment);
+        console.log(imageFragment.toString({ prettyPrint: true }));
       }
       return;
     default:
