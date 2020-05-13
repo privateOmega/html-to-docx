@@ -356,11 +356,11 @@ const buildBinaryLargeImageOrPicture = (relationshipId) => {
   return binaryLargeImageOrPictureFragment;
 };
 
-const buildBinaryLargeImageOrPictureFill = () => {
+const buildBinaryLargeImageOrPictureFill = (relationshipId) => {
   const binaryLargeImageOrPictureFillFragment = fragment({
     namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'blipFill');
-  const binaryLargeImageOrPictureFragment = buildBinaryLargeImageOrPicture();
+  const binaryLargeImageOrPictureFragment = buildBinaryLargeImageOrPicture(relationshipId);
   binaryLargeImageOrPictureFillFragment.import(binaryLargeImageOrPictureFragment);
   binaryLargeImageOrPictureFillFragment.up();
 
@@ -380,8 +380,8 @@ const buildNonVisualPictureDrawingProperties = () => {
 const buildNonVisualDrawingProperties = (
   pictureId,
   pictureNameWithExtension,
-  pictureTitle,
-  pictureDescription
+  pictureTitle = '',
+  pictureDescription = ''
 ) => {
   const nonVisualDrawingPropertiesFragment = fragment({
     namespaceAlias: { pic: namespaces.pic },
@@ -397,12 +397,22 @@ const buildNonVisualDrawingProperties = (
   return nonVisualDrawingPropertiesFragment;
 };
 
-const buildNonVisualPictureProperties = () => {
+const buildNonVisualPictureProperties = (
+  pictureId,
+  pictureNameWithExtension,
+  pictureTitle,
+  pictureDescription
+) => {
   const nonVisualPicturePropertiesFragment = fragment({
     namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'nvPicPr');
   // TODO: Handle picture attributes
-  const nonVisualDrawingPropertiesFragment = buildNonVisualDrawingProperties();
+  const nonVisualDrawingPropertiesFragment = buildNonVisualDrawingProperties(
+    pictureId,
+    pictureNameWithExtension,
+    pictureTitle,
+    pictureDescription
+  );
   nonVisualPicturePropertiesFragment.import(nonVisualDrawingPropertiesFragment);
   const nonVisualPictureDrawingPropertiesFragment = buildNonVisualPictureDrawingProperties();
   nonVisualPicturePropertiesFragment.import(nonVisualPictureDrawingPropertiesFragment);
@@ -411,13 +421,18 @@ const buildNonVisualPictureProperties = () => {
   return nonVisualPicturePropertiesFragment;
 };
 
-const buildPicture = () => {
+const buildPicture = ({ id, fileNameWithExtension, title, description, relationshipId }) => {
   const pictureFragment = fragment({
     namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'pic');
-  const nonVisualPicturePropertiesFragment = buildNonVisualPictureProperties();
+  const nonVisualPicturePropertiesFragment = buildNonVisualPictureProperties(
+    id,
+    fileNameWithExtension,
+    title,
+    description
+  );
   pictureFragment.import(nonVisualPicturePropertiesFragment);
-  const binaryLargeImageOrPictureFill = buildBinaryLargeImageOrPictureFill();
+  const binaryLargeImageOrPictureFill = buildBinaryLargeImageOrPictureFill(relationshipId);
   pictureFragment.import(binaryLargeImageOrPictureFill);
   const shapeProperties = buildShapeProperties();
   pictureFragment.import(shapeProperties);
@@ -426,65 +441,66 @@ const buildPicture = () => {
   return pictureFragment;
 };
 
-const buildGraphicData = (type) => {
+const buildGraphicData = (graphicType, attributes) => {
   const graphicDataFragment = fragment({
     namespaceAlias: {
       a: namespaces.a,
     },
   }).ele('@a', 'graphicData');
-  if (type === 'picture') {
-    const pictureFragment = buildPicture();
-    pictureFragment.import(graphicDataFragment);
+  if (graphicType === 'picture') {
+    const pictureFragment = buildPicture(attributes);
+    graphicDataFragment.import(pictureFragment);
   }
   graphicDataFragment.up();
 
   return graphicDataFragment;
 };
 
-const buildGraphic = () => {
+const buildGraphic = (graphicType, attributes) => {
   const graphicFragment = fragment({
     namespaceAlias: {
       a: namespaces.a,
     },
   }).ele('@a', 'graphic');
   // TODO: Handle drawing type
-  const graphicDataFragment = buildGraphicData();
+  const graphicDataFragment = buildGraphicData(graphicType, attributes);
   graphicFragment.import(graphicDataFragment);
   graphicFragment.up();
 
   return graphicFragment;
 };
 
-const buildAnchoredDrawing = () => {
+const buildAnchoredDrawing = (graphicType, attributes) => {
   const anchoredDrawingFragment = fragment({
     namespaceAlias: {
       wp: namespaces.wp,
     },
   }).ele('@wp', 'anchor');
-  const graphicFragment = buildGraphic();
+  const graphicFragment = buildGraphic(graphicType, attributes);
   anchoredDrawingFragment.import(graphicFragment);
 
   return anchoredDrawingFragment;
 };
 
-const buildInlineDrawing = () => {
+const buildInlineDrawing = (graphicType, attributes) => {
   const inlineDrawingFragment = fragment({
     namespaceAlias: {
       wp: namespaces.wp,
     },
   }).ele('@wp', 'inline');
-  const graphicFragment = buildGraphic();
+  const graphicFragment = buildGraphic(graphicType, attributes);
   inlineDrawingFragment.import(graphicFragment);
 
   return inlineDrawingFragment;
 };
 
-const buildDrawing = (vNode, type, attributes) => {
+const buildDrawing = (float = false, graphicType, attributes) => {
   const drawingFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'drawing');
-  const inlineOrAnchoredDrawingFragment =
-    type === 'inline' ? buildInlineDrawing() : buildAnchoredDrawing();
+  const inlineOrAnchoredDrawingFragment = float
+    ? buildAnchoredDrawing(graphicType, attributes)
+    : buildInlineDrawing(graphicType, attributes);
   drawingFragment.import(inlineOrAnchoredDrawingFragment);
   drawingFragment.up();
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { fragment } from 'xmlbuilder2';
 
 import * as xmlBuilder from './xml-builder';
@@ -16,18 +17,15 @@ const convertHTML = require('html-to-vdom')({
 function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
   switch (vNode.tagName) {
     case 'p':
-      // eslint-disable-next-line no-case-declarations
       const paragraphFragment = xmlBuilder.buildParagraph(vNode);
       xmlFragment.import(paragraphFragment);
       return;
     case 'table':
-      // eslint-disable-next-line no-case-declarations
       const tableFragment = xmlBuilder.buildTable(vNode);
       xmlFragment.import(tableFragment);
       return;
     case 'ol':
     case 'ul':
-      // eslint-disable-next-line no-case-declarations
       const numberingId = docxDocumentInstance.createNumbering(vNode.tagName === 'ol');
       // eslint-disable-next-line no-plusplus
       for (let index = 0; index < vNode.children.length; index++) {
@@ -41,7 +39,25 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         }
       }
       return;
-
+    case 'img':
+      let response = null;
+      try {
+        response = docxDocumentInstance.createMediaFile(vNode.properties.src);
+      } catch (error) {
+        // NOOP
+      }
+      if (response) {
+        const documentRelsId = docxDocumentInstance.createDocumentRelationships(
+          'image',
+          `media/${response.fileNameWithExtension}`
+        );
+        const imageFragment = xmlBuilder.buildDrawing(false, 'picture', {
+          relationshipId: documentRelsId,
+          ...response,
+        });
+        xmlFragment.import(imageFragment);
+      }
+      return;
     default:
       break;
   }
