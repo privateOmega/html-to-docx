@@ -58,7 +58,6 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
           ...response,
         });
         xmlFragment.import(imageFragment);
-        console.log(imageFragment.toString({ prettyPrint: true }));
       }
       return;
     default:

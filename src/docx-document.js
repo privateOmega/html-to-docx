@@ -212,7 +212,7 @@ class DocxDocument {
       default:
         break;
     }
-    this.numberingObjects.push({
+    this.documentRelsObjects.push({
       relationshipId: this.lastDocumentRelsId,
       type: relationshipType,
       target,
