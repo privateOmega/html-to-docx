@@ -58,7 +58,7 @@ class DocxDocument {
     this.modifiedAt = modifiedAt || new Date();
 
     this.lastNumberingId = 0;
-    this.lastDocumentRelsId = 0;
+    this.lastDocumentRelsId = 2;
     this.lastMediaId = 0;
     this.stylesObjects = [];
     this.numberingObjects = [];
@@ -83,17 +83,22 @@ class DocxDocument {
   }
 
   generateCoreXML() {
-    return generateCoreXML(
-      this.title,
-      this.subject,
-      this.creator,
-      this.keywords,
-      this.description,
-      this.lastModifiedBy,
-      this.revision,
-      this.createdAt,
-      this.modifiedAt
+    const coreXML = create(
+      { encoding: 'UTF-8', standalone: true },
+      generateCoreXML(
+        this.title,
+        this.subject,
+        this.creator,
+        this.keywords,
+        this.description,
+        this.lastModifiedBy,
+        this.revision,
+        this.createdAt,
+        this.modifiedAt
+      )
     );
+
+    return coreXML.toString({ prettyPrint: true });
   }
 
   generateDocumentXML() {
@@ -108,10 +113,9 @@ class DocxDocument {
 
   // eslint-disable-next-line class-methods-use-this
   generateStylesXML() {
-    // TODO: Convert styles array into appropriate XML
-    const stylingInstancesXML = '';
+    const stylesXML = create({ encoding: 'UTF-8', standalone: true }, generateStylesXML());
 
-    return generateStylesXML(stylingInstancesXML);
+    return stylesXML.toString({ prettyPrint: true });
   }
 
   generateNumberingXML() {

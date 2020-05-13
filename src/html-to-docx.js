@@ -1,3 +1,5 @@
+import { create } from 'xmlbuilder2';
+
 import { contentTypesXML, relsXML } from './schemas';
 import DocxDocument from './docx-document';
 
@@ -17,9 +19,27 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions) {
   const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
   docxDocument.convert();
 
-  zip.file('[Content_Types].xml', Buffer.from(contentTypesXML, 'utf-8'), { createFolders: false });
+  zip.file(
+    '[Content_Types].xml',
+    Buffer.from(
+      create({ encoding: 'UTF-8', standalone: true }, contentTypesXML).toString({
+        prettyPrint: true,
+      }),
+      'utf-8'
+    ),
+    { createFolders: false }
+  );
 
-  zip.folder('_rels').file('.rels', Buffer.from(relsXML, 'utf-8'), { createFolders: false });
+  zip
+    .folder('_rels')
+    .file(
+      '.rels',
+      Buffer.from(
+        create({ encoding: 'UTF-8', standalone: true }, relsXML).toString({ prettyPrint: true }),
+        'utf-8'
+      ),
+      { createFolders: false }
+    );
 
   zip.folder('docProps').file('core.xml', Buffer.from(docxDocument.generateCoreXML(), 'utf-8'), {
     createFolders: false,
