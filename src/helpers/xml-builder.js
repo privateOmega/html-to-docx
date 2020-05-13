@@ -1,12 +1,15 @@
 /* eslint-disable no-unused-vars */
 import { fragment } from 'xmlbuilder2';
 
+// eslint-disable-next-line import/no-named-default
+import { default as namespaces } from './namespaces';
+
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
 
 const buildBold = () => {
   const boldFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'b')
     .up();
@@ -16,7 +19,7 @@ const buildBold = () => {
 
 const buildItalics = () => {
   const italicsFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'i')
     .up();
@@ -26,7 +29,7 @@ const buildItalics = () => {
 
 const buildUnderline = () => {
   const underlineFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'u')
     .up();
@@ -36,7 +39,7 @@ const buildUnderline = () => {
 
 const buildLineBreak = () => {
   const lineBreakFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'br')
     .up();
@@ -46,7 +49,7 @@ const buildLineBreak = () => {
 
 const buildTextElement = (text) => {
   const textFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 't')
     .txt(text)
@@ -57,7 +60,7 @@ const buildTextElement = (text) => {
 
 const buildRunProperties = () => {
   const runPropertiesFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'rPr');
   // TODO: Add styles within it
   runPropertiesFragment.up();
@@ -67,7 +70,7 @@ const buildRunProperties = () => {
 
 const buildRun = (vNode) => {
   const runFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties();
   runFragment.import(runPropertiesFragment);
@@ -82,7 +85,7 @@ const buildRun = (vNode) => {
 
 const buildNumberingProperties = (levelId, numberingId) => {
   const numberingPropertiesFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'numPr')
     .ele('@w', 'ilvl')
@@ -98,7 +101,7 @@ const buildNumberingProperties = (levelId, numberingId) => {
 
 const buildNumberingInstances = () => {
   const numberingInstancesFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'num')
     .ele('@w', 'abstractNumId')
@@ -110,7 +113,7 @@ const buildNumberingInstances = () => {
 
 const buildSpacing = () => {
   const spacingFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'spacing')
     .up();
@@ -120,7 +123,7 @@ const buildSpacing = () => {
 
 const buildShading = (fillColorCode) => {
   const shadingFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'shd')
     // background color for text
@@ -134,7 +137,7 @@ const buildShading = (fillColorCode) => {
 
 const buildIndentation = () => {
   const indentationFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'ind')
     .up();
@@ -144,7 +147,7 @@ const buildIndentation = () => {
 
 const buildHorizontalAlignment = () => {
   const horizontalAlignmentFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'jc')
     .up();
@@ -154,7 +157,7 @@ const buildHorizontalAlignment = () => {
 
 const buildParagraphProperties = (attributes, styles) => {
   const paragraphPropertiesFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'pPr');
   if (attributes && Object.prototype.hasOwnProperty.call(attributes, 'numbering')) {
     const { levelId, numberingId } = attributes.numbering;
@@ -169,7 +172,7 @@ const buildParagraphProperties = (attributes, styles) => {
 
 const buildParagraph = (vNode, attributes) => {
   const paragraphFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'p');
   const paragraphPropertiesFragment = buildParagraphProperties(
     attributes,
@@ -196,7 +199,7 @@ const buildParagraph = (vNode, attributes) => {
 
 const buildTableCellProperties = (styles) => {
   const tableCellPropertiesFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tcPr');
   // TODO: Add styles within it
   tableCellPropertiesFragment.up();
@@ -206,7 +209,7 @@ const buildTableCellProperties = (styles) => {
 
 const buildTableCell = (vNode) => {
   const tableCellFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tc');
   const tableCellPropertiesFragment = buildTableCellProperties();
   tableCellFragment.import(tableCellPropertiesFragment);
@@ -227,7 +230,7 @@ const buildTableCell = (vNode) => {
 
 const buildTableRow = (vNode) => {
   const tableRowFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tr');
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
@@ -246,7 +249,7 @@ const buildTableRow = (vNode) => {
 
 const buildTableGridCol = () => {
   const tableGridColFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'gridCol');
 
   return tableGridColFragment;
@@ -254,7 +257,7 @@ const buildTableGridCol = () => {
 
 const buildTableGrid = (vNode) => {
   const tableGridFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tblGrid');
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
@@ -273,7 +276,7 @@ const buildTableGrid = (vNode) => {
 
 const buildTableProperties = (styles) => {
   const tablePropertiesFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tblPr');
   // TODO: Add styles within it
   tablePropertiesFragment.up();
@@ -283,7 +286,7 @@ const buildTableProperties = (styles) => {
 
 const buildTable = (vNode) => {
   const tableFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tbl');
   const tablePropertiesFragment = buildTableProperties();
   tableFragment.import(tablePropertiesFragment);
@@ -317,7 +320,7 @@ const buildTable = (vNode) => {
 const buildHyperlink = () => {
   // Relationship for external hyperlinks r:id="rId4"
   const hyperlinkFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'hyperlink');
   const runFragment = buildRun();
   hyperlinkFragment.import(runFragment);
@@ -328,7 +331,7 @@ const buildHyperlink = () => {
 
 const buildShapeProperties = () => {
   const shapeProperties = fragment({
-    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+    namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'spPr');
 
   shapeProperties.up();
@@ -339,8 +342,8 @@ const buildShapeProperties = () => {
 const buildBinaryLargeImageOrPicture = (relationshipId) => {
   const binaryLargeImageOrPictureFragment = fragment({
     namespaceAlias: {
-      a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
-      r: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+      a: namespaces.a,
+      r: namespaces.r,
     },
   })
     .ele('@a', 'blip')
@@ -355,7 +358,7 @@ const buildBinaryLargeImageOrPicture = (relationshipId) => {
 
 const buildBinaryLargeImageOrPictureFill = () => {
   const binaryLargeImageOrPictureFillFragment = fragment({
-    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+    namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'blipFill');
   const binaryLargeImageOrPictureFragment = buildBinaryLargeImageOrPicture();
   binaryLargeImageOrPictureFillFragment.import(binaryLargeImageOrPictureFragment);
@@ -366,7 +369,7 @@ const buildBinaryLargeImageOrPictureFill = () => {
 
 const buildNonVisualPictureDrawingProperties = () => {
   const nonVisualPictureDrawingPropertiesFragment = fragment({
-    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+    namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'cNvPicPr');
 
   nonVisualPictureDrawingPropertiesFragment.up();
@@ -381,7 +384,7 @@ const buildNonVisualDrawingProperties = (
   pictureDescription
 ) => {
   const nonVisualDrawingPropertiesFragment = fragment({
-    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+    namespaceAlias: { pic: namespaces.pic },
   })
     .ele('@pic', 'cNvPr')
     .att('id', pictureId)
@@ -396,7 +399,7 @@ const buildNonVisualDrawingProperties = (
 
 const buildNonVisualPictureProperties = () => {
   const nonVisualPicturePropertiesFragment = fragment({
-    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+    namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'nvPicPr');
   // TODO: Handle picture attributes
   const nonVisualDrawingPropertiesFragment = buildNonVisualDrawingProperties();
@@ -410,7 +413,7 @@ const buildNonVisualPictureProperties = () => {
 
 const buildPicture = () => {
   const pictureFragment = fragment({
-    namespaceAlias: { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' },
+    namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'pic');
   const nonVisualPicturePropertiesFragment = buildNonVisualPictureProperties();
   pictureFragment.import(nonVisualPicturePropertiesFragment);
@@ -426,7 +429,7 @@ const buildPicture = () => {
 const buildGraphicData = (type) => {
   const graphicDataFragment = fragment({
     namespaceAlias: {
-      a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
+      a: namespaces.a,
     },
   }).ele('@a', 'graphicData');
   if (type === 'picture') {
@@ -441,7 +444,7 @@ const buildGraphicData = (type) => {
 const buildGraphic = () => {
   const graphicFragment = fragment({
     namespaceAlias: {
-      a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
+      a: namespaces.a,
     },
   }).ele('@a', 'graphic');
   // TODO: Handle drawing type
@@ -455,7 +458,7 @@ const buildGraphic = () => {
 const buildAnchoredDrawing = () => {
   const anchoredDrawingFragment = fragment({
     namespaceAlias: {
-      wp: 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+      wp: namespaces.wp,
     },
   }).ele('@wp', 'anchor');
   const graphicFragment = buildGraphic();
@@ -467,7 +470,7 @@ const buildAnchoredDrawing = () => {
 const buildInlineDrawing = () => {
   const inlineDrawingFragment = fragment({
     namespaceAlias: {
-      wp: 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+      wp: namespaces.wp,
     },
   }).ele('@wp', 'inline');
   const graphicFragment = buildGraphic();
@@ -478,9 +481,8 @@ const buildInlineDrawing = () => {
 
 const buildDrawing = (vNode, type, attributes) => {
   const drawingFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'drawing');
-  // TODO: Branch if image is inline or anchored
   const inlineOrAnchoredDrawingFragment =
     type === 'inline' ? buildInlineDrawing() : buildAnchoredDrawing();
   drawingFragment.import(inlineOrAnchoredDrawingFragment);
