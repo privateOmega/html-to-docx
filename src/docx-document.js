@@ -182,7 +182,8 @@ class DocxDocument {
 
     const base64FileContent = matches[2];
     // matches array contains file type in base64 format - image/jpeg and base64 stringified data
-    const fileExtension = matches[1].match(/\/(.*?)$/)[1];
+    const fileExtension =
+      matches[1].match(/\/(.*?)$/)[1] === 'octet-stream' ? 'png' : matches[1].match(/\/(.*?)$/)[1];
     const SHA1String = crypto.createHash('sha1').update(crypto.randomBytes(20)).digest('hex');
 
     const fileNameWithExtension = `image-${SHA1String}.${fileExtension}`;
