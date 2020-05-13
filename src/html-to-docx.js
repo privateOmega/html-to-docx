@@ -14,7 +14,7 @@ const mergeOptions = (options, patch) => ({ ...options, ...patch });
 export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions) {
   const documentOptions = mergeOptions(defaultDocumentOptions, suppliedDocumentOptions);
 
-  const docxDocument = new DocxDocument({ htmlString, ...documentOptions });
+  const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
   docxDocument.convert();
 
   zip.file('[Content_Types].xml', Buffer.from(contentTypesXML, 'utf-8'), { createFolders: false });

@@ -9,6 +9,8 @@ import {
 import { renderDocumentFile } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
 
+const crypto = require('crypto');
+
 const landscapeMargins = {
   top: 1800,
   right: 1440,
@@ -25,6 +27,7 @@ const portraitMargins = {
 
 class DocxDocument {
   constructor({
+    zip,
     htmlString,
     orientation,
     margins,
@@ -38,6 +41,7 @@ class DocxDocument {
     createdAt,
     modifiedAt,
   }) {
+    this.zip = zip;
     this.htmlString = htmlString;
     this.orientation = orientation;
     this.width = orientation === 'landscape' ? 15840 : 12240;
@@ -55,9 +59,11 @@ class DocxDocument {
 
     this.lastNumberingId = 0;
     this.lastDocumentRelsId = 0;
+    this.lastMediaId = 0;
     this.stylesObjects = [];
     this.numberingObjects = [];
     this.documentRelsObjects = [];
+    this.mediaFiles = [];
     this.documentXML = null;
 
     this.convert = this.convert.bind(this);
@@ -66,6 +72,8 @@ class DocxDocument {
     this.generateStylesXML = this.generateStylesXML.bind(this);
     this.generateNumberingXML = this.generateNumberingXML.bind(this);
     this.generateDocumentRelsXML = this.generateDocumentRelsXML.bind(this);
+    this.createMediaFile = this.createMediaFile.bind(this);
+    this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
   }
 
   convert() {
@@ -164,6 +172,31 @@ class DocxDocument {
     this.numberingObjects.push({ numberingId: this.lastNumberingId, ordered });
 
     return this.lastNumberingId;
+  }
+
+  createMediaFile(base64String) {
+    const matches = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (matches.length !== 3) {
+      throw new Error('Invalid base64 string');
+    }
+
+    const base64FileContent = matches[2];
+    // matches array contains file type in base64 format - image/jpeg and base64 stringified data
+    const fileExtension = matches[1].match(/\/(.*?)$/);
+    const SHA1String = crypto.createHash('sha1').update(crypto.randomBytes(20)).digest('hex');
+
+    const fileNameWithExtension = `image-${SHA1String}.${fileExtension}`;
+
+    this.zip
+      .folder('word')
+      .folder('media')
+      .file(fileNameWithExtension, Buffer.from(base64FileContent, 'base64'), {
+        createFolders: false,
+      });
+
+    this.lastMediaId += 1;
+
+    return { id: this.lastMediaId, fileNameWithExtension };
   }
 
   createDocumentRelationships(type, target, targetMode = 'External') {
