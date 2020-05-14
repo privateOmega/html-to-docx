@@ -169,7 +169,9 @@ class DocxDocument {
     this.documentRelsObjects.forEach(
       // eslint-disable-next-line array-callback-return
       ({ relationshipId, type, target, targetMode }) => {
-        const relationshipFragment = fragment()
+        const relationshipFragment = fragment({
+          namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+        })
           .ele('Relationship')
           .att('Id', `rId${relationshipId}`)
           .att('Type', type)
@@ -225,6 +227,8 @@ class DocxDocument {
         break;
       case 'image':
         relationshipType = 'http://schemas.microsoft.com/office/2006/relationships/image';
+        // eslint-disable-next-line no-param-reassign
+        targetMode = 'Internal';
         break;
       default:
         break;
