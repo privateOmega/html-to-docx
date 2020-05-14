@@ -28,6 +28,7 @@
     "prettier": "^2.0.5"
   },
   "dependencies": {
+    "escape-html": "^1.0.3",
     "html-to-vdom": "^0.7.0",
     "jszip": "^3.4.0",
     "virtual-dom": "^2.1.1",

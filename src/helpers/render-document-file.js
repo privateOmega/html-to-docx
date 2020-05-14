@@ -1,39 +1,113 @@
+/* eslint-disable no-case-declarations */
 import { fragment } from 'xmlbuilder2';
 
-import template from '../../template/document.template';
+import * as xmlBuilder from './xml-builder';
 
 const VNode = require('virtual-dom/vnode/vnode');
 const VText = require('virtual-dom/vnode/vtext');
+const isVNode = require('virtual-dom/vnode/is-vnode');
+const isVText = require('virtual-dom/vnode/is-vtext');
+const escape = require('escape-html');
 
 const convertHTML = require('html-to-vdom')({
   VNode,
   VText,
 });
 
-// eslint-disable-next-line no-unused-vars
-function convertVTreeToXML(vNode, xmlFragment) {
-  if (!vNode) {
-    // eslint-disable-next-line no-useless-return
-    return;
+function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
+  switch (vNode.tagName) {
+    case 'p':
+      const paragraphFragment = xmlBuilder.buildParagraph(vNode);
+      xmlFragment.import(paragraphFragment);
+      return;
+    case 'table':
+      const availableDocumentSpace =
+        docxDocumentInstance.width -
+        docxDocumentInstance.margins.left -
+        docxDocumentInstance.margins.right;
+      const tableFragment = xmlBuilder.buildTable(vNode, { width: availableDocumentSpace });
+      xmlFragment.import(tableFragment);
+      return;
+    case 'ol':
+    case 'ul':
+      const numberingId = docxDocumentInstance.createNumbering(vNode.tagName === 'ol');
+      // eslint-disable-next-line no-plusplus
+      for (let index = 0; index < vNode.children.length; index++) {
+        const childVNode = vNode.children[index];
+        if (childVNode.tagName === 'li') {
+          // eslint-disable-next-line no-shadow
+          const paragraphFragment = xmlBuilder.buildParagraph(childVNode, {
+            numbering: { levelId: 0, numberingId },
+          });
+          xmlFragment.import(paragraphFragment);
+        }
+      }
+      return;
+    case 'img':
+      let response = null;
+      try {
+        response = docxDocumentInstance.createMediaFile(vNode.properties.src);
+      } catch (error) {
+        // NOOP
+      }
+      if (response) {
+        const documentRelsId = docxDocumentInstance.createDocumentRelationships(
+          'image',
+          `media/${response.fileNameWithExtension}`
+        );
+        const imageFragment = xmlBuilder.buildParagraph(vNode, {
+          type: 'picture',
+          inlineOrAnchored: false,
+          relationshipId: documentRelsId,
+          ...response,
+        });
+        xmlFragment.import(imageFragment);
+      }
+      return;
+    default:
+      break;
   }
-  // eslint-disable-next-line no-empty
-  if (vNode.type === 'VirtualText') {
+  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+    // eslint-disable-next-line no-plusplus
+    for (let index = 0; index < vNode.children.length; index++) {
+      const childVNode = vNode.children[index];
+      // eslint-disable-next-line no-use-before-define
+      convertVTreeToXML(docxDocumentInstance, childVNode, xmlFragment);
+    }
   }
 }
 
-function renderDocumentFile(documentOptions, htmlString) {
-  const { orientation, margins } = documentOptions;
-  const width = orientation === 'landscape' ? 15840 : 12240;
-  const height = orientation === 'landscape' ? 12240 : 15840;
+// eslint-disable-next-line consistent-return
+function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
+  if (!vTree) {
+    // eslint-disable-next-line no-useless-return
+    return '';
+  }
+  if (Array.isArray(vTree) && vTree.length) {
+    // eslint-disable-next-line no-plusplus
+    for (let index = 0; index < vTree.length; index++) {
+      const vNode = vTree[index];
+      convertVTreeToXML(docxDocumentInstance, vNode, xmlFragment);
+    }
+  } else if (isVNode(vTree)) {
+    findXMLEquivalent(docxDocumentInstance, vTree, xmlFragment);
+  } else if (isVText(vTree)) {
+    xmlBuilder.buildTextElement(xmlFragment, escape(String(vTree.text)));
+  }
+  return xmlFragment;
+}
 
+function renderDocumentFile(docxDocumentInstance) {
   // eslint-disable-next-line no-unused-vars
-  const vTree = convertHTML(htmlString);
+  const vTree = convertHTML(docxDocumentInstance.htmlString);
 
-  const xmlFragment = fragment();
+  const xmlFragment = fragment({
+    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+  });
 
-  const xmlString = convertVTreeToXML(vTree, xmlFragment);
+  const populatedXmlFragment = convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
 
-  return template(width, height, orientation, margins, xmlString.toString({ prettyPrint: true }));
+  return populatedXmlFragment;
 }
 
 export default renderDocumentFile;

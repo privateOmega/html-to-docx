@@ -1,12 +1,7 @@
-import {
-  contentTypesXML,
-  generateCoreXML,
-  generateDocumentRelsXML,
-  relsXML,
-  generateNumberingXML,
-  generateStylesXML,
-} from './schemas';
-import { renderDocumentFile } from './helpers';
+import { create } from 'xmlbuilder2';
+
+import { contentTypesXML, relsXML } from './schemas';
+import DocxDocument from './docx-document';
 
 const defaultDocumentOptions = {
   orientation: 'portrait',
@@ -21,23 +16,48 @@ const mergeOptions = (options, patch) => ({ ...options, ...patch });
 export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions) {
   const documentOptions = mergeOptions(defaultDocumentOptions, suppliedDocumentOptions);
 
-  zip.file('[Content_Types].xml', Buffer.from(contentTypesXML, 'utf-8'), { createFolders: false });
+  const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
+  docxDocument.convert();
 
-  zip.folder('_rels').file('.rels', Buffer.from(relsXML, 'utf-8'), { createFolders: false });
+  zip.file(
+    '[Content_Types].xml',
+    Buffer.from(
+      create({ encoding: 'UTF-8', standalone: true }, contentTypesXML).toString({
+        prettyPrint: true,
+      }),
+      'utf-8'
+    ),
+    { createFolders: false }
+  );
 
-  zip.folder('docProps').file('core.xml', Buffer.from(generateCoreXML(documentOptions), 'utf-8'), {
+  zip
+    .folder('_rels')
+    .file(
+      '.rels',
+      Buffer.from(
+        create({ encoding: 'UTF-8', standalone: true }, relsXML).toString({ prettyPrint: true }),
+        'utf-8'
+      ),
+      { createFolders: false }
+    );
+
+  zip.folder('docProps').file('core.xml', Buffer.from(docxDocument.generateCoreXML(), 'utf-8'), {
     createFolders: false,
   });
 
   zip
     .folder('word')
     // eslint-disable-next-line no-undef
-    .file('document.xml', renderDocumentFile(documentOptions, htmlString), { createFolders: false })
+    .file('document.xml', docxDocument.generateDocumentXML(), { createFolders: false })
     // eslint-disable-next-line no-undef
-    .file('styles.xml', Buffer.from(generateStylesXML(), 'utf-8'), { createFolders: false })
-    .file('numbering.xml', Buffer.from(generateNumberingXML(), 'utf-8'), { createFolders: false })
+    .file('styles.xml', Buffer.from(docxDocument.generateStylesXML(), 'utf-8'), {
+      createFolders: false,
+    })
+    .file('numbering.xml', Buffer.from(docxDocument.generateNumberingXML(), 'utf-8'), {
+      createFolders: false,
+    })
     .folder('_rels')
-    .file('document.xml.res', Buffer.from(generateDocumentRelsXML(), 'utf-8'), {
+    .file('document.xml.res', Buffer.from(docxDocument.generateDocumentRelsXML(), 'utf-8'), {
       createFolders: false,
     });
 

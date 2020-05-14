@@ -1,11 +1,12 @@
-const generateDocumentRelsXML = (documentRelationshipsXML = '') => {
+const generateDocumentRelsXMLTemplate = () => {
   return `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
         <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-            ${documentRelationshipsXML}
+          <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>
+          <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
         </Relationships>
     `;
 };
 
-export default generateDocumentRelsXML;
+export default generateDocumentRelsXMLTemplate;
