@@ -1,13 +1,3 @@
-export const defaultMargins = {
-  top: 1440,
-  right: 1440,
-  bottom: 1440,
-  left: 1440,
-  header: 720,
-  footer: 720,
-  gutter: 0,
-};
-
 const generateDocumentTemplate = (width, height, orientation, margins) => {
   return `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>

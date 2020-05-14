@@ -16,6 +16,9 @@ const landscapeMargins = {
   right: 1440,
   bottom: 1800,
   left: 1440,
+  header: 720,
+  footer: 720,
+  gutter: 0,
 };
 
 const portraitMargins = {
@@ -23,6 +26,9 @@ const portraitMargins = {
   right: 1800,
   bottom: 1440,
   left: 1800,
+  header: 720,
+  footer: 720,
+  gutter: 0,
 };
 
 class DocxDocument {
@@ -46,7 +52,13 @@ class DocxDocument {
     this.orientation = orientation;
     this.width = orientation === 'landscape' ? 15840 : 12240;
     this.height = orientation === 'landscape' ? 12240 : 15840;
-    this.margins = margins || orientation === 'landscape' ? landscapeMargins : portraitMargins;
+    this.margins =
+      // eslint-disable-next-line no-nested-ternary
+      margins && Object.keys(margins).length
+        ? margins
+        : orientation === 'landscape'
+        ? landscapeMargins
+        : portraitMargins;
     this.title = title || '';
     this.subject = subject || '';
     this.creator = creator || 'html-to-docx';
