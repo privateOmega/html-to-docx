@@ -21,7 +21,11 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       xmlFragment.import(paragraphFragment);
       return;
     case 'table':
-      const tableFragment = xmlBuilder.buildTable(vNode);
+      const availableDocumentSpace =
+        docxDocumentInstance.width -
+        docxDocumentInstance.margins.left -
+        docxDocumentInstance.margins.right;
+      const tableFragment = xmlBuilder.buildTable(vNode, { width: availableDocumentSpace });
       xmlFragment.import(tableFragment);
       return;
     case 'ol':

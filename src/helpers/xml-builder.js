@@ -228,6 +228,14 @@ const buildTableCell = (vNode) => {
         tableCellFragment.import(paragraphFragment);
       }
     }
+  } else {
+    // TODO: Figure out why building with buildParagraph() isn't working
+    const paragraphFragment = fragment({
+      namespaceAlias: { w: namespaces.w },
+    })
+      .ele('@w', 'p')
+      .up();
+    tableCellFragment.import(paragraphFragment);
   }
   tableCellFragment.up();
 
@@ -253,26 +261,27 @@ const buildTableRow = (vNode) => {
   return tableRowFragment;
 };
 
-const buildTableGridCol = () => {
+const buildTableGridCol = (gridWidth) => {
   const tableGridColFragment = fragment({
     namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'gridCol');
+  })
+    .ele('@w', 'gridCol')
+    .att('@w', 'w', String(gridWidth));
 
   return tableGridColFragment;
 };
 
-const buildTableGrid = (vNode) => {
+const buildTableGrid = (vNode, attributes) => {
   const tableGridFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tblGrid');
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+    const gridColumns = vNode.children.filter((childVNode) => childVNode.tagName === 'col');
+    const gridWidth = attributes.width / gridColumns.length;
     // eslint-disable-next-line no-plusplus
-    for (let index = 0; index < vNode.children.length; index++) {
-      const childVNode = vNode.children[index];
-      if (childVNode.tagName === 'col') {
-        const tableGridColFragment = buildTableGridCol();
-        tableGridFragment.import(tableGridColFragment);
-      }
+    for (let index = 0; index < gridColumns.length; index++) {
+      const tableGridColFragment = buildTableGridCol(gridWidth);
+      tableGridFragment.import(tableGridColFragment);
     }
   }
   tableGridFragment.up();
@@ -290,7 +299,7 @@ const buildTableProperties = (styles) => {
   return tablePropertiesFragment;
 };
 
-const buildTable = (vNode) => {
+const buildTable = (vNode, attributes) => {
   const tableFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tbl');
@@ -301,7 +310,7 @@ const buildTable = (vNode) => {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'colgroup') {
-        const tableGridFragment = buildTableGrid(childVNode);
+        const tableGridFragment = buildTableGrid(childVNode, attributes);
         tableFragment.import(tableGridFragment);
       } else if (childVNode.tagName === 'tbody') {
         // eslint-disable-next-line no-plusplus
