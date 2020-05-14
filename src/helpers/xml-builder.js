@@ -58,10 +58,29 @@ const buildTextElement = (text) => {
   return textFragment;
 };
 
-const buildRunProperties = () => {
+const buildRunProperties = (attributes) => {
   const runPropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'rPr');
+  if (attributes && attributes.type) {
+    switch (attributes.type) {
+      case 'strong':
+        runPropertiesFragment.ele('@w', 'b').up();
+        break;
+      case 'i':
+        runPropertiesFragment.ele('@w', 'i').up();
+        break;
+      case 'u':
+        runPropertiesFragment.ele('@w', 'u').att('@w', 'val', 'single').up();
+        break;
+      case 'color':
+        runPropertiesFragment.ele('@w', 'color').att('@w', 'val', attributes.value);
+        break;
+      default:
+        break;
+    }
+  }
+
   // TODO: Add styles within it
   runPropertiesFragment.up();
 
@@ -72,8 +91,9 @@ const buildRun = (vNode, attributes) => {
   const runFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
-  const runPropertiesFragment = buildRunProperties();
+  const runPropertiesFragment = buildRunProperties(attributes);
   runFragment.import(runPropertiesFragment);
+
   if (isVText(vNode)) {
     const textFragment = buildTextElement(vNode.text);
     runFragment.import(textFragment);
@@ -189,7 +209,7 @@ const buildParagraph = (vNode, attributes) => {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       // FIXME: Handle <span>
-      const runFragment = buildRun(childVNode);
+      const runFragment = buildRun(childVNode, attributes);
       paragraphFragment.import(runFragment);
     }
   } else {
