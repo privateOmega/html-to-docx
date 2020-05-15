@@ -53,7 +53,8 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       if (response) {
         const documentRelsId = docxDocumentInstance.createDocumentRelationships(
           'image',
-          `media/${response.fileNameWithExtension}`
+          `media/${response.fileNameWithExtension}`,
+          'Internal'
         );
         const imageFragment = xmlBuilder.buildParagraph(vNode, {
           type: 'picture',
@@ -78,7 +79,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
 }
 
 // eslint-disable-next-line consistent-return
-function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
+export function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
   if (!vTree) {
     // eslint-disable-next-line no-useless-return
     return '';

@@ -13,10 +13,10 @@ const mergeOptions = (options, patch) => ({ ...options, ...patch });
 // Ref: https://en.wikipedia.org/wiki/Office_Open_XML_file_formats
 // http://officeopenxml.com/anatomyofOOXML.php
 // eslint-disable-next-line import/prefer-default-export
-export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions) {
+export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, headerHTMLString) {
   const documentOptions = mergeOptions(defaultDocumentOptions, suppliedDocumentOptions);
 
-  const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
+  const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions, headerHTMLString });
   docxDocument.convert();
 
   zip.file(
@@ -44,6 +44,10 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions) {
   zip.folder('docProps').file('core.xml', Buffer.from(docxDocument.generateCoreXML(), 'utf-8'), {
     createFolders: false,
   });
+
+  if (headerHTMLString) {
+    docxDocument.generateHeaderXML();
+  }
 
   zip
     .folder('word')
