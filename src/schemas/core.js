@@ -14,11 +14,13 @@ const generateCoreXML = (
   return `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-        <cp:coreProperties xmlns:cp="${namespaces.coreProperties}" xmlns:dc="${
-    namespaces.dc
-  }" xmlns:dcterms="${namespaces.dcterms}" xmlns:dcmitype="${namespaces.dcmitype}" xmlns:xsi="${
-    namespaces.xsi
-  }">
+        <cp:coreProperties
+          xmlns:cp="${namespaces.coreProperties}"
+          xmlns:dc="${namespaces.dc}"
+          xmlns:dcterms="${namespaces.dcterms}"
+          xmlns:dcmitype="${namespaces.dcmitype}"
+          xmlns:xsi="${namespaces.xsi}"
+          >
             <dc:title>${title}</dc:title>
             <dc:subject>${subject}</dc:subject>
             <dc:creator>${creator}</dc:creator>

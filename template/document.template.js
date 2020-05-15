@@ -1,9 +1,24 @@
+import { namespaces } from '../src/helpers';
+
 const generateDocumentTemplate = (width, height, orientation, margins) => {
   return `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
     <w:document
-        xmlns:w="http://purl.oclc.org/ooxml/wordprocessingml/main">
+        xmlns:a="${namespaces.a}"
+        xmlns:cp="${namespaces.cp}"
+        xmlns:cdr="${namespaces.cdr}"
+        xmlns:o="${namespaces.o}"
+        xmlns:pic="${namespaces.pic}"
+        xmlns:r="${namespaces.r}"
+        xmlns:sl="${namespaces.sl}"
+        xmlns:v="${namespaces.v}"
+        xmlns:ve="${namespaces.ve}"
+        xmlns:vt="${namespaces.vt}"
+        xmlns:w="${namespaces.w}"
+        xmlns:w10="${namespaces.w10}"
+        xmlns:wp="${namespaces.wp}"
+        >
         <w:body>
             <w:sectPr>
                 <w:pgSz w:w="${width}" w:h="${height}" w:orient="${orientation}" />
