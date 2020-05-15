@@ -6,10 +6,16 @@ import {
   generateNumberingXMLTemplate,
   generateDocumentRelsXMLTemplate,
 } from './schemas';
-import { renderDocumentFile } from './helpers';
+import { renderDocumentFile, convertVTreeToXML } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
 
 const crypto = require('crypto');
+const VNode = require('virtual-dom/vnode/vnode');
+const VText = require('virtual-dom/vnode/vtext');
+const convertHTML = require('html-to-vdom')({
+  VNode,
+  VText,
+});
 
 const landscapeMargins = {
   top: 1800,
@@ -46,6 +52,8 @@ class DocxDocument {
     revision,
     createdAt,
     modifiedAt,
+    headerHTMLString,
+    headerType,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -68,14 +76,18 @@ class DocxDocument {
     this.revision = revision || 1;
     this.createdAt = createdAt || new Date();
     this.modifiedAt = modifiedAt || new Date();
+    this.headerHTMLString = headerHTMLString;
+    this.headerType = headerType || 'default';
 
     this.lastNumberingId = 0;
     this.lastDocumentRelsId = 2;
     this.lastMediaId = 0;
+    this.lastHeaderId = 0;
     this.stylesObjects = [];
     this.numberingObjects = [];
     this.documentRelsObjects = [];
     this.mediaFiles = [];
+    this.headerObjects = [];
     this.documentXML = null;
 
     this.convert = this.convert.bind(this);
@@ -86,6 +98,7 @@ class DocxDocument {
     this.generateDocumentRelsXML = this.generateDocumentRelsXML.bind(this);
     this.createMediaFile = this.createMediaFile.bind(this);
     this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
+    this.generateHeaderXML = this.generateHeaderXML.bind(this);
   }
 
   convert() {
@@ -119,6 +132,34 @@ class DocxDocument {
       generateDocumentTemplate(this.width, this.height, this.orientation, this.margins)
     );
     documentXML.root().first().import(this.documentXML);
+
+    if (this.headerObjects && Array.isArray(this.headerObjects) && this.headerObjects.length) {
+      const headerXmlFragment = fragment({
+        namespaceAlias: {
+          w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+          r: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+        },
+      });
+
+      this.headerObjects.forEach(
+        // eslint-disable-next-line array-callback-return
+        ({ relationshipId, type }) => {
+          const headerFragment = fragment({
+            namespaceAlias: {
+              w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+              r: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+            },
+          })
+            .ele('@w', 'headerReference')
+            .att('@r', 'id', `rId${relationshipId}`)
+            .att('@w', 'type', type)
+            .up();
+          headerXmlFragment.import(headerFragment);
+        }
+      );
+
+      documentXML.root().first().first().import(headerXmlFragment);
+    }
 
     return documentXML.toString({ prettyPrint: true });
   }
@@ -227,8 +268,9 @@ class DocxDocument {
         break;
       case 'image':
         relationshipType = 'http://schemas.microsoft.com/office/2006/relationships/image';
-        // eslint-disable-next-line no-param-reassign
-        targetMode = 'Internal';
+        break;
+      case 'header':
+        relationshipType = 'http://purl.oclc.org/ooxml/officeDocument/relationships/header';
         break;
       default:
         break;
@@ -241,6 +283,40 @@ class DocxDocument {
     });
 
     return this.lastDocumentRelsId;
+  }
+
+  generateHeaderXML(type = 'default') {
+    const vTree = convertHTML(this.headerHTMLString);
+
+    const headerXML = create({
+      encoding: 'UTF-8',
+      standalone: true,
+    });
+    headerXML.ele('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'hdr');
+
+    const XMLFragment = fragment();
+    convertVTreeToXML(this, vTree, XMLFragment);
+    headerXML.root().import(XMLFragment);
+
+    this.lastHeaderId += 1;
+
+    const relationshipId = this.createDocumentRelationships(
+      'header',
+      `header${this.lastHeaderId}.xml`,
+      'Internal'
+    );
+
+    this.zip
+      .folder('word')
+      .file(
+        `header${this.lastHeaderId}.xml`,
+        Buffer.from(headerXML.toString({ prettyPrint: true }), 'utf-8'),
+        {
+          createFolders: false,
+        }
+      );
+
+    this.headerObjects.push({ headerId: this.lastHeaderId, relationshipId, type });
   }
 }
 
