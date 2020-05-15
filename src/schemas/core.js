@@ -1,3 +1,5 @@
+import { namespaces } from '../helpers';
+
 const generateCoreXML = (
   title = '',
   subject = '',
@@ -12,7 +14,11 @@ const generateCoreXML = (
   return `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-        <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <cp:coreProperties xmlns:cp="${namespaces.coreProperties}" xmlns:dc="${
+    namespaces.dc
+  }" xmlns:dcterms="${namespaces.dcterms}" xmlns:dcmitype="${namespaces.dcmitype}" xmlns:xsi="${
+    namespaces.xsi
+  }">
             <dc:title>${title}</dc:title>
             <dc:subject>${subject}</dc:subject>
             <dc:creator>${creator}</dc:creator>

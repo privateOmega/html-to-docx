@@ -2,6 +2,7 @@
 import { fragment } from 'xmlbuilder2';
 
 import * as xmlBuilder from './xml-builder';
+import namespaces from './namespaces';
 
 const VNode = require('virtual-dom/vnode/vnode');
 const VText = require('virtual-dom/vnode/vtext');
@@ -103,7 +104,7 @@ function renderDocumentFile(docxDocumentInstance) {
   const vTree = convertHTML(docxDocumentInstance.htmlString);
 
   const xmlFragment = fragment({
-    namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+    namespaceAlias: { w: namespaces.w },
   });
 
   const populatedXmlFragment = convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);

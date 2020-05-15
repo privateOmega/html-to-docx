@@ -1,8 +1,10 @@
+import { namespaces } from '../helpers';
+
 const generateNumberingXMLTemplate = () => {
   return `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-        <w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:numbering xmlns:w="${namespaces.w}">
             <w:abstractNum w:abstractNumId="1">
                 <w:nsid w:val="FFFFFF7F" />
                 <w:multiLevelType w:val="singleLevel" />
