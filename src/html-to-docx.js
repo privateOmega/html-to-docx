@@ -61,7 +61,7 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
       createFolders: false,
     })
     .folder('_rels')
-    .file('document.xml.res', Buffer.from(docxDocument.generateDocumentRelsXML(), 'utf-8'), {
+    .file('document.xml.rels', Buffer.from(docxDocument.generateDocumentRelsXML(), 'utf-8'), {
       createFolders: false,
     });
 

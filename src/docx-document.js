@@ -6,7 +6,7 @@ import {
   generateNumberingXMLTemplate,
   generateDocumentRelsXMLTemplate,
 } from './schemas';
-import { renderDocumentFile, convertVTreeToXML } from './helpers';
+import { renderDocumentFile, convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
 
 const crypto = require('crypto');
@@ -134,20 +134,15 @@ class DocxDocument {
     documentXML.root().first().import(this.documentXML);
 
     if (this.headerObjects && Array.isArray(this.headerObjects) && this.headerObjects.length) {
-      const headerXmlFragment = fragment({
-        namespaceAlias: {
-          w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
-          r: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
-        },
-      });
+      const headerXmlFragment = fragment();
 
       this.headerObjects.forEach(
         // eslint-disable-next-line array-callback-return
         ({ relationshipId, type }) => {
           const headerFragment = fragment({
             namespaceAlias: {
-              w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
-              r: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+              w: namespaces.w,
+              r: namespaces.r,
             },
           })
             .ele('@w', 'headerReference')
@@ -177,15 +172,13 @@ class DocxDocument {
       generateNumberingXMLTemplate()
     );
 
-    const xmlFragment = fragment({
-      namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
-    });
+    const xmlFragment = fragment();
 
     this.numberingObjects.forEach(
       // eslint-disable-next-line array-callback-return
       ({ numberingId, ordered }) => {
         const numberingFragment = fragment({
-          namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
+          namespaceAlias: { w: namespaces.w },
         })
           .ele('@w', 'num')
           .att('@w', 'numId', String(numberingId))
@@ -210,9 +203,7 @@ class DocxDocument {
     this.documentRelsObjects.forEach(
       // eslint-disable-next-line array-callback-return
       ({ relationshipId, type, target, targetMode }) => {
-        const relationshipFragment = fragment({
-          namespaceAlias: { w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' },
-        })
+        const relationshipFragment = fragment()
           .ele('Relationship')
           .att('Id', `rId${relationshipId}`)
           .att('Type', type)
@@ -264,13 +255,13 @@ class DocxDocument {
     let relationshipType;
     switch (type) {
       case 'hyperlink':
-        relationshipType = 'http://schemas.microsoft.com/office/2006/relationships/hyperlink';
+        relationshipType = namespaces.hyperlinks;
         break;
       case 'image':
-        relationshipType = 'http://schemas.microsoft.com/office/2006/relationships/image';
+        relationshipType = namespaces.images;
         break;
       case 'header':
-        relationshipType = 'http://purl.oclc.org/ooxml/officeDocument/relationships/header';
+        relationshipType = namespaces.headers;
         break;
       default:
         break;
@@ -292,7 +283,7 @@ class DocxDocument {
       encoding: 'UTF-8',
       standalone: true,
     });
-    headerXML.ele('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'hdr');
+    headerXML.ele(namespaces.w, 'hdr');
 
     const XMLFragment = fragment();
     convertVTreeToXML(this, vTree, XMLFragment);
