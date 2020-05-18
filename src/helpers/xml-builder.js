@@ -595,7 +595,15 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
     namespaceAlias: {
       wp: namespaces.wp,
     },
-  }).ele('@wp', 'anchor');
+  })
+    .ele('@wp', 'anchor')
+    .att('allowOverlap', 'false')
+    .att('behindDoc', 'false')
+    .att('distB', '0')
+    .att('distL', '0')
+    .att('distR', '0')
+    .att('distT', '0')
+    .att('hidden', 'false');
 
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
@@ -604,6 +612,8 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
   anchoredDrawingFragment.import(drawingObjectNonVisualPropertiesFragment);
   const graphicFragment = buildGraphic(graphicType, attributes);
   anchoredDrawingFragment.import(graphicFragment);
+
+  anchoredDrawingFragment.up();
 
   return anchoredDrawingFragment;
 };
@@ -623,6 +633,8 @@ const buildInlineDrawing = (graphicType, attributes) => {
   const graphicFragment = buildGraphic(graphicType, attributes);
   inlineDrawingFragment.import(graphicFragment);
 
+  inlineDrawingFragment.up();
+
   return inlineDrawingFragment;
 };
 
@@ -631,8 +643,8 @@ const buildDrawing = (float = false, graphicType, attributes) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'drawing');
   const inlineOrAnchoredDrawingFragment = float
-    ? buildAnchoredDrawing(graphicType, attributes)
-    : buildInlineDrawing(graphicType, attributes);
+    ? buildInlineDrawing(graphicType, attributes)
+    : buildAnchoredDrawing(graphicType, attributes);
   drawingFragment.import(inlineOrAnchoredDrawingFragment);
   drawingFragment.up();
 
