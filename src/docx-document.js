@@ -5,6 +5,8 @@ import {
   generateStylesXML,
   generateNumberingXMLTemplate,
   documentRelsXML as documentRelsXMLString,
+  settingsXML as settingsXMLString,
+  webSettingsXML as webSettingsXMLString,
 } from './schemas';
 import { renderDocumentFile, convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
@@ -157,6 +159,20 @@ class DocxDocument {
     }
 
     return documentXML.toString({ prettyPrint: true });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  generateSettingsXML() {
+    const settingsXML = create({ encoding: 'UTF-8', standalone: true }, settingsXMLString);
+
+    return settingsXML.toString({ prettyPrint: true });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  generateWebSettingsXML() {
+    const webSettingsXML = create({ encoding: 'UTF-8', standalone: true }, webSettingsXMLString);
+
+    return webSettingsXML.toString({ prettyPrint: true });
   }
 
   // eslint-disable-next-line class-methods-use-this

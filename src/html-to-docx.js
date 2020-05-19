@@ -60,6 +60,12 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
     .file('numbering.xml', Buffer.from(docxDocument.generateNumberingXML(), 'utf-8'), {
       createFolders: false,
     })
+    .file('settings.xml', Buffer.from(docxDocument.generateSettingsXML(), 'utf-8'), {
+      createFolders: false,
+    })
+    .file('webSettings.xml', Buffer.from(docxDocument.generateWebSettingsXML(), 'utf-8'), {
+      createFolders: false,
+    })
     .folder('_rels')
     .file('document.xml.rels', Buffer.from(docxDocument.generateDocumentRelsXML(), 'utf-8'), {
       createFolders: false,
