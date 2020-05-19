@@ -216,7 +216,9 @@ class DocxDocument {
     this.documentRelsObjects.forEach(
       // eslint-disable-next-line array-callback-return
       ({ relationshipId, type, target, targetMode }) => {
-        const relationshipFragment = fragment()
+        const relationshipFragment = fragment({
+          defaultNamespace: { ele: 'http://schemas.openxmlformats.org/package/2006/relationships' },
+        })
           .ele('Relationship')
           .att('Id', `rId${relationshipId}`)
           .att('Type', type)
