@@ -13,7 +13,7 @@ const generateNumberingXMLTemplate = () => {
         xmlns:wp="${namespaces.wp}"
         xmlns:w10="${namespaces.w10}"
         xmlns:wne="${namespaces.wne}">
-            <w:abstractNum w:abstractNumId="1">
+            <w:abstractNum w:abstractNumId="0">
                 <w:nsid w:val="FFFFFF7F" />
                 <w:multiLevelType w:val="singleLevel" />
                 <w:lvl w:ilvl="0">
@@ -29,7 +29,7 @@ const generateNumberingXMLTemplate = () => {
                     </w:pPr>
                 </w:lvl>
             </w:abstractNum>
-            <w:abstractNum w:abstractNumId="2">
+            <w:abstractNum w:abstractNumId="1">
                 <w:nsid w:val="1DE04504" />
                 <w:multiLevelType w:val="singleLevel" />
                 <w:lvl w:ilvl="0">

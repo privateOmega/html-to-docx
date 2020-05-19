@@ -199,7 +199,7 @@ class DocxDocument {
           .ele('@w', 'num')
           .att('@w', 'numId', String(numberingId))
           .ele('@w', 'abstractNumId')
-          .att('@w', 'val', ordered ? '1' : '2')
+          .att('@w', 'val', ordered ? '0' : '1')
           .up()
           .up();
         xmlFragment.import(numberingFragment);
