@@ -11,8 +11,7 @@ const generateNumberingXMLTemplate = () => {
         xmlns:r="${namespaces.r}"
         xmlns:v="${namespaces.v}"
         xmlns:wp="${namespaces.wp}"
-        xmlns:w10="${namespaces.w10}"
-        xmlns:wne="${namespaces.wne}">
+        xmlns:w10="${namespaces.w10}">
             <w:abstractNum w:abstractNumId="0">
                 <w:nsid w:val="FFFFFF7F" />
                 <w:multiLevelType w:val="singleLevel" />

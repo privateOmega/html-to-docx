@@ -16,7 +16,6 @@ const namespaces = {
   vt: 'http://purl.oclc.org/ooxml/officeDocument/docPropsVTypes',
   w: 'http://purl.oclc.org/ooxml/wordprocessingml/main',
   w10: 'urn:schemas-microsoft-com:office:word',
-  wne: 'http://schemas.microsoft.com/office/word/2006/wordml',
   wp: 'http://purl.oclc.org/ooxml/drawingml/wordprocessingDrawing',
   xsd: 'http://www.w3.org/2001/XMLSchema',
   xsi: 'http://www.w3.org/2001/XMLSchema-instance',

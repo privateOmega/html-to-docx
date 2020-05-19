@@ -303,7 +303,6 @@ class DocxDocument {
         v: namespaces.v,
         wp: namespaces.wp,
         w10: namespaces.w10,
-        wne: namespaces.wne,
       },
     });
     headerXML.ele('@w', 'hdr');
