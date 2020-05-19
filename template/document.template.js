@@ -16,6 +16,7 @@ const generateDocumentTemplate = (width, height, orientation, margins) => {
         xmlns:w="${namespaces.w}"
         xmlns:w10="${namespaces.w10}"
         xmlns:wp="${namespaces.wp}"
+        xmlns:wne="${namespaces.wne}"
         >
         <w:body>
             <w:sectPr>

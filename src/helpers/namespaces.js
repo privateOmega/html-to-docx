@@ -9,11 +9,12 @@ const namespaces = {
   pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture',
   r: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
   v: 'urn:schemas-microsoft-com:vml',
-  ve: 'http://schemas.openxmlformats.org/drawingml/2006/compatibility',
+  ve: 'http://schemas.openxmlformats.org/markup-compatibility/2006',
   vt: 'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes',
   w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
   w10: 'urn:schemas-microsoft-com:office:word',
   wp: 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+  wne: 'http://schemas.microsoft.com/office/word/2006/wordml',
   xsd: 'http://www.w3.org/2001/XMLSchema',
   xsi: 'http://www.w3.org/2001/XMLSchema-instance',
   numbering: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
@@ -22,13 +23,14 @@ const namespaces = {
   styles: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
   headers: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header',
   coreProperties: 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-  officeDocument:
+  officeDocumentRelation:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
   corePropertiesRelation:
     'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
   settingsRelation: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
   webSettingsRelation:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings',
+  sl: 'http://schemas.openxmlformats.org/schemaLibrary/2006/main',
 };
 
 export default namespaces;
