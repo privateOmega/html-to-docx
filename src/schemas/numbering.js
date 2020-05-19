@@ -4,8 +4,16 @@ const generateNumberingXMLTemplate = () => {
   return `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-        <w:numbering xmlns:w="${namespaces.w}">
-            <w:abstractNum w:abstractNumId="1">
+        <w:numbering
+        xmlns:w="${namespaces.w}"
+        xmlns:ve="${namespaces.ve}"
+        xmlns:o="${namespaces.o}"
+        xmlns:r="${namespaces.r}"
+        xmlns:v="${namespaces.v}"
+        xmlns:wp="${namespaces.wp}"
+        xmlns:w10="${namespaces.w10}"
+        xmlns:wne="${namespaces.wne}">
+            <w:abstractNum w:abstractNumId="0">
                 <w:nsid w:val="FFFFFF7F" />
                 <w:multiLevelType w:val="singleLevel" />
                 <w:lvl w:ilvl="0">
@@ -21,7 +29,7 @@ const generateNumberingXMLTemplate = () => {
                     </w:pPr>
                 </w:lvl>
             </w:abstractNum>
-            <w:abstractNum w:abstractNumId="2">
+            <w:abstractNum w:abstractNumId="1">
                 <w:nsid w:val="1DE04504" />
                 <w:multiLevelType w:val="singleLevel" />
                 <w:lvl w:ilvl="0">

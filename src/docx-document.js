@@ -4,7 +4,9 @@ import {
   generateCoreXML,
   generateStylesXML,
   generateNumberingXMLTemplate,
-  generateDocumentRelsXMLTemplate,
+  documentRelsXML as documentRelsXMLString,
+  settingsXML as settingsXMLString,
+  webSettingsXML as webSettingsXMLString,
 } from './schemas';
 import { renderDocumentFile, convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
@@ -80,7 +82,7 @@ class DocxDocument {
     this.headerType = headerType || 'default';
 
     this.lastNumberingId = 0;
-    this.lastDocumentRelsId = 2;
+    this.lastDocumentRelsId = 4;
     this.lastMediaId = 0;
     this.lastHeaderId = 0;
     this.stylesObjects = [];
@@ -160,6 +162,20 @@ class DocxDocument {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  generateSettingsXML() {
+    const settingsXML = create({ encoding: 'UTF-8', standalone: true }, settingsXMLString);
+
+    return settingsXML.toString({ prettyPrint: true });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  generateWebSettingsXML() {
+    const webSettingsXML = create({ encoding: 'UTF-8', standalone: true }, webSettingsXMLString);
+
+    return webSettingsXML.toString({ prettyPrint: true });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   generateStylesXML() {
     const stylesXML = create({ encoding: 'UTF-8', standalone: true }, generateStylesXML());
 
@@ -183,7 +199,7 @@ class DocxDocument {
           .ele('@w', 'num')
           .att('@w', 'numId', String(numberingId))
           .ele('@w', 'abstractNumId')
-          .att('@w', 'val', ordered ? '1' : '2')
+          .att('@w', 'val', ordered ? '0' : '1')
           .up()
           .up();
         xmlFragment.import(numberingFragment);
@@ -195,10 +211,7 @@ class DocxDocument {
   }
 
   generateDocumentRelsXML() {
-    const documentRelsXML = create(
-      { encoding: 'UTF-8', standalone: true },
-      generateDocumentRelsXMLTemplate()
-    );
+    const documentRelsXML = create({ encoding: 'UTF-8', standalone: true }, documentRelsXMLString);
 
     this.documentRelsObjects.forEach(
       // eslint-disable-next-line array-callback-return
@@ -282,8 +295,18 @@ class DocxDocument {
     const headerXML = create({
       encoding: 'UTF-8',
       standalone: true,
+      namespaceAlias: {
+        w: namespaces.w,
+        ve: namespaces.ve,
+        o: namespaces.o,
+        r: namespaces.r,
+        v: namespaces.v,
+        wp: namespaces.wp,
+        w10: namespaces.w10,
+        wne: namespaces.wne,
+      },
     });
-    headerXML.ele(namespaces.w, 'hdr');
+    headerXML.ele('@w', 'hdr');
 
     const XMLFragment = fragment();
     convertVTreeToXML(this, vTree, XMLFragment);
