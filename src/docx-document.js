@@ -4,7 +4,7 @@ import {
   generateCoreXML,
   generateStylesXML,
   generateNumberingXMLTemplate,
-  generateDocumentRelsXMLTemplate,
+  documentRelsXML as documentRelsXMLString,
 } from './schemas';
 import { renderDocumentFile, convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
@@ -195,10 +195,7 @@ class DocxDocument {
   }
 
   generateDocumentRelsXML() {
-    const documentRelsXML = create(
-      { encoding: 'UTF-8', standalone: true },
-      generateDocumentRelsXMLTemplate()
-    );
+    const documentRelsXML = create({ encoding: 'UTF-8', standalone: true }, documentRelsXMLString);
 
     this.documentRelsObjects.forEach(
       // eslint-disable-next-line array-callback-return
