@@ -29,6 +29,8 @@ const namespaces = {
   officeDocument: 'http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument',
   corePropertiesRelation:
     'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
+  settingsRelation: 'http://purl.oclc.org/ooxml/officeDocument/relationships/settings',
+  webSettingsRelation: 'http://purl.oclc.org/ooxml/officeDocument/relationships/webSettings',
 };
 
 export default namespaces;

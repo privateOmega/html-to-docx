@@ -82,7 +82,7 @@ class DocxDocument {
     this.headerType = headerType || 'default';
 
     this.lastNumberingId = 0;
-    this.lastDocumentRelsId = 2;
+    this.lastDocumentRelsId = 4;
     this.lastMediaId = 0;
     this.lastHeaderId = 0;
     this.stylesObjects = [];
