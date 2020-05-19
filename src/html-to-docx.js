@@ -2,6 +2,14 @@ import { create } from 'xmlbuilder2';
 
 import { contentTypesXML, relsXML } from './schemas';
 import DocxDocument from './docx-document';
+import { renderDocumentFile } from './helpers';
+
+const VNode = require('virtual-dom/vnode/vnode');
+const VText = require('virtual-dom/vnode/vtext');
+const convertHTML = require('html-to-vdom')({
+  VNode,
+  VText,
+});
 
 const defaultDocumentOptions = {
   orientation: 'portrait',
@@ -16,17 +24,15 @@ const mergeOptions = (options, patch) => ({ ...options, ...patch });
 export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, headerHTMLString) {
   const documentOptions = mergeOptions(defaultDocumentOptions, suppliedDocumentOptions);
 
-  const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions, headerHTMLString });
-  docxDocument.convert();
+  const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
+  // Conversion to Word XML happens here
+  docxDocument.documentXML = renderDocumentFile(docxDocument);
 
   zip.file(
     '[Content_Types].xml',
-    Buffer.from(
-      create({ encoding: 'UTF-8', standalone: true }, contentTypesXML).toString({
-        prettyPrint: true,
-      }),
-      'utf-8'
-    ),
+    create({ encoding: 'UTF-8', standalone: true }, contentTypesXML).toString({
+      prettyPrint: true,
+    }),
     { createFolders: false }
   );
 
@@ -34,40 +40,51 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
     .folder('_rels')
     .file(
       '.rels',
-      Buffer.from(
-        create({ encoding: 'UTF-8', standalone: true }, relsXML).toString({ prettyPrint: true }),
-        'utf-8'
-      ),
+      create({ encoding: 'UTF-8', standalone: true }, relsXML).toString({ prettyPrint: true }),
       { createFolders: false }
     );
 
-  zip.folder('docProps').file('core.xml', Buffer.from(docxDocument.generateCoreXML(), 'utf-8'), {
+  zip.folder('docProps').file('core.xml', docxDocument.generateCoreXML(), {
     createFolders: false,
   });
 
   if (headerHTMLString) {
-    docxDocument.generateHeaderXML();
+    const vTree = convertHTML(headerHTMLString);
+
+    const { headerId, headerXML } = docxDocument.generateHeaderXML(vTree);
+
+    const relationshipId = docxDocument.createDocumentRelationships(
+      'header',
+      `header${headerId}.xml`,
+      'Internal'
+    );
+
+    zip.folder('word').file(`header${headerId}.xml`, headerXML.toString({ prettyPrint: true }), {
+      createFolders: false,
+    });
+
+    docxDocument.headerObjects.push({ headerId, relationshipId, type: 'default' });
   }
 
   zip
     .folder('word')
-    // eslint-disable-next-line no-undef
-    .file('document.xml', docxDocument.generateDocumentXML(), { createFolders: false })
-    // eslint-disable-next-line no-undef
-    .file('styles.xml', Buffer.from(docxDocument.generateStylesXML(), 'utf-8'), {
+    .file('document.xml', docxDocument.generateDocumentXML(), {
       createFolders: false,
     })
-    .file('numbering.xml', Buffer.from(docxDocument.generateNumberingXML(), 'utf-8'), {
+    .file('styles.xml', docxDocument.generateStylesXML(), {
       createFolders: false,
     })
-    .file('settings.xml', Buffer.from(docxDocument.generateSettingsXML(), 'utf-8'), {
+    .file('numbering.xml', docxDocument.generateNumberingXML(), {
       createFolders: false,
     })
-    .file('webSettings.xml', Buffer.from(docxDocument.generateWebSettingsXML(), 'utf-8'), {
+    .file('settings.xml', docxDocument.generateSettingsXML(), {
+      createFolders: false,
+    })
+    .file('webSettings.xml', docxDocument.generateWebSettingsXML(), {
       createFolders: false,
     })
     .folder('_rels')
-    .file('document.xml.rels', Buffer.from(docxDocument.generateDocumentRelsXML(), 'utf-8'), {
+    .file('document.xml.rels', docxDocument.generateDocumentRelsXML(), {
       createFolders: false,
     });
 

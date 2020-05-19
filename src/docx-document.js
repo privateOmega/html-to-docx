@@ -8,16 +8,10 @@ import {
   settingsXML as settingsXMLString,
   webSettingsXML as webSettingsXMLString,
 } from './schemas';
-import { renderDocumentFile, convertVTreeToXML, namespaces } from './helpers';
+import { convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
 
 const crypto = require('crypto');
-const VNode = require('virtual-dom/vnode/vnode');
-const VText = require('virtual-dom/vnode/vtext');
-const convertHTML = require('html-to-vdom')({
-  VNode,
-  VText,
-});
 
 const landscapeMargins = {
   top: 1800,
@@ -54,7 +48,6 @@ class DocxDocument {
     revision,
     createdAt,
     modifiedAt,
-    headerHTMLString,
     headerType,
   }) {
     this.zip = zip;
@@ -78,7 +71,6 @@ class DocxDocument {
     this.revision = revision || 1;
     this.createdAt = createdAt || new Date();
     this.modifiedAt = modifiedAt || new Date();
-    this.headerHTMLString = headerHTMLString;
     this.headerType = headerType || 'default';
 
     this.lastNumberingId = 0;
@@ -92,21 +84,16 @@ class DocxDocument {
     this.headerObjects = [];
     this.documentXML = null;
 
-    this.convert = this.convert.bind(this);
     this.generateCoreXML = this.generateCoreXML.bind(this);
     this.generateDocumentXML = this.generateDocumentXML.bind(this);
+    this.generateSettingsXML = this.generateSettingsXML.bind(this);
+    this.generateWebSettingsXML = this.generateWebSettingsXML.bind(this);
     this.generateStylesXML = this.generateStylesXML.bind(this);
     this.generateNumberingXML = this.generateNumberingXML.bind(this);
     this.generateDocumentRelsXML = this.generateDocumentRelsXML.bind(this);
     this.createMediaFile = this.createMediaFile.bind(this);
     this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
-  }
-
-  convert() {
-    const documentXML = renderDocumentFile(this);
-
-    this.documentXML = documentXML;
   }
 
   generateCoreXML() {
@@ -253,16 +240,9 @@ class DocxDocument {
 
     const fileNameWithExtension = `image-${SHA1String}.${fileExtension}`;
 
-    this.zip
-      .folder('word')
-      .folder('media')
-      .file(fileNameWithExtension, Buffer.from(base64FileContent, 'base64'), {
-        createFolders: false,
-      });
-
     this.lastMediaId += 1;
 
-    return { id: this.lastMediaId, fileNameWithExtension };
+    return { id: this.lastMediaId, fileContent: base64FileContent, fileNameWithExtension };
   }
 
   createDocumentRelationships(type, target, targetMode = 'External') {
@@ -281,6 +261,7 @@ class DocxDocument {
       default:
         break;
     }
+
     this.documentRelsObjects.push({
       relationshipId: this.lastDocumentRelsId,
       type: relationshipType,
@@ -291,9 +272,7 @@ class DocxDocument {
     return this.lastDocumentRelsId;
   }
 
-  generateHeaderXML(type = 'default') {
-    const vTree = convertHTML(this.headerHTMLString);
-
+  generateHeaderXML(vTree) {
     const headerXML = create({
       encoding: 'UTF-8',
       standalone: true,
@@ -306,8 +285,7 @@ class DocxDocument {
         wp: namespaces.wp,
         w10: namespaces.w10,
       },
-    });
-    headerXML.ele('@w', 'hdr');
+    }).ele('@w', 'hdr');
 
     const XMLFragment = fragment();
     convertVTreeToXML(this, vTree, XMLFragment);
@@ -315,23 +293,7 @@ class DocxDocument {
 
     this.lastHeaderId += 1;
 
-    const relationshipId = this.createDocumentRelationships(
-      'header',
-      `header${this.lastHeaderId}.xml`,
-      'Internal'
-    );
-
-    this.zip
-      .folder('word')
-      .file(
-        `header${this.lastHeaderId}.xml`,
-        Buffer.from(headerXML.toString({ prettyPrint: true }), 'utf-8'),
-        {
-          createFolders: false,
-        }
-      );
-
-    this.headerObjects.push({ headerId: this.lastHeaderId, relationshipId, type });
+    return { headerId: this.lastHeaderId, headerXML };
   }
 }
 

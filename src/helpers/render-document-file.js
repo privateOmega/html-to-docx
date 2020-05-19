@@ -52,11 +52,19 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         // NOOP
       }
       if (response) {
+        docxDocumentInstance.zip
+          .folder('word')
+          .folder('media')
+          .file(response.fileNameWithExtension, Buffer.from(response.fileContent, 'base64'), {
+            createFolders: false,
+          });
+
         const documentRelsId = docxDocumentInstance.createDocumentRelationships(
           'image',
           `media/${response.fileNameWithExtension}`,
           'Internal'
         );
+
         const imageFragment = xmlBuilder.buildParagraph(vNode, {
           type: 'picture',
           inlineOrAnchored: false,
@@ -100,7 +108,6 @@ export function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
 }
 
 function renderDocumentFile(docxDocumentInstance) {
-  // eslint-disable-next-line no-unused-vars
   const vTree = convertHTML(docxDocumentInstance.htmlString);
 
   const xmlFragment = fragment({
