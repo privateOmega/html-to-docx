@@ -295,8 +295,18 @@ class DocxDocument {
     const headerXML = create({
       encoding: 'UTF-8',
       standalone: true,
+      namespaceAlias: {
+        w: namespaces.w,
+        ve: namespaces.ve,
+        o: namespaces.o,
+        r: namespaces.r,
+        v: namespaces.v,
+        wp: namespaces.wp,
+        w10: namespaces.w10,
+        wne: namespaces.wne,
+      },
     });
-    headerXML.ele(namespaces.w, 'hdr');
+    headerXML.ele('@w', 'hdr');
 
     const XMLFragment = fragment();
     convertVTreeToXML(this, vTree, XMLFragment);
