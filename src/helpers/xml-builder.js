@@ -47,6 +47,90 @@ const buildLineBreak = () => {
   return lineBreakFragment;
 };
 
+const buildInsideVBorder = () => {
+  const insideVBorderFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'insideV')
+    .att('@w', 'val', 'single')
+    .att('@w', 'sz', '4')
+    .att('@w', 'space', '0')
+    .att('@w', 'color', 'auto')
+    .up();
+
+  return insideVBorderFragment;
+};
+
+const buildInsideHBorder = () => {
+  const insideHBorderFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'insideH')
+    .att('@w', 'val', 'single')
+    .att('@w', 'sz', '4')
+    .att('@w', 'space', '0')
+    .att('@w', 'color', 'auto')
+    .up();
+
+  return insideHBorderFragment;
+};
+
+const buildRightBorder = () => {
+  const rightBorderFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'right')
+    .att('@w', 'val', 'single')
+    .att('@w', 'sz', '4')
+    .att('@w', 'space', '0')
+    .att('@w', 'color', 'auto')
+    .up();
+
+  return rightBorderFragment;
+};
+
+const buildBottomBorder = () => {
+  const bottomBorderFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'bottom')
+    .att('@w', 'val', 'single')
+    .att('@w', 'sz', '4')
+    .att('@w', 'space', '0')
+    .att('@w', 'color', 'auto')
+    .up();
+
+  return bottomBorderFragment;
+};
+
+const buildLeftBorder = () => {
+  const leftBorderFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'left')
+    .att('@w', 'val', 'single')
+    .att('@w', 'sz', '4')
+    .att('@w', 'space', '0')
+    .att('@w', 'color', 'auto')
+    .up();
+
+  return leftBorderFragment;
+};
+
+const buildTopBorder = () => {
+  const topBorderFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'top')
+    .att('@w', 'val', 'single')
+    .att('@w', 'sz', '4')
+    .att('@w', 'space', '0')
+    .att('@w', 'color', 'auto')
+    .up();
+
+  return topBorderFragment;
+};
+
 const buildTextElement = (text) => {
   const textFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -309,11 +393,38 @@ const buildTableGrid = (vNode, attributes) => {
   return tableGridFragment;
 };
 
+const buildTableBorders = () => {
+  const tableBordersFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  }).ele('@w', 'tblBorders');
+
+  const topBorderFragment = buildTopBorder();
+  tableBordersFragment.import(topBorderFragment);
+  const leftBorderFragment = buildLeftBorder();
+  tableBordersFragment.import(leftBorderFragment);
+  const bottomBorderFragment = buildBottomBorder();
+  tableBordersFragment.import(bottomBorderFragment);
+  const rightBorderFragment = buildRightBorder();
+  tableBordersFragment.import(rightBorderFragment);
+  const insideHBorderFragment = buildInsideHBorder();
+  tableBordersFragment.import(insideHBorderFragment);
+  const insideVBorderFragment = buildInsideVBorder();
+  tableBordersFragment.import(insideVBorderFragment);
+
+  tableBordersFragment.up();
+
+  return tableBordersFragment;
+};
+
 const buildTableProperties = (styles) => {
   const tablePropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tblPr');
   // TODO: Add styles within it
+
+  const tableBordersFragment = buildTableBorders();
+  tablePropertiesFragment.import(tableBordersFragment);
+
   tablePropertiesFragment.up();
 
   return tablePropertiesFragment;
@@ -366,9 +477,7 @@ const buildHyperlink = () => {
 
 const buildPresetGeometry = () => {
   const presetGeometryFragment = fragment({
-    namespaceAlias: {
-      a: namespaces.a,
-    },
+    namespaceAlias: { a: namespaces.a },
   })
     .ele('@a', 'prstGeom')
     .att('prst', 'rect')
@@ -379,9 +488,7 @@ const buildPresetGeometry = () => {
 
 const buildGraphicFrameTransform = () => {
   const graphicFrameTransformFragment = fragment({
-    namespaceAlias: {
-      a: namespaces.a,
-    },
+    namespaceAlias: { a: namespaces.a },
   })
     .ele('@a', 'xfrm')
     .ele('@a', 'off')
@@ -415,9 +522,7 @@ const buildShapeProperties = () => {
 
 const buildFillRect = () => {
   const fillRectFragment = fragment({
-    namespaceAlias: {
-      a: namespaces.a,
-    },
+    namespaceAlias: { a: namespaces.a },
   })
     .ele('@a', 'fillRect')
     .up();
@@ -427,9 +532,7 @@ const buildFillRect = () => {
 
 const buildStretch = () => {
   const stretchFragment = fragment({
-    namespaceAlias: {
-      a: namespaces.a,
-    },
+    namespaceAlias: { a: namespaces.a },
   }).ele('@a', 'stretch');
 
   const fillRectFragment = buildFillRect();
@@ -442,10 +545,7 @@ const buildStretch = () => {
 
 const buildBinaryLargeImageOrPicture = (relationshipId) => {
   const binaryLargeImageOrPictureFragment = fragment({
-    namespaceAlias: {
-      a: namespaces.a,
-      r: namespaces.r,
-    },
+    namespaceAlias: { a: namespaces.a, r: namespaces.r },
   })
     .ele('@a', 'blip')
     .att('@r', 'embed', `rId${relationshipId}`)
@@ -547,9 +647,7 @@ const buildPicture = ({ id, fileNameWithExtension, title, description, relations
 
 const buildGraphicData = (graphicType, attributes) => {
   const graphicDataFragment = fragment({
-    namespaceAlias: {
-      a: namespaces.a,
-    },
+    namespaceAlias: { a: namespaces.a },
   })
     .ele('@a', 'graphicData')
     .att('uri', 'http://schemas.openxmlformats.org/drawingml/2006/picture');
@@ -564,9 +662,7 @@ const buildGraphicData = (graphicType, attributes) => {
 
 const buildGraphic = (graphicType, attributes) => {
   const graphicFragment = fragment({
-    namespaceAlias: {
-      a: namespaces.a,
-    },
+    namespaceAlias: { a: namespaces.a },
   }).ele('@a', 'graphic');
   // TODO: Handle drawing type
   const graphicDataFragment = buildGraphicData(graphicType, attributes);
@@ -578,9 +674,7 @@ const buildGraphic = (graphicType, attributes) => {
 
 const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) => {
   const drawingObjectNonVisualPropertiesFragment = fragment({
-    namespaceAlias: {
-      wp: namespaces.wp,
-    },
+    namespaceAlias: { wp: namespaces.wp },
   })
     .ele('@wp', 'docPr')
     .att('id', pictureId)
@@ -592,9 +686,7 @@ const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) => {
 
 const buildExtent = () => {
   const extentFragment = fragment({
-    namespaceAlias: {
-      wp: namespaces.wp,
-    },
+    namespaceAlias: { wp: namespaces.wp },
   })
     .ele('@wp', 'extent')
     .att('cx', '5943600')
@@ -606,9 +698,7 @@ const buildExtent = () => {
 
 const buildAnchoredDrawing = (graphicType, attributes) => {
   const anchoredDrawingFragment = fragment({
-    namespaceAlias: {
-      wp: namespaces.wp,
-    },
+    namespaceAlias: { wp: namespaces.wp },
   })
     .ele('@wp', 'anchor')
     .att('distB', '0')
@@ -633,9 +723,7 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
 
 const buildInlineDrawing = (graphicType, attributes) => {
   const inlineDrawingFragment = fragment({
-    namespaceAlias: {
-      wp: namespaces.wp,
-    },
+    namespaceAlias: { wp: namespaces.wp },
   }).ele('@wp', 'inline');
 
   const extentFragment = buildExtent();
