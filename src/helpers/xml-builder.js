@@ -590,6 +590,20 @@ const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) => {
   return drawingObjectNonVisualPropertiesFragment;
 };
 
+const buildExtent = () => {
+  const extentFragment = fragment({
+    namespaceAlias: {
+      wp: namespaces.wp,
+    },
+  })
+    .ele('@wp', 'extent')
+    .att('cx', '5943600')
+    .att('cy', '3347085')
+    .up();
+
+  return extentFragment;
+};
+
 const buildAnchoredDrawing = (graphicType, attributes) => {
   const anchoredDrawingFragment = fragment({
     namespaceAlias: {
@@ -597,14 +611,13 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
     },
   })
     .ele('@wp', 'anchor')
-    .att('allowOverlap', 'false')
-    .att('behindDoc', 'false')
     .att('distB', '0')
     .att('distL', '0')
     .att('distR', '0')
-    .att('distT', '0')
-    .att('hidden', 'false');
+    .att('distT', '0');
 
+  const extentFragment = buildExtent();
+  anchoredDrawingFragment.import(extentFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
     attributes.description
@@ -625,6 +638,8 @@ const buildInlineDrawing = (graphicType, attributes) => {
     },
   }).ele('@wp', 'inline');
 
+  const extentFragment = buildExtent();
+  inlineDrawingFragment.import(extentFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
     attributes.description
