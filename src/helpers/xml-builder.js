@@ -584,7 +584,6 @@ const buildNonVisualPictureDrawingProperties = () => {
 const buildNonVisualDrawingProperties = (
   pictureId,
   pictureNameWithExtension,
-  pictureTitle = '',
   pictureDescription = ''
 ) => {
   const nonVisualDrawingPropertiesFragment = fragment({
@@ -593,7 +592,6 @@ const buildNonVisualDrawingProperties = (
     .ele('@pic', 'cNvPr')
     .att('id', pictureId)
     .att('name', pictureNameWithExtension)
-    .att('title', pictureTitle)
     .att('descr', pictureDescription);
 
   nonVisualDrawingPropertiesFragment.up();
@@ -604,7 +602,6 @@ const buildNonVisualDrawingProperties = (
 const buildNonVisualPictureProperties = (
   pictureId,
   pictureNameWithExtension,
-  pictureTitle,
   pictureDescription
 ) => {
   const nonVisualPicturePropertiesFragment = fragment({
@@ -614,7 +611,6 @@ const buildNonVisualPictureProperties = (
   const nonVisualDrawingPropertiesFragment = buildNonVisualDrawingProperties(
     pictureId,
     pictureNameWithExtension,
-    pictureTitle,
     pictureDescription
   );
   nonVisualPicturePropertiesFragment.import(nonVisualDrawingPropertiesFragment);
@@ -625,14 +621,13 @@ const buildNonVisualPictureProperties = (
   return nonVisualPicturePropertiesFragment;
 };
 
-const buildPicture = ({ id, fileNameWithExtension, title, description, relationshipId }) => {
+const buildPicture = ({ id, fileNameWithExtension, description, relationshipId }) => {
   const pictureFragment = fragment({
     namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'pic');
   const nonVisualPicturePropertiesFragment = buildNonVisualPictureProperties(
     id,
     fileNameWithExtension,
-    title,
     description
   );
   pictureFragment.import(nonVisualPicturePropertiesFragment);
