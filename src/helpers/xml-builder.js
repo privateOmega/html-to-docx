@@ -691,6 +691,18 @@ const buildExtent = () => {
   return extentFragment;
 };
 
+const buildSimplePos = () => {
+  const simplePosFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'simplePos')
+    .att('x', '0')
+    .att('y', '0')
+    .up();
+
+  return simplePosFragment;
+};
+
 const buildAnchoredDrawing = (graphicType, attributes) => {
   const anchoredDrawingFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
@@ -704,8 +716,11 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
     .att('behindDoc', 'false')
     .att('locked', 'true')
     .att('layoutInCell', 'true')
-    .att('allowOverlap', 'false');
+    .att('allowOverlap', 'false')
+    .att('simplePos', 'true');
 
+  const simplePosFragment = buildSimplePos();
+  anchoredDrawingFragment.import(simplePosFragment);
   const extentFragment = buildExtent();
   anchoredDrawingFragment.import(extentFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
