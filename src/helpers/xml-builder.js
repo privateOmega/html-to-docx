@@ -699,7 +699,12 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
     .att('distB', '0')
     .att('distL', '0')
     .att('distR', '0')
-    .att('distT', '0');
+    .att('distT', '0')
+    .att('relativeHeight', '0')
+    .att('behindDoc', 'false')
+    .att('locked', 'true')
+    .att('layoutInCell', 'true')
+    .att('allowOverlap', 'false');
 
   const extentFragment = buildExtent();
   anchoredDrawingFragment.import(extentFragment);
