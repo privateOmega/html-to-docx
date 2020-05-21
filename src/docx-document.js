@@ -7,6 +7,7 @@ import {
   documentRelsXML as documentRelsXMLString,
   settingsXML as settingsXMLString,
   webSettingsXML as webSettingsXMLString,
+  contentTypesXML as contentTypesXMLString,
 } from './schemas';
 import { convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
@@ -84,6 +85,7 @@ class DocxDocument {
     this.headerObjects = [];
     this.documentXML = null;
 
+    this.generateContentTypesXML = this.generateContentTypesXML.bind(this);
     this.generateCoreXML = this.generateCoreXML.bind(this);
     this.generateDocumentXML = this.generateDocumentXML.bind(this);
     this.generateSettingsXML = this.generateSettingsXML.bind(this);
@@ -94,6 +96,33 @@ class DocxDocument {
     this.createMediaFile = this.createMediaFile.bind(this);
     this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
+  }
+
+  generateContentTypesXML() {
+    const contentTypesXML = create({ encoding: 'UTF-8', standalone: true }, contentTypesXMLString);
+
+    if (this.headerObjects && Array.isArray(this.headerObjects) && this.headerObjects.length) {
+      this.headerObjects.forEach(
+        // eslint-disable-next-line array-callback-return
+        ({ headerId }) => {
+          const contentTypesFragment = fragment({
+            defaultNamespace: {
+              ele: 'http://schemas.openxmlformats.org/package/2006/content-types',
+            },
+          })
+            .ele('Override')
+            .att('PartName', `/word/header${headerId}.xml`)
+            .att(
+              'ContentType',
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml'
+            )
+            .up();
+          contentTypesXML.root().import(contentTypesFragment);
+        }
+      );
+    }
+
+    return contentTypesXML.toString({ prettyPrint: true });
   }
 
   generateCoreXML() {

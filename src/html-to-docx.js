@@ -1,6 +1,6 @@
 import { create } from 'xmlbuilder2';
 
-import { contentTypesXML, relsXML } from './schemas';
+import { relsXML } from './schemas';
 import DocxDocument from './docx-document';
 import { renderDocumentFile } from './helpers';
 
@@ -27,14 +27,6 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
   const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
   // Conversion to Word XML happens here
   docxDocument.documentXML = renderDocumentFile(docxDocument);
-
-  zip.file(
-    '[Content_Types].xml',
-    create({ encoding: 'UTF-8', standalone: true }, contentTypesXML).toString({
-      prettyPrint: true,
-    }),
-    { createFolders: false }
-  );
 
   zip
     .folder('_rels')
@@ -87,6 +79,8 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
     .file('document.xml.rels', docxDocument.generateDocumentRelsXML(), {
       createFolders: false,
     });
+
+  zip.file('[Content_Types].xml', docxDocument.generateContentTypesXML(), { createFolders: false });
 
   return zip;
 }
