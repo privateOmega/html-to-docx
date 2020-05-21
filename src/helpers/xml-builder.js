@@ -710,7 +710,7 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
   anchoredDrawingFragment.import(extentFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
-    attributes.description
+    attributes.fileNameWithExtension
   );
   anchoredDrawingFragment.import(drawingObjectNonVisualPropertiesFragment);
   const graphicFragment = buildGraphic(graphicType, attributes);
