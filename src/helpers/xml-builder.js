@@ -543,6 +543,20 @@ const buildStretch = () => {
   return stretchFragment;
 };
 
+const buildSrcRectFragment = () => {
+  const srcRectFragment = fragment({
+    namespaceAlias: { a: namespaces.a },
+  })
+    .ele('@a', 'srcRect')
+    .att('b', '0')
+    .att('l', '0')
+    .att('r', '0')
+    .att('t', '0')
+    .up();
+
+  return srcRectFragment;
+};
+
 const buildBinaryLargeImageOrPicture = (relationshipId) => {
   const binaryLargeImageOrPictureFragment = fragment({
     namespaceAlias: { a: namespaces.a, r: namespaces.r },
@@ -563,6 +577,8 @@ const buildBinaryLargeImageOrPictureFill = (relationshipId) => {
   }).ele('@pic', 'blipFill');
   const binaryLargeImageOrPictureFragment = buildBinaryLargeImageOrPicture(relationshipId);
   binaryLargeImageOrPictureFillFragment.import(binaryLargeImageOrPictureFragment);
+  const srcRectFragment = buildSrcRectFragment();
+  binaryLargeImageOrPictureFillFragment.import(srcRectFragment);
   const stretchFragment = buildStretch();
   binaryLargeImageOrPictureFillFragment.import(stretchFragment);
 
@@ -679,6 +695,20 @@ const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) => {
   return drawingObjectNonVisualPropertiesFragment;
 };
 
+const buildEffectExtentFragment = () => {
+  const effectExtentFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'effectExtent')
+    .att('b', '0')
+    .att('l', '0')
+    .att('r', '0')
+    .att('t', '0')
+    .up();
+
+  return effectExtentFragment;
+};
+
 const buildExtent = () => {
   const extentFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
@@ -723,6 +753,8 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
   anchoredDrawingFragment.import(simplePosFragment);
   const extentFragment = buildExtent();
   anchoredDrawingFragment.import(extentFragment);
+  const effectExtentFragment = buildEffectExtentFragment();
+  anchoredDrawingFragment.import(effectExtentFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
     attributes.fileNameWithExtension
@@ -743,6 +775,8 @@ const buildInlineDrawing = (graphicType, attributes) => {
 
   const extentFragment = buildExtent();
   inlineDrawingFragment.import(extentFragment);
+  const effectExtentFragment = buildEffectExtentFragment();
+  inlineDrawingFragment.import(effectExtentFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
     attributes.description
