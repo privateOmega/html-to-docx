@@ -746,6 +746,34 @@ const buildExtent = () => {
   return extentFragment;
 };
 
+const buildPositionV = () => {
+  const positionVFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'positionV')
+    .att('relativeFrom', 'paragraph')
+    .ele('@wp', 'posOffset')
+    .txt('19050')
+    .up()
+    .up();
+
+  return positionVFragment;
+};
+
+const buildPositionH = () => {
+  const positionHFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'positionH')
+    .att('relativeFrom', 'column')
+    .ele('@wp', 'posOffset')
+    .txt('19050')
+    .up()
+    .up();
+
+  return positionHFragment;
+};
+
 const buildSimplePos = () => {
   const simplePosFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
@@ -776,6 +804,10 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
 
   const simplePosFragment = buildSimplePos();
   anchoredDrawingFragment.import(simplePosFragment);
+  const positionHFragment = buildPositionH();
+  anchoredDrawingFragment.import(positionHFragment);
+  const positionVFragment = buildPositionV();
+  anchoredDrawingFragment.import(positionVFragment);
   const extentFragment = buildExtent();
   anchoredDrawingFragment.import(extentFragment);
   const effectExtentFragment = buildEffectExtentFragment();
