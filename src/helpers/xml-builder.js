@@ -695,6 +695,31 @@ const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) => {
   return drawingObjectNonVisualPropertiesFragment;
 };
 
+const buildWrapSquare = () => {
+  const wrapSquareFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'wrapSquare')
+    .att('wrapText', 'bothSides')
+    .att('distB', '0')
+    .att('distT', '0')
+    .att('distL', '0')
+    .att('distR', '0')
+    .up();
+
+  return wrapSquareFragment;
+};
+
+const buildWrapNone = () => {
+  const wrapNoneFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'wrapNone')
+    .up();
+
+  return wrapNoneFragment;
+};
+
 const buildEffectExtentFragment = () => {
   const effectExtentFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
@@ -755,6 +780,10 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
   anchoredDrawingFragment.import(extentFragment);
   const effectExtentFragment = buildEffectExtentFragment();
   anchoredDrawingFragment.import(effectExtentFragment);
+  const wrapNoneFragment = buildWrapNone();
+  anchoredDrawingFragment.import(wrapNoneFragment);
+  // const wrapSquareFragment = buildWrapSquare();
+  // anchoredDrawingFragment.import(wrapSquareFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
     attributes.fileNameWithExtension
