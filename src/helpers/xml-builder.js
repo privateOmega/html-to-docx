@@ -832,7 +832,12 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
 const buildInlineDrawing = (graphicType, attributes) => {
   const inlineDrawingFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
-  }).ele('@wp', 'inline');
+  })
+    .ele('@wp', 'inline')
+    .att('distB', '0')
+    .att('distL', '0')
+    .att('distR', '0')
+    .att('distT', '0');
 
   const extentFragment = buildExtent();
   inlineDrawingFragment.import(extentFragment);
