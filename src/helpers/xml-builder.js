@@ -38,11 +38,12 @@ const buildUnderline = (type = 'single') => {
   return underlineFragment;
 };
 
-const buildLineBreak = () => {
+const buildLineBreak = (type = 'textWrapping') => {
   const lineBreakFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'br')
+    .att('@w', 'type', type)
     .up();
 
   return lineBreakFragment;
@@ -225,6 +226,9 @@ const buildRun = (vNode, attributes) => {
     // eslint-disable-next-line no-use-before-define
     const imageFragment = buildDrawing(inlineOrAnchored, type, otherAttributes);
     runFragment.import(imageFragment);
+  } else if (isVNode(vNode) && vNode.tagName === 'br') {
+    const lineBreakFragment = buildLineBreak();
+    runFragment.import(lineBreakFragment);
   }
   runFragment.up();
 
