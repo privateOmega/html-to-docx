@@ -740,10 +740,10 @@ const buildWrapSquare = () => {
   })
     .ele('@wp', 'wrapSquare')
     .att('wrapText', 'bothSides')
-    .att('distB', '0')
-    .att('distT', '0')
-    .att('distL', '0')
-    .att('distR', '0')
+    .att('distB', '228600')
+    .att('distT', '228600')
+    .att('distL', '228600')
+    .att('distR', '228600')
     .up();
 
   return wrapSquareFragment;
@@ -839,8 +839,8 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
     .att('locked', 'true')
     .att('layoutInCell', 'true')
     .att('allowOverlap', 'false')
-    .att('simplePos', 'true');
-
+    .att('simplePos', 'false');
+  // Even though simplePos isnt supported by Word 2007 simplePos is required.
   const simplePosFragment = buildSimplePos();
   anchoredDrawingFragment.import(simplePosFragment);
   const positionHFragment = buildPositionH();
@@ -851,10 +851,8 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
   anchoredDrawingFragment.import(extentFragment);
   const effectExtentFragment = buildEffectExtentFragment();
   anchoredDrawingFragment.import(effectExtentFragment);
-  const wrapNoneFragment = buildWrapNone();
-  anchoredDrawingFragment.import(wrapNoneFragment);
-  // const wrapSquareFragment = buildWrapSquare();
-  // anchoredDrawingFragment.import(wrapSquareFragment);
+  const wrapSquareFragment = buildWrapSquare();
+  anchoredDrawingFragment.import(wrapSquareFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
     attributes.fileNameWithExtension
