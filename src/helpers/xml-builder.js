@@ -27,11 +27,12 @@ const buildItalics = () => {
   return italicsFragment;
 };
 
-const buildUnderline = () => {
+const buildUnderline = (type = 'single') => {
   const underlineFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'u')
+    .att('@w', 'val', type)
     .up();
 
   return underlineFragment;
@@ -171,13 +172,51 @@ const buildRunProperties = (attributes) => {
   return runPropertiesFragment;
 };
 
+const buildTextFormatting = (vNode) => {
+  if (vNode.tagName === 'strong') {
+    const boldFragment = buildBold();
+    return boldFragment;
+  } else if (vNode.tagName === 'i') {
+    const italicsFragment = buildItalics();
+    return italicsFragment;
+  } else if (vNode.tagName === 'u') {
+    const underlineFragment = buildUnderline();
+    return underlineFragment;
+  }
+};
+
 const buildRun = (vNode, attributes) => {
   const runFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
+  let childVNode;
+  if (isVNode(vNode) && ['span', 'strong', 'i', 'u'].includes(vNode.tagName)) {
+    if (vNode.tagName === 'span') {
+      // eslint-disable-next-line no-plusplus
+      for (let index = 0; index < vNode.children.length; index++) {
+        const spanChildVNode = vNode.children[index];
+        if (isVText(spanChildVNode)) {
+          childVNode = spanChildVNode;
+        } else {
+          const formattingFragment = buildTextFormatting(spanChildVNode);
+          runPropertiesFragment.import(formattingFragment);
+          // TODO: Check if there can ever be possibility of multiple children
+          // eslint-disable-next-line prefer-destructuring
+          childVNode = spanChildVNode.children[0];
+        }
+      }
+    } else {
+      const formattingFragment = buildTextFormatting(vNode);
+      runPropertiesFragment.import(formattingFragment);
+      // TODO: Check if there can ever be possibility of multiple children
+      // eslint-disable-next-line prefer-destructuring
+      childVNode = vNode.children[0];
+    }
+    // eslint-disable-next-line no-param-reassign
+    vNode = childVNode;
+  }
   runFragment.import(runPropertiesFragment);
-
   if (isVText(vNode)) {
     const textFragment = buildTextElement(vNode.text);
     runFragment.import(textFragment);
