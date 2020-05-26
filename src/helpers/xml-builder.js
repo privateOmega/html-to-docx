@@ -543,6 +543,20 @@ const buildStretch = () => {
   return stretchFragment;
 };
 
+const buildSrcRectFragment = () => {
+  const srcRectFragment = fragment({
+    namespaceAlias: { a: namespaces.a },
+  })
+    .ele('@a', 'srcRect')
+    .att('b', '0')
+    .att('l', '0')
+    .att('r', '0')
+    .att('t', '0')
+    .up();
+
+  return srcRectFragment;
+};
+
 const buildBinaryLargeImageOrPicture = (relationshipId) => {
   const binaryLargeImageOrPictureFragment = fragment({
     namespaceAlias: { a: namespaces.a, r: namespaces.r },
@@ -563,6 +577,8 @@ const buildBinaryLargeImageOrPictureFill = (relationshipId) => {
   }).ele('@pic', 'blipFill');
   const binaryLargeImageOrPictureFragment = buildBinaryLargeImageOrPicture(relationshipId);
   binaryLargeImageOrPictureFillFragment.import(binaryLargeImageOrPictureFragment);
+  const srcRectFragment = buildSrcRectFragment();
+  binaryLargeImageOrPictureFillFragment.import(srcRectFragment);
   const stretchFragment = buildStretch();
   binaryLargeImageOrPictureFillFragment.import(stretchFragment);
 
@@ -584,7 +600,6 @@ const buildNonVisualPictureDrawingProperties = () => {
 const buildNonVisualDrawingProperties = (
   pictureId,
   pictureNameWithExtension,
-  pictureTitle = '',
   pictureDescription = ''
 ) => {
   const nonVisualDrawingPropertiesFragment = fragment({
@@ -593,7 +608,6 @@ const buildNonVisualDrawingProperties = (
     .ele('@pic', 'cNvPr')
     .att('id', pictureId)
     .att('name', pictureNameWithExtension)
-    .att('title', pictureTitle)
     .att('descr', pictureDescription);
 
   nonVisualDrawingPropertiesFragment.up();
@@ -604,7 +618,6 @@ const buildNonVisualDrawingProperties = (
 const buildNonVisualPictureProperties = (
   pictureId,
   pictureNameWithExtension,
-  pictureTitle,
   pictureDescription
 ) => {
   const nonVisualPicturePropertiesFragment = fragment({
@@ -614,7 +627,6 @@ const buildNonVisualPictureProperties = (
   const nonVisualDrawingPropertiesFragment = buildNonVisualDrawingProperties(
     pictureId,
     pictureNameWithExtension,
-    pictureTitle,
     pictureDescription
   );
   nonVisualPicturePropertiesFragment.import(nonVisualDrawingPropertiesFragment);
@@ -625,14 +637,13 @@ const buildNonVisualPictureProperties = (
   return nonVisualPicturePropertiesFragment;
 };
 
-const buildPicture = ({ id, fileNameWithExtension, title, description, relationshipId }) => {
+const buildPicture = ({ id, fileNameWithExtension, description, relationshipId }) => {
   const pictureFragment = fragment({
     namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'pic');
   const nonVisualPicturePropertiesFragment = buildNonVisualPictureProperties(
     id,
     fileNameWithExtension,
-    title,
     description
   );
   pictureFragment.import(nonVisualPicturePropertiesFragment);
@@ -684,6 +695,45 @@ const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) => {
   return drawingObjectNonVisualPropertiesFragment;
 };
 
+const buildWrapSquare = () => {
+  const wrapSquareFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'wrapSquare')
+    .att('wrapText', 'bothSides')
+    .att('distB', '0')
+    .att('distT', '0')
+    .att('distL', '0')
+    .att('distR', '0')
+    .up();
+
+  return wrapSquareFragment;
+};
+
+const buildWrapNone = () => {
+  const wrapNoneFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'wrapNone')
+    .up();
+
+  return wrapNoneFragment;
+};
+
+const buildEffectExtentFragment = () => {
+  const effectExtentFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'effectExtent')
+    .att('b', '0')
+    .att('l', '0')
+    .att('r', '0')
+    .att('t', '0')
+    .up();
+
+  return effectExtentFragment;
+};
+
 const buildExtent = () => {
   const extentFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
@@ -696,6 +746,46 @@ const buildExtent = () => {
   return extentFragment;
 };
 
+const buildPositionV = () => {
+  const positionVFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'positionV')
+    .att('relativeFrom', 'paragraph')
+    .ele('@wp', 'posOffset')
+    .txt('19050')
+    .up()
+    .up();
+
+  return positionVFragment;
+};
+
+const buildPositionH = () => {
+  const positionHFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'positionH')
+    .att('relativeFrom', 'column')
+    .ele('@wp', 'posOffset')
+    .txt('19050')
+    .up()
+    .up();
+
+  return positionHFragment;
+};
+
+const buildSimplePos = () => {
+  const simplePosFragment = fragment({
+    namespaceAlias: { wp: namespaces.wp },
+  })
+    .ele('@wp', 'simplePos')
+    .att('x', '0')
+    .att('y', '0')
+    .up();
+
+  return simplePosFragment;
+};
+
 const buildAnchoredDrawing = (graphicType, attributes) => {
   const anchoredDrawingFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
@@ -704,13 +794,31 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
     .att('distB', '0')
     .att('distL', '0')
     .att('distR', '0')
-    .att('distT', '0');
+    .att('distT', '0')
+    .att('relativeHeight', '0')
+    .att('behindDoc', 'false')
+    .att('locked', 'true')
+    .att('layoutInCell', 'true')
+    .att('allowOverlap', 'false')
+    .att('simplePos', 'true');
 
+  const simplePosFragment = buildSimplePos();
+  anchoredDrawingFragment.import(simplePosFragment);
+  const positionHFragment = buildPositionH();
+  anchoredDrawingFragment.import(positionHFragment);
+  const positionVFragment = buildPositionV();
+  anchoredDrawingFragment.import(positionVFragment);
   const extentFragment = buildExtent();
   anchoredDrawingFragment.import(extentFragment);
+  const effectExtentFragment = buildEffectExtentFragment();
+  anchoredDrawingFragment.import(effectExtentFragment);
+  const wrapNoneFragment = buildWrapNone();
+  anchoredDrawingFragment.import(wrapNoneFragment);
+  // const wrapSquareFragment = buildWrapSquare();
+  // anchoredDrawingFragment.import(wrapSquareFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
-    attributes.description
+    attributes.fileNameWithExtension
   );
   anchoredDrawingFragment.import(drawingObjectNonVisualPropertiesFragment);
   const graphicFragment = buildGraphic(graphicType, attributes);
@@ -724,13 +832,20 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
 const buildInlineDrawing = (graphicType, attributes) => {
   const inlineDrawingFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
-  }).ele('@wp', 'inline');
+  })
+    .ele('@wp', 'inline')
+    .att('distB', '0')
+    .att('distL', '0')
+    .att('distR', '0')
+    .att('distT', '0');
 
   const extentFragment = buildExtent();
   inlineDrawingFragment.import(extentFragment);
+  const effectExtentFragment = buildEffectExtentFragment();
+  inlineDrawingFragment.import(effectExtentFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
-    attributes.description
+    attributes.fileNameWithExtension
   );
   inlineDrawingFragment.import(drawingObjectNonVisualPropertiesFragment);
   const graphicFragment = buildGraphic(graphicType, attributes);
