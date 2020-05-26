@@ -15,18 +15,88 @@ const convertHTML = require('html-to-vdom')({
   VText,
 });
 
+// eslint-disable-next-line consistent-return
+const buildImage = (docxDocumentInstance, vNode) => {
+  let response = null;
+  try {
+    response = docxDocumentInstance.createMediaFile(vNode.properties.src);
+  } catch (error) {
+    // NOOP
+  }
+  if (response) {
+    docxDocumentInstance.zip
+      .folder('word')
+      .folder('media')
+      .file(response.fileNameWithExtension, Buffer.from(response.fileContent, 'base64'), {
+        createFolders: false,
+      });
+
+    const documentRelsId = docxDocumentInstance.createDocumentRelationships(
+      'image',
+      `media/${response.fileNameWithExtension}`,
+      'Internal'
+    );
+
+    const imageFragment = xmlBuilder.buildParagraph(vNode, {
+      type: 'picture',
+      inlineOrAnchored: false,
+      relationshipId: documentRelsId,
+      ...response,
+    });
+
+    return imageFragment;
+  }
+};
+
+const buildTable = (vNode, width, leftMargin, rightMargin) => {
+  const availableDocumentSpace = width - leftMargin - rightMargin;
+  const tableFragment = xmlBuilder.buildTable(vNode, { width: availableDocumentSpace });
+
+  return tableFragment;
+};
+
 function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
   switch (vNode.tagName) {
     case 'p':
       const paragraphFragment = xmlBuilder.buildParagraph(vNode);
       xmlFragment.import(paragraphFragment);
       return;
+    case 'figure':
+      const figureType =
+        vNode &&
+        vNode.properties &&
+        vNode.properties.attributes &&
+        vNode.properties.attributes.class
+          ? vNode.properties.attributes.class
+          : '';
+      if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+        // eslint-disable-next-line no-plusplus
+        for (let index = 0; index < vNode.children.length; index++) {
+          const childVNode = vNode.children[index];
+          if (childVNode.tagName === 'table' && figureType === 'table') {
+            const tableFragment = buildTable(
+              vNode,
+              docxDocumentInstance.width,
+              docxDocumentInstance.margins.left,
+              docxDocumentInstance.margins.right
+            );
+            xmlFragment.import(tableFragment);
+          } else if (childVNode.tagName === 'img' && figureType === 'image') {
+            const imageFragment = buildImage(docxDocumentInstance, childVNode);
+            if (imageFragment) {
+              xmlFragment.import(imageFragment);
+            }
+          }
+        }
+      }
+      return;
     case 'table':
-      const availableDocumentSpace =
-        docxDocumentInstance.width -
-        docxDocumentInstance.margins.left -
-        docxDocumentInstance.margins.right;
-      const tableFragment = xmlBuilder.buildTable(vNode, { width: availableDocumentSpace });
+      const tableFragment = buildTable(
+        vNode,
+        docxDocumentInstance.width,
+        docxDocumentInstance.margins.left,
+        docxDocumentInstance.margins.right
+      );
       xmlFragment.import(tableFragment);
       return;
     case 'ol':
@@ -45,32 +115,8 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       }
       return;
     case 'img':
-      let response = null;
-      try {
-        response = docxDocumentInstance.createMediaFile(vNode.properties.src);
-      } catch (error) {
-        // NOOP
-      }
-      if (response) {
-        docxDocumentInstance.zip
-          .folder('word')
-          .folder('media')
-          .file(response.fileNameWithExtension, Buffer.from(response.fileContent, 'base64'), {
-            createFolders: false,
-          });
-
-        const documentRelsId = docxDocumentInstance.createDocumentRelationships(
-          'image',
-          `media/${response.fileNameWithExtension}`,
-          'Internal'
-        );
-
-        const imageFragment = xmlBuilder.buildParagraph(vNode, {
-          type: 'picture',
-          inlineOrAnchored: false,
-          relationshipId: documentRelsId,
-          ...response,
-        });
+      const imageFragment = buildImage(docxDocumentInstance, vNode);
+      if (imageFragment) {
         xmlFragment.import(imageFragment);
       }
       return;
