@@ -500,7 +500,7 @@ const buildTable = (vNode, attributes) => {
       } else if (childVNode.tagName === 'tbody') {
         // eslint-disable-next-line no-plusplus
         for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
-          const grandChildVNode = childVNode.children[index];
+          const grandChildVNode = childVNode.children[iteratorIndex];
           if (grandChildVNode.tagName === 'tr') {
             const tableRowFragment = buildTableRow(grandChildVNode);
             tableFragment.import(tableRowFragment);
