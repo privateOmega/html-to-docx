@@ -237,28 +237,21 @@ const buildRun = (vNode, attributes) => {
   return runFragment;
 };
 
-const buildHyperlink = (vNode, attributes) => {
-  // Relationship for external hyperlinks r:id="rId4"
-  const hyperlinkFragment = fragment({
-    namespaceAlias: { w: namespaces.w, r: namespaces.r },
-  })
-    .ele('@w', 'hyperlink')
-    .att('@r', 'id', `rId${attributes.relationshipId}`);
-
-  const runFragment = buildRun(vNode, attributes);
-  hyperlinkFragment.import(runFragment);
-  hyperlinkFragment.up();
-
-  return hyperlinkFragment;
-};
-
 const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'a') {
     const relationshipId = docxDocumentInstance.createDocumentRelationships(
       'hyperlink',
       vNode.properties && vNode.properties.href ? vNode.properties.href : ''
     );
-    const hyperlinkFragment = buildHyperlink(vNode.children[0], { ...attributes, relationshipId });
+    const hyperlinkFragment = fragment({
+      namespaceAlias: { w: namespaces.w, r: namespaces.r },
+    })
+      .ele('@w', 'hyperlink')
+      .att('@r', 'id', `rId${relationshipId}`);
+
+    const runFragment = buildRun(vNode.children[0], attributes);
+    hyperlinkFragment.import(runFragment);
+    hyperlinkFragment.up();
 
     return hyperlinkFragment;
   }
