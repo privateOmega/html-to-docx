@@ -177,10 +177,12 @@ const buildTextFormatting = (vNode) => {
   if (vNode.tagName === 'strong') {
     const boldFragment = buildBold();
     return boldFragment;
-  } else if (vNode.tagName === 'i') {
+  }
+  if (vNode.tagName === 'i') {
     const italicsFragment = buildItalics();
     return italicsFragment;
-  } else if (vNode.tagName === 'u') {
+  }
+  if (vNode.tagName === 'u') {
     const underlineFragment = buildUnderline();
     return underlineFragment;
   }
@@ -231,6 +233,36 @@ const buildRun = (vNode, attributes) => {
     runFragment.import(lineBreakFragment);
   }
   runFragment.up();
+
+  return runFragment;
+};
+
+const buildHyperlink = (vNode, attributes) => {
+  // Relationship for external hyperlinks r:id="rId4"
+  const hyperlinkFragment = fragment({
+    namespaceAlias: { w: namespaces.w, r: namespaces.r },
+  })
+    .ele('@w', 'hyperlink')
+    .att('@r', 'id', `rId${attributes.relationshipId}`);
+
+  const runFragment = buildRun(vNode, attributes);
+  hyperlinkFragment.import(runFragment);
+  hyperlinkFragment.up();
+
+  return hyperlinkFragment;
+};
+
+const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
+  if (isVNode(vNode) && vNode.tagName === 'a') {
+    const relationshipId = docxDocumentInstance.createDocumentRelationships(
+      'hyperlink',
+      vNode.properties && vNode.properties.href ? vNode.properties.href : ''
+    );
+    const hyperlinkFragment = buildHyperlink(vNode.children[0], { ...attributes, relationshipId });
+
+    return hyperlinkFragment;
+  }
+  const runFragment = buildRun(vNode, attributes);
 
   return runFragment;
 };
@@ -322,7 +354,7 @@ const buildParagraphProperties = (attributes, styles) => {
   return paragraphPropertiesFragment;
 };
 
-const buildParagraph = (vNode, attributes) => {
+const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'p');
@@ -335,8 +367,7 @@ const buildParagraph = (vNode, attributes) => {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      // FIXME: Handle <span>
-      const runFragment = buildRun(childVNode, attributes);
+      const runFragment = buildRunOrHyperLink(childVNode, attributes, docxDocumentInstance);
       paragraphFragment.import(runFragment);
     }
   } else {
@@ -515,18 +546,6 @@ const buildTable = (vNode, attributes) => {
   tableFragment.up();
 
   return tableFragment;
-};
-
-const buildHyperlink = () => {
-  // Relationship for external hyperlinks r:id="rId4"
-  const hyperlinkFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'hyperlink');
-  const runFragment = buildRun();
-  hyperlinkFragment.import(runFragment);
-  hyperlinkFragment.up();
-
-  return hyperlinkFragment;
 };
 
 const buildPresetGeometry = () => {

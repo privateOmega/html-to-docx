@@ -52,7 +52,7 @@ const buildImage = (docxDocumentInstance, vNode) => {
 function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
   switch (vNode.tagName) {
     case 'p':
-      const paragraphFragment = xmlBuilder.buildParagraph(vNode);
+      const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
       return;
     case 'figure':
@@ -88,9 +88,13 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         const childVNode = vNode.children[index];
         if (childVNode.tagName === 'li') {
           // eslint-disable-next-line no-shadow
-          const paragraphFragment = xmlBuilder.buildParagraph(childVNode, {
-            numbering: { levelId: 0, numberingId },
-          });
+          const paragraphFragment = xmlBuilder.buildParagraph(
+            childVNode,
+            {
+              numbering: { levelId: 0, numberingId },
+            },
+            docxDocumentInstance
+          );
           xmlFragment.import(paragraphFragment);
         }
       }
