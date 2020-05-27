@@ -370,10 +370,8 @@ const buildTableCell = (vNode) => {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      if (isVText(childVNode)) {
-        const paragraphFragment = buildParagraph(childVNode);
-        tableCellFragment.import(paragraphFragment);
-      }
+      const paragraphFragment = buildParagraph(childVNode);
+      tableCellFragment.import(paragraphFragment);
     }
   } else {
     // TODO: Figure out why building with buildParagraph() isn't working
@@ -424,7 +422,7 @@ const buildTableGrid = (vNode, attributes) => {
   }).ele('@w', 'tblGrid');
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     const gridColumns = vNode.children.filter((childVNode) => childVNode.tagName === 'col');
-    const gridWidth = attributes.width / gridColumns.length;
+    const gridWidth = attributes.maximumWidth / gridColumns.length;
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < gridColumns.length; index++) {
       const tableGridColFragment = buildTableGridCol(gridWidth);
@@ -459,12 +457,25 @@ const buildTableBorders = () => {
   return tableBordersFragment;
 };
 
-const buildTableProperties = (styles) => {
+const buildTableWidth = (width) => {
+  const tableWidthFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'tblW')
+    .att('@w', 'type', 'dxa')
+    .att('@w', 'w', String(width))
+    .up();
+
+  return tableWidthFragment;
+};
+
+const buildTableProperties = (attributes) => {
   const tablePropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tblPr');
-  // TODO: Add styles within it
 
+  const tableWidthFragment = buildTableWidth(attributes.maximumWidth);
+  tablePropertiesFragment.import(tableWidthFragment);
   const tableBordersFragment = buildTableBorders();
   tablePropertiesFragment.import(tableBordersFragment);
 
@@ -477,7 +488,7 @@ const buildTable = (vNode, attributes) => {
   const tableFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tbl');
-  const tablePropertiesFragment = buildTableProperties();
+  const tablePropertiesFragment = buildTableProperties(attributes);
   tableFragment.import(tablePropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
