@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 /* eslint-disable no-unused-vars */
@@ -8,6 +9,29 @@ import { default as namespaces } from './namespaces';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
+
+const buildColor = (colorCode) => {
+  const colorFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'color')
+    .att('@w', 'val', colorCode)
+    .up();
+
+  return colorFragment;
+};
+
+const buildShading = (colorCode) => {
+  const shadingFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'shd')
+    .att('@w', 'val', 'clear')
+    .att('@w', 'fill', colorCode)
+    .up();
+
+  return shadingFragment;
+};
 
 const buildBold = () => {
   const boldFragment = fragment({
@@ -150,43 +174,50 @@ const buildRunProperties = (attributes) => {
   const runPropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'rPr');
-  if (attributes && attributes.type) {
-    switch (attributes.type) {
-      case 'strong':
-        runPropertiesFragment.ele('@w', 'b').up();
-        break;
-      case 'i':
-        runPropertiesFragment.ele('@w', 'i').up();
-        break;
-      case 'u':
-        runPropertiesFragment.ele('@w', 'u').att('@w', 'val', 'single').up();
-        break;
-      case 'color':
-        runPropertiesFragment.ele('@w', 'color').att('@w', 'val', attributes.value);
-        break;
-      default:
-        break;
-    }
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      // eslint-disable-next-line default-case
+      switch (key) {
+        case 'strong':
+          const boldFragment = buildBold();
+          runPropertiesFragment.import(boldFragment);
+          break;
+        case 'i':
+          const italicsFragment = buildItalics();
+          runPropertiesFragment.import(italicsFragment);
+          break;
+        case 'u':
+          const underlineFragment = buildUnderline();
+          runPropertiesFragment.import(underlineFragment);
+          break;
+        case 'color':
+          const colorFragment = buildColor(attributes[key]);
+          runPropertiesFragment.import(colorFragment);
+          break;
+        case 'backgroundColor':
+          const shadingFragment = buildShading(attributes[key]);
+          runPropertiesFragment.import(shadingFragment);
+      }
+    });
   }
-
-  // TODO: Add styles within it
   runPropertiesFragment.up();
 
   return runPropertiesFragment;
 };
 
+// eslint-disable-next-line consistent-return
 const buildTextFormatting = (vNode) => {
-  if (vNode.tagName === 'strong') {
-    const boldFragment = buildBold();
-    return boldFragment;
-  }
-  if (vNode.tagName === 'i') {
-    const italicsFragment = buildItalics();
-    return italicsFragment;
-  }
-  if (vNode.tagName === 'u') {
-    const underlineFragment = buildUnderline();
-    return underlineFragment;
+  // eslint-disable-next-line default-case
+  switch (vNode.tagName) {
+    case 'strong':
+      const boldFragment = buildBold();
+      return boldFragment;
+    case 'i':
+      const italicsFragment = buildItalics();
+      return italicsFragment;
+    case 'u':
+      const underlineFragment = buildUnderline();
+      return underlineFragment;
   }
 };
 
@@ -221,13 +252,50 @@ const buildRun = (vNode, attributes) => {
   return runFragment;
 };
 
+const fixupColorCode = (colorCodeString) => {
+  if (!/^#[0-9A-F]{6}$/i.test(colorCodeString)) {
+    // eslint-disable-next-line no-param-reassign
+    colorCodeString = colorCodeString
+      .split('(')[1]
+      .split(')')[0]
+      .split(',')
+      .map((x) => {
+        // eslint-disable-next-line radix, no-param-reassign
+        x = parseInt(x).toString(16);
+        return x.length === 1 ? `0${x}` : x;
+      })
+      .join('');
+
+    return colorCodeString;
+  }
+
+  return colorCodeString.replace('#', '');
+};
+
 const buildRunOrRuns = (vNode, attributes) => {
   if (isVNode(vNode) && vNode.tagName === 'span') {
     const runFragments = [];
 
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      runFragments.push(buildRun(childVNode, attributes));
+      const modifiedAttributes = { ...attributes };
+      if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
+        if (
+          vNode.properties.style.color &&
+          !['transparent', 'auto'].includes(vNode.properties.style.color)
+        ) {
+          modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
+        }
+        if (
+          vNode.properties.style['background-color'] &&
+          !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+        ) {
+          modifiedAttributes.backgroundColor = fixupColorCode(
+            vNode.properties.style['background-color']
+          );
+        }
+      }
+      runFragments.push(buildRun(childVNode, modifiedAttributes));
     }
 
     return runFragments;
@@ -305,20 +373,6 @@ const buildSpacing = () => {
     .up();
 
   return spacingFragment;
-};
-
-const buildShading = (fillColorCode) => {
-  const shadingFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'shd')
-    // background color for text
-    .att('@w', 'fill', fillColorCode)
-    .att('@w', 'color', 'auto')
-    .att('@w', 'val', 'clear')
-    .up();
-
-  return shadingFragment;
 };
 
 const buildIndentation = () => {
