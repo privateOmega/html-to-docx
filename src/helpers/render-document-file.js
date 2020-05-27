@@ -42,17 +42,11 @@ const buildImage = (docxDocumentInstance, vNode) => {
       inlineOrAnchored: false,
       relationshipId: documentRelsId,
       ...response,
+      maximumWidth: docxDocumentInstance.availableDocumentSpace,
     });
 
     return imageFragment;
   }
-};
-
-const buildTable = (vNode, width, leftMargin, rightMargin) => {
-  const availableDocumentSpace = width - leftMargin - rightMargin;
-  const tableFragment = xmlBuilder.buildTable(vNode, { width: availableDocumentSpace });
-
-  return tableFragment;
 };
 
 function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
@@ -62,26 +56,16 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       xmlFragment.import(paragraphFragment);
       return;
     case 'figure':
-      const figureType =
-        vNode &&
-        vNode.properties &&
-        vNode.properties.attributes &&
-        vNode.properties.attributes.class
-          ? vNode.properties.attributes.class
-          : '';
       if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < vNode.children.length; index++) {
           const childVNode = vNode.children[index];
-          if (childVNode.tagName === 'table' && figureType === 'table') {
-            const tableFragment = buildTable(
-              vNode,
-              docxDocumentInstance.width,
-              docxDocumentInstance.margins.left,
-              docxDocumentInstance.margins.right
-            );
+          if (childVNode.tagName === 'table') {
+            const tableFragment = xmlBuilder.buildTable(childVNode, {
+              maximumWidth: docxDocumentInstance.availableDocumentSpace,
+            });
             xmlFragment.import(tableFragment);
-          } else if (childVNode.tagName === 'img' && figureType === 'image') {
+          } else if (childVNode.tagName === 'img') {
             const imageFragment = buildImage(docxDocumentInstance, childVNode);
             if (imageFragment) {
               xmlFragment.import(imageFragment);
@@ -91,12 +75,9 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       }
       return;
     case 'table':
-      const tableFragment = buildTable(
-        vNode,
-        docxDocumentInstance.width,
-        docxDocumentInstance.margins.left,
-        docxDocumentInstance.margins.right
-      );
+      const tableFragment = xmlBuilder.buildTable(vNode, {
+        maximumWidth: docxDocumentInstance.availableDocumentSpace,
+      });
       xmlFragment.import(tableFragment);
       return;
     case 'ol':

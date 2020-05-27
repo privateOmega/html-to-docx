@@ -63,6 +63,7 @@ class DocxDocument {
         : orientation === 'landscape'
         ? landscapeMargins
         : portraitMargins;
+    this.availableDocumentSpace = this.width - this.margins.left - this.margins.right;
     this.title = title || '';
     this.subject = subject || '';
     this.creator = creator || 'html-to-docx';
