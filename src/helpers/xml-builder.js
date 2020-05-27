@@ -1,3 +1,5 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-else-return */
 /* eslint-disable no-unused-vars */
 import { fragment } from 'xmlbuilder2';
 
@@ -193,31 +195,13 @@ const buildRun = (vNode, attributes) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
-  let childVNode;
-  if (isVNode(vNode) && ['span', 'strong', 'i', 'u'].includes(vNode.tagName)) {
-    if (vNode.tagName === 'span') {
-      // eslint-disable-next-line no-plusplus
-      for (let index = 0; index < vNode.children.length; index++) {
-        const spanChildVNode = vNode.children[index];
-        if (isVText(spanChildVNode)) {
-          childVNode = spanChildVNode;
-        } else {
-          const formattingFragment = buildTextFormatting(spanChildVNode);
-          runPropertiesFragment.import(formattingFragment);
-          // TODO: Check if there can ever be possibility of multiple children
-          // eslint-disable-next-line prefer-destructuring
-          childVNode = spanChildVNode.children[0];
-        }
-      }
-    } else {
+  if (isVNode(vNode) && ['strong', 'i', 'u'].includes(vNode.tagName)) {
+    while (isVNode(vNode)) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
-      // TODO: Check if there can ever be possibility of multiple children
-      // eslint-disable-next-line prefer-destructuring
-      childVNode = vNode.children[0];
+      // eslint-disable-next-line no-param-reassign, prefer-destructuring
+      vNode = vNode.children[0];
     }
-    // eslint-disable-next-line no-param-reassign
-    vNode = childVNode;
   }
   runFragment.import(runPropertiesFragment);
   if (isVText(vNode)) {
@@ -237,6 +221,23 @@ const buildRun = (vNode, attributes) => {
   return runFragment;
 };
 
+const buildRunOrRuns = (vNode, attributes) => {
+  if (isVNode(vNode) && vNode.tagName === 'span') {
+    const runFragments = [];
+
+    for (let index = 0; index < vNode.children.length; index++) {
+      const childVNode = vNode.children[index];
+      runFragments.push(buildRun(childVNode, attributes));
+    }
+
+    return runFragments;
+  } else {
+    const runFragment = buildRun(vNode, attributes);
+
+    return runFragment;
+  }
+};
+
 const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'a') {
     const relationshipId = docxDocumentInstance.createDocumentRelationships(
@@ -249,15 +250,23 @@ const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
       .ele('@w', 'hyperlink')
       .att('@r', 'id', `rId${relationshipId}`);
 
-    const runFragment = buildRun(vNode.children[0], attributes);
-    hyperlinkFragment.import(runFragment);
+    const runFragments = buildRunOrRuns(vNode.children[0], attributes);
+    if (Array.isArray(runFragments)) {
+      for (let index = 0; index < runFragments.length; index++) {
+        const runFragment = runFragments[index];
+
+        hyperlinkFragment.import(runFragment);
+      }
+    } else {
+      hyperlinkFragment.import(runFragments);
+    }
     hyperlinkFragment.up();
 
     return hyperlinkFragment;
   }
-  const runFragment = buildRun(vNode, attributes);
+  const runFragments = buildRunOrRuns(vNode, attributes);
 
-  return runFragment;
+  return runFragments;
 };
 
 const buildNumberingProperties = (levelId, numberingId) => {
@@ -357,17 +366,40 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   );
   paragraphFragment.import(paragraphPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      const runFragment = buildRunOrHyperLink(childVNode, attributes, docxDocumentInstance);
-      paragraphFragment.import(runFragment);
+      const runOrHyperlinkFragments = buildRunOrHyperLink(
+        childVNode,
+        attributes,
+        docxDocumentInstance
+      );
+      if (Array.isArray(runOrHyperlinkFragments)) {
+        for (
+          let iteratorIndex = 0;
+          iteratorIndex < runOrHyperlinkFragments.length;
+          iteratorIndex++
+        ) {
+          const runOrHyperlinkFragment = runOrHyperlinkFragments[iteratorIndex];
+
+          paragraphFragment.import(runOrHyperlinkFragment);
+        }
+      } else {
+        paragraphFragment.import(runOrHyperlinkFragments);
+      }
     }
   } else {
     // In case paragraphs has to be rendered where vText is present. Eg. table-cell
     // Or in case the vNode is something like img
-    const runFragment = buildRun(vNode, attributes);
-    paragraphFragment.import(runFragment);
+    const runFragments = buildRunOrRuns(vNode, attributes);
+    if (Array.isArray(runFragments)) {
+      for (let index = 0; index < runFragments.length; index++) {
+        const runFragment = runFragments[index];
+
+        paragraphFragment.import(runFragment);
+      }
+    } else {
+      paragraphFragment.import(runFragments);
+    }
   }
   paragraphFragment.up();
 
@@ -391,7 +423,6 @@ const buildTableCell = (vNode) => {
   const tableCellPropertiesFragment = buildTableCellProperties();
   tableCellFragment.import(tableCellPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       const paragraphFragment = buildParagraph(childVNode);
@@ -416,7 +447,6 @@ const buildTableRow = (vNode) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tr');
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'td') {
@@ -447,7 +477,7 @@ const buildTableGrid = (vNode, attributes) => {
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     const gridColumns = vNode.children.filter((childVNode) => childVNode.tagName === 'col');
     const gridWidth = attributes.maximumWidth / gridColumns.length;
-    // eslint-disable-next-line no-plusplus
+
     for (let index = 0; index < gridColumns.length; index++) {
       const tableGridColFragment = buildTableGridCol(gridWidth);
       tableGridFragment.import(tableGridColFragment);
@@ -515,14 +545,12 @@ const buildTable = (vNode, attributes) => {
   const tablePropertiesFragment = buildTableProperties(attributes);
   tableFragment.import(tablePropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'colgroup') {
         const tableGridFragment = buildTableGrid(childVNode, attributes);
         tableFragment.import(tableGridFragment);
       } else if (childVNode.tagName === 'tbody') {
-        // eslint-disable-next-line no-plusplus
         for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
           const grandChildVNode = childVNode.children[iteratorIndex];
           if (grandChildVNode.tagName === 'tr') {
@@ -936,7 +964,6 @@ const buildDrawing = (float = false, graphicType, attributes) => {
 export {
   buildParagraph,
   buildTable,
-  buildHyperlink,
   buildNumberingInstances,
   buildLineBreak,
   buildHorizontalAlignment,
