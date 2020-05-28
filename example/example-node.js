@@ -1,7 +1,7 @@
-import fs from 'fs';
+const fs = require('fs');
 // FIXME: Incase you have the npm package
-// import HTMLtoDOCX from 'html-to-docx';
-import HTMLtoDOCX from '../dist/html-to-docx.esm';
+// const HTMLtoDOCX = require('html-to-docx');
+const HTMLtoDOCX = require('../dist/html-to-docx.cjs');
 
 const filePath = './example.docx';
 
