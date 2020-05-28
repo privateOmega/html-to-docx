@@ -1,3 +1,6 @@
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-else-return */
 /* eslint-disable no-unused-vars */
 import { fragment } from 'xmlbuilder2';
 
@@ -6,6 +9,29 @@ import { default as namespaces } from './namespaces';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
+
+const buildColor = (colorCode) => {
+  const colorFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'color')
+    .att('@w', 'val', colorCode)
+    .up();
+
+  return colorFragment;
+};
+
+const buildShading = (colorCode) => {
+  const shadingFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'shd')
+    .att('@w', 'val', 'clear')
+    .att('@w', 'fill', colorCode)
+    .up();
+
+  return shadingFragment;
+};
 
 const buildBold = () => {
   const boldFragment = fragment({
@@ -148,43 +174,50 @@ const buildRunProperties = (attributes) => {
   const runPropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'rPr');
-  if (attributes && attributes.type) {
-    switch (attributes.type) {
-      case 'strong':
-        runPropertiesFragment.ele('@w', 'b').up();
-        break;
-      case 'i':
-        runPropertiesFragment.ele('@w', 'i').up();
-        break;
-      case 'u':
-        runPropertiesFragment.ele('@w', 'u').att('@w', 'val', 'single').up();
-        break;
-      case 'color':
-        runPropertiesFragment.ele('@w', 'color').att('@w', 'val', attributes.value);
-        break;
-      default:
-        break;
-    }
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      // eslint-disable-next-line default-case
+      switch (key) {
+        case 'strong':
+          const boldFragment = buildBold();
+          runPropertiesFragment.import(boldFragment);
+          break;
+        case 'i':
+          const italicsFragment = buildItalics();
+          runPropertiesFragment.import(italicsFragment);
+          break;
+        case 'u':
+          const underlineFragment = buildUnderline();
+          runPropertiesFragment.import(underlineFragment);
+          break;
+        case 'color':
+          const colorFragment = buildColor(attributes[key]);
+          runPropertiesFragment.import(colorFragment);
+          break;
+        case 'backgroundColor':
+          const shadingFragment = buildShading(attributes[key]);
+          runPropertiesFragment.import(shadingFragment);
+      }
+    });
   }
-
-  // TODO: Add styles within it
   runPropertiesFragment.up();
 
   return runPropertiesFragment;
 };
 
+// eslint-disable-next-line consistent-return
 const buildTextFormatting = (vNode) => {
-  if (vNode.tagName === 'strong') {
-    const boldFragment = buildBold();
-    return boldFragment;
-  }
-  if (vNode.tagName === 'i') {
-    const italicsFragment = buildItalics();
-    return italicsFragment;
-  }
-  if (vNode.tagName === 'u') {
-    const underlineFragment = buildUnderline();
-    return underlineFragment;
+  // eslint-disable-next-line default-case
+  switch (vNode.tagName) {
+    case 'strong':
+      const boldFragment = buildBold();
+      return boldFragment;
+    case 'i':
+      const italicsFragment = buildItalics();
+      return italicsFragment;
+    case 'u':
+      const underlineFragment = buildUnderline();
+      return underlineFragment;
   }
 };
 
@@ -193,31 +226,13 @@ const buildRun = (vNode, attributes) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
-  let childVNode;
-  if (isVNode(vNode) && ['span', 'strong', 'i', 'u'].includes(vNode.tagName)) {
-    if (vNode.tagName === 'span') {
-      // eslint-disable-next-line no-plusplus
-      for (let index = 0; index < vNode.children.length; index++) {
-        const spanChildVNode = vNode.children[index];
-        if (isVText(spanChildVNode)) {
-          childVNode = spanChildVNode;
-        } else {
-          const formattingFragment = buildTextFormatting(spanChildVNode);
-          runPropertiesFragment.import(formattingFragment);
-          // TODO: Check if there can ever be possibility of multiple children
-          // eslint-disable-next-line prefer-destructuring
-          childVNode = spanChildVNode.children[0];
-        }
-      }
-    } else {
+  if (isVNode(vNode) && ['strong', 'i', 'u'].includes(vNode.tagName)) {
+    while (isVNode(vNode)) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
-      // TODO: Check if there can ever be possibility of multiple children
-      // eslint-disable-next-line prefer-destructuring
-      childVNode = vNode.children[0];
+      // eslint-disable-next-line no-param-reassign, prefer-destructuring
+      vNode = vNode.children[0];
     }
-    // eslint-disable-next-line no-param-reassign
-    vNode = childVNode;
   }
   runFragment.import(runPropertiesFragment);
   if (isVText(vNode)) {
@@ -237,6 +252,60 @@ const buildRun = (vNode, attributes) => {
   return runFragment;
 };
 
+const fixupColorCode = (colorCodeString) => {
+  if (!/^#[0-9A-F]{6}$/i.test(colorCodeString)) {
+    // eslint-disable-next-line no-param-reassign
+    colorCodeString = colorCodeString
+      .split('(')[1]
+      .split(')')[0]
+      .split(',')
+      .map((x) => {
+        // eslint-disable-next-line radix, no-param-reassign
+        x = parseInt(x).toString(16);
+        return x.length === 1 ? `0${x}` : x;
+      })
+      .join('');
+
+    return colorCodeString;
+  }
+
+  return colorCodeString.replace('#', '');
+};
+
+const buildRunOrRuns = (vNode, attributes) => {
+  if (isVNode(vNode) && vNode.tagName === 'span') {
+    const runFragments = [];
+
+    for (let index = 0; index < vNode.children.length; index++) {
+      const childVNode = vNode.children[index];
+      const modifiedAttributes = { ...attributes };
+      if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
+        if (
+          vNode.properties.style.color &&
+          !['transparent', 'auto'].includes(vNode.properties.style.color)
+        ) {
+          modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
+        }
+        if (
+          vNode.properties.style['background-color'] &&
+          !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+        ) {
+          modifiedAttributes.backgroundColor = fixupColorCode(
+            vNode.properties.style['background-color']
+          );
+        }
+      }
+      runFragments.push(buildRun(childVNode, modifiedAttributes));
+    }
+
+    return runFragments;
+  } else {
+    const runFragment = buildRun(vNode, attributes);
+
+    return runFragment;
+  }
+};
+
 const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'a') {
     const relationshipId = docxDocumentInstance.createDocumentRelationships(
@@ -249,15 +318,23 @@ const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
       .ele('@w', 'hyperlink')
       .att('@r', 'id', `rId${relationshipId}`);
 
-    const runFragment = buildRun(vNode.children[0], attributes);
-    hyperlinkFragment.import(runFragment);
+    const runFragments = buildRunOrRuns(vNode.children[0], attributes);
+    if (Array.isArray(runFragments)) {
+      for (let index = 0; index < runFragments.length; index++) {
+        const runFragment = runFragments[index];
+
+        hyperlinkFragment.import(runFragment);
+      }
+    } else {
+      hyperlinkFragment.import(runFragments);
+    }
     hyperlinkFragment.up();
 
     return hyperlinkFragment;
   }
-  const runFragment = buildRun(vNode, attributes);
+  const runFragments = buildRunOrRuns(vNode, attributes);
 
-  return runFragment;
+  return runFragments;
 };
 
 const buildNumberingProperties = (levelId, numberingId) => {
@@ -296,20 +373,6 @@ const buildSpacing = () => {
     .up();
 
   return spacingFragment;
-};
-
-const buildShading = (fillColorCode) => {
-  const shadingFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'shd')
-    // background color for text
-    .att('@w', 'fill', fillColorCode)
-    .att('@w', 'color', 'auto')
-    .att('@w', 'val', 'clear')
-    .up();
-
-  return shadingFragment;
 };
 
 const buildIndentation = () => {
@@ -357,17 +420,40 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   );
   paragraphFragment.import(paragraphPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      const runFragment = buildRunOrHyperLink(childVNode, attributes, docxDocumentInstance);
-      paragraphFragment.import(runFragment);
+      const runOrHyperlinkFragments = buildRunOrHyperLink(
+        childVNode,
+        attributes,
+        docxDocumentInstance
+      );
+      if (Array.isArray(runOrHyperlinkFragments)) {
+        for (
+          let iteratorIndex = 0;
+          iteratorIndex < runOrHyperlinkFragments.length;
+          iteratorIndex++
+        ) {
+          const runOrHyperlinkFragment = runOrHyperlinkFragments[iteratorIndex];
+
+          paragraphFragment.import(runOrHyperlinkFragment);
+        }
+      } else {
+        paragraphFragment.import(runOrHyperlinkFragments);
+      }
     }
   } else {
     // In case paragraphs has to be rendered where vText is present. Eg. table-cell
     // Or in case the vNode is something like img
-    const runFragment = buildRun(vNode, attributes);
-    paragraphFragment.import(runFragment);
+    const runFragments = buildRunOrRuns(vNode, attributes);
+    if (Array.isArray(runFragments)) {
+      for (let index = 0; index < runFragments.length; index++) {
+        const runFragment = runFragments[index];
+
+        paragraphFragment.import(runFragment);
+      }
+    } else {
+      paragraphFragment.import(runFragments);
+    }
   }
   paragraphFragment.up();
 
@@ -391,7 +477,6 @@ const buildTableCell = (vNode) => {
   const tableCellPropertiesFragment = buildTableCellProperties();
   tableCellFragment.import(tableCellPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       const paragraphFragment = buildParagraph(childVNode);
@@ -416,7 +501,6 @@ const buildTableRow = (vNode) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tr');
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'td') {
@@ -447,7 +531,7 @@ const buildTableGrid = (vNode, attributes) => {
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     const gridColumns = vNode.children.filter((childVNode) => childVNode.tagName === 'col');
     const gridWidth = attributes.maximumWidth / gridColumns.length;
-    // eslint-disable-next-line no-plusplus
+
     for (let index = 0; index < gridColumns.length; index++) {
       const tableGridColFragment = buildTableGridCol(gridWidth);
       tableGridFragment.import(tableGridColFragment);
@@ -515,14 +599,12 @@ const buildTable = (vNode, attributes) => {
   const tablePropertiesFragment = buildTableProperties(attributes);
   tableFragment.import(tablePropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'colgroup') {
         const tableGridFragment = buildTableGrid(childVNode, attributes);
         tableFragment.import(tableGridFragment);
       } else if (childVNode.tagName === 'tbody') {
-        // eslint-disable-next-line no-plusplus
         for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
           const grandChildVNode = childVNode.children[iteratorIndex];
           if (grandChildVNode.tagName === 'tr') {
@@ -936,7 +1018,6 @@ const buildDrawing = (float = false, graphicType, attributes) => {
 export {
   buildParagraph,
   buildTable,
-  buildHyperlink,
   buildNumberingInstances,
   buildLineBreak,
   buildHorizontalAlignment,
