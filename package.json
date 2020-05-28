@@ -36,5 +36,15 @@
     "jszip": "^3.4.0",
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "^2.1.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   }
 }
