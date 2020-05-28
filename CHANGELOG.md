@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/privateOmega/html-to-docx/compare/v1.1.0...v1.1.1) (2020-05-28)
+
+
+### Bug Fixes
+
+* modified example to use esm bundle ([dcd7f4b](https://github.com/privateOmega/html-to-docx/commit/dcd7f4b7705b806697dfe92f060641030ee42cfa))
+
 ## 1.1.0 (2020-05-28)
 
 
