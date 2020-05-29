@@ -13,7 +13,26 @@ const convertHTML = require('html-to-vdom')({
 
 const defaultDocumentOptions = {
   orientation: 'portrait',
-  margins: {},
+  margins: {
+    top: 1440,
+    right: 1800,
+    bottom: 1440,
+    left: 1800,
+    header: 720,
+    footer: 720,
+    gutter: 0,
+  },
+  title: '',
+  subject: '',
+  creator: 'html-to-docx',
+  keywords: ['html-to-docx'],
+  description: '',
+  lastModifiedBy: 'html-to-docx',
+  revision: 1,
+  createdAt: new Date(),
+  modifiedAt: new Date(),
+  headerType: 'default',
+  header: false,
 };
 
 const mergeOptions = (options, patch) => ({ ...options, ...patch });
