@@ -40,7 +40,7 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
     createFolders: false,
   });
 
-  if (headerHTMLString) {
+  if (docxDocument.header && headerHTMLString) {
     const vTree = convertHTML(headerHTMLString);
 
     const { headerId, headerXML } = docxDocument.generateHeaderXML(vTree);

@@ -50,6 +50,7 @@ class DocxDocument {
     createdAt,
     modifiedAt,
     headerType,
+    header,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -74,6 +75,7 @@ class DocxDocument {
     this.createdAt = createdAt || new Date();
     this.modifiedAt = modifiedAt || new Date();
     this.headerType = headerType || 'default';
+    this.header = header || false;
 
     this.lastNumberingId = 0;
     this.lastDocumentRelsId = 4;
@@ -152,7 +154,12 @@ class DocxDocument {
     );
     documentXML.root().first().import(this.documentXML);
 
-    if (this.headerObjects && Array.isArray(this.headerObjects) && this.headerObjects.length) {
+    if (
+      this.header &&
+      this.headerObjects &&
+      Array.isArray(this.headerObjects) &&
+      this.headerObjects.length
+    ) {
       const headerXmlFragment = fragment();
 
       this.headerObjects.forEach(
@@ -257,6 +264,7 @@ class DocxDocument {
   }
 
   createMediaFile(base64String) {
+    // eslint-disable-next-line no-useless-escape
     const matches = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
     if (matches.length !== 3) {
       throw new Error('Invalid base64 string');
