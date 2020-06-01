@@ -6,6 +6,7 @@ import { fragment } from 'xmlbuilder2';
 
 // eslint-disable-next-line import/no-named-default
 import { default as namespaces } from './namespaces';
+import { rgbToHex, hslToHex, hslRegex, rgbRegex } from '../utils/color-conversion';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
@@ -252,24 +253,26 @@ const buildRun = (vNode, attributes) => {
   return runFragment;
 };
 
+// eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
-  if (!/^#[0-9A-F]{6}$/i.test(colorCodeString)) {
-    // eslint-disable-next-line no-param-reassign
-    colorCodeString = colorCodeString
-      .split('(')[1]
-      .split(')')[0]
-      .split(',')
-      .map((x) => {
-        // eslint-disable-next-line radix, no-param-reassign
-        x = parseInt(x).toString(16);
-        return x.length === 1 ? `0${x}` : x;
-      })
-      .join('');
+  // eslint-disable-next-line no-unused-expressions
+  if (rgbRegex.test(colorCodeString)) {
+    const matchedParts = colorCodeString.match(rgbRegex);
+    const red = matchedParts[1];
+    const green = matchedParts[2];
+    const blue = matchedParts[3];
 
-    return colorCodeString;
+    return rgbToHex(red, green, blue);
+  } else if (hslRegex.test(colorCodeString)) {
+    const matchedParts = colorCodeString.match(hslRegex);
+    const hue = matchedParts[1];
+    const saturation = matchedParts[2];
+    const luminosity = matchedParts[3];
+
+    return hslToHex(hue, saturation, luminosity);
+  } else if (/^#[0-9A-F]{6}$/i.test(colorCodeString)) {
+    return colorCodeString.replace('#', '');
   }
-
-  return colorCodeString.replace('#', '');
 };
 
 const buildRunOrRuns = (vNode, attributes) => {

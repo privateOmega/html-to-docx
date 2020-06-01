@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const fs = require('fs');
 // FIXME: Incase you have the npm package
 // const HTMLtoDOCX = require('html-to-docx');
