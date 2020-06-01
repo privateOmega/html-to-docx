@@ -2,6 +2,7 @@
 
 export const rgbRegex = /rgb\((\d+),\s*([\d.]+),\s*([\d.]+)\)/i;
 export const hslRegex = /hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/i;
+export const hexRegex = /#([0-9A-F]{6})/i;
 
 // eslint-disable-next-line import/prefer-default-export
 export const rgbToHex = () => {

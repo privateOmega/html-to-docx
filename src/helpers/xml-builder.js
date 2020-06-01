@@ -6,10 +6,23 @@ import { fragment } from 'xmlbuilder2';
 
 // eslint-disable-next-line import/no-named-default
 import { default as namespaces } from './namespaces';
-import { rgbToHex, hslToHex, hslRegex, rgbRegex } from '../utils/color-conversion';
+import { rgbToHex, hslToHex, hslRegex, rgbRegex, hexRegex } from '../utils/color-conversion';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
+
+const buildVerticalAlign = (verticalAlign) => {
+  const vAlignEquivalentValue = verticalAlign === 'middle' ? 'both' : 'center';
+
+  const verticalAlignFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'vAlign')
+    .att('@w', 'val', vAlignEquivalentValue)
+    .up();
+
+  return verticalAlignFragment;
+};
 
 const buildColor = (colorCode) => {
   const colorFragment = fragment({
@@ -270,8 +283,10 @@ const fixupColorCode = (colorCodeString) => {
     const luminosity = matchedParts[3];
 
     return hslToHex(hue, saturation, luminosity);
-  } else if (/^#[0-9A-F]{6}$/i.test(colorCodeString)) {
-    return colorCodeString.replace('#', '');
+  } else if (hexRegex.test(colorCodeString)) {
+    const matchedParts = colorCodeString.match(hexRegex);
+
+    return matchedParts[1];
   }
 };
 
@@ -463,11 +478,31 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   return paragraphFragment;
 };
 
-const buildTableCellProperties = (styles) => {
+const buildTableCellProperties = (attributes) => {
   const tableCellPropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tcPr');
-  // TODO: Add styles within it
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      // eslint-disable-next-line default-case
+      switch (key) {
+        case 'backgroundColor':
+          const shadingFragment = buildShading(attributes[key]);
+          tableCellPropertiesFragment.import(shadingFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.backgroundColor;
+          break;
+        case 'verticalAlign':
+          const verticalAlignFragment = buildVerticalAlign(attributes[key]);
+          tableCellPropertiesFragment.import(verticalAlignFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.verticalAlign;
+          break;
+      }
+    });
+  }
   tableCellPropertiesFragment.up();
 
   return tableCellPropertiesFragment;
@@ -477,12 +512,30 @@ const buildTableCell = (vNode) => {
   const tableCellFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tc');
-  const tableCellPropertiesFragment = buildTableCellProperties();
+  const attributes = {};
+  if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
+    if (
+      vNode.properties.style.color &&
+      !['transparent', 'auto'].includes(vNode.properties.style.color)
+    ) {
+      attributes.color = fixupColorCode(vNode.properties.style.color);
+    }
+    if (
+      vNode.properties.style['background-color'] &&
+      !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+    ) {
+      attributes.backgroundColor = fixupColorCode(vNode.properties.style['background-color']);
+    }
+    if (vNode.properties.style['vertical-align']) {
+      attributes.verticalAlign = vNode.properties.style['vertical-align'];
+    }
+  }
+  const tableCellPropertiesFragment = buildTableCellProperties(attributes);
   tableCellFragment.import(tableCellPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      const paragraphFragment = buildParagraph(childVNode);
+      const paragraphFragment = buildParagraph(childVNode, attributes);
       tableCellFragment.import(paragraphFragment);
     }
   } else {
