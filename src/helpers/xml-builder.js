@@ -11,6 +11,19 @@ import { rgbToHex, hslToHex, hslRegex, rgbRegex, hexRegex } from '../utils/color
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
 
+const buildVerticalAlign = (verticalAlign) => {
+  const vAlignEquivalentValue = verticalAlign === 'middle' ? 'both' : 'center';
+
+  const verticalAlignFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'vAlign')
+    .att('@w', 'val', vAlignEquivalentValue)
+    .up();
+
+  return verticalAlignFragment;
+};
+
 const buildColor = (colorCode) => {
   const colorFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -479,6 +492,14 @@ const buildTableCellProperties = (attributes) => {
           // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.backgroundColor;
+          break;
+        case 'verticalAlign':
+          const verticalAlignFragment = buildVerticalAlign(attributes[key]);
+          tableCellPropertiesFragment.import(verticalAlignFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.verticalAlign;
+          break;
       }
     });
   }
@@ -504,6 +525,9 @@ const buildTableCell = (vNode) => {
       !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
     ) {
       attributes.backgroundColor = fixupColorCode(vNode.properties.style['background-color']);
+    }
+    if (vNode.properties.style['vertical-align']) {
+      attributes.verticalAlign = vNode.properties.style['vertical-align'];
     }
   }
   const tableCellPropertiesFragment = buildTableCellProperties(attributes);
