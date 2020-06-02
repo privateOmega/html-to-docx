@@ -41,15 +41,19 @@ const buildImage = (docxDocumentInstance, vNode) => {
     const imageBuffer = Buffer.from(response.fileContent, 'base64');
     const imageProperties = sizeOf(imageBuffer);
 
-    const imageFragment = xmlBuilder.buildParagraph(vNode, {
-      type: 'picture',
-      inlineOrAnchored: false,
-      relationshipId: documentRelsId,
-      ...response,
-      maximumWidth: docxDocumentInstance.availableDocumentSpace,
-      originalWidth: imageProperties.width,
-      originalHeight: imageProperties.height,
-    });
+    const imageFragment = xmlBuilder.buildParagraph(
+      vNode,
+      {
+        type: 'picture',
+        inlineOrAnchored: false,
+        relationshipId: documentRelsId,
+        ...response,
+        maximumWidth: docxDocumentInstance.availableDocumentSpace,
+        originalWidth: imageProperties.width,
+        originalHeight: imageProperties.height,
+      },
+      docxDocumentInstance
+    );
 
     return imageFragment;
   }
