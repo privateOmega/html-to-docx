@@ -7,6 +7,7 @@ import { fragment } from 'xmlbuilder2';
 // eslint-disable-next-line import/no-named-default
 import { default as namespaces } from './namespaces';
 import { rgbToHex, hslToHex, hslRegex, rgbRegex, hexRegex } from '../utils/color-conversion';
+import { pixelsToEMU, pixelRegex, TWIPToEMU, percentageRegex } from '../utils/unit-conversion';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
@@ -428,6 +429,77 @@ const buildParagraphProperties = (attributes, styles) => {
   return paragraphPropertiesFragment;
 };
 
+const computeImageDimensions = (vNode, attributes) => {
+  const { maximumWidth, originalWidth, originalHeight } = attributes;
+  const aspectRatio = originalWidth / originalHeight;
+  const maximumWidthInEMU = TWIPToEMU(maximumWidth);
+  let originalWidthInEMU = pixelsToEMU(originalWidth);
+  let originalHeightInEMU = pixelsToEMU(originalHeight);
+  if (originalWidthInEMU > maximumWidthInEMU) {
+    originalWidthInEMU = maximumWidthInEMU;
+    originalHeightInEMU = Math.round(originalWidthInEMU / aspectRatio);
+  }
+  let modifiedHeight;
+  let modifiedWidth;
+
+  if (vNode.properties && vNode.properties.style) {
+    if (vNode.properties.style.width) {
+      if (vNode.properties.style.width !== 'auto') {
+        if (pixelRegex.test(vNode.properties.style.width)) {
+          modifiedWidth = pixelsToEMU(vNode.properties.style.width.match(pixelRegex)[1]);
+        } else if (percentageRegex.test(vNode.properties.style.width)) {
+          const percentageValue = vNode.properties.style.width.match(percentageRegex)[1];
+
+          modifiedWidth = Math.round((percentageValue / 100) * originalWidthInEMU);
+        }
+      } else {
+        // eslint-disable-next-line no-lonely-if
+        if (vNode.properties.style.height && vNode.properties.style.height === 'auto') {
+          modifiedWidth = originalWidthInEMU;
+          modifiedHeight = originalHeightInEMU;
+        }
+      }
+    }
+    if (vNode.properties.style.height) {
+      if (vNode.properties.style.height !== 'auto') {
+        if (pixelRegex.test(vNode.properties.style.height)) {
+          modifiedHeight = pixelsToEMU(vNode.properties.style.height.match(pixelRegex)[1]);
+        } else if (percentageRegex.test(vNode.properties.style.height)) {
+          const percentageValue = vNode.properties.style.width.match(percentageRegex)[1];
+
+          modifiedHeight = Math.round((percentageValue / 100) * originalHeightInEMU);
+          if (!modifiedWidth) {
+            modifiedWidth = Math.round(modifiedHeight * aspectRatio);
+          }
+        }
+      } else {
+        // eslint-disable-next-line no-lonely-if
+        if (modifiedWidth) {
+          if (!modifiedHeight) {
+            modifiedHeight = Math.round(modifiedWidth / aspectRatio);
+          }
+        } else {
+          modifiedHeight = originalHeightInEMU;
+          modifiedWidth = originalWidthInEMU;
+        }
+      }
+    }
+    if (modifiedWidth && !modifiedHeight) {
+      modifiedHeight = Math.round(modifiedWidth / aspectRatio);
+    } else if (modifiedHeight && !modifiedWidth) {
+      modifiedWidth = Math.round(modifiedHeight * aspectRatio);
+    }
+  } else {
+    modifiedWidth = originalWidthInEMU;
+    modifiedHeight = originalHeightInEMU;
+  }
+
+  // eslint-disable-next-line no-param-reassign
+  attributes.width = modifiedWidth;
+  // eslint-disable-next-line no-param-reassign
+  attributes.height = modifiedHeight;
+};
+
 const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -462,7 +534,11 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   } else {
     // In case paragraphs has to be rendered where vText is present. Eg. table-cell
     // Or in case the vNode is something like img
-    const runFragments = buildRunOrRuns(vNode, attributes);
+    const modifiedAttributes = { ...attributes };
+    if (isVNode(vNode) && vNode.tagName === 'img') {
+      computeImageDimensions(vNode, modifiedAttributes);
+    }
+    const runFragments = buildRunOrRuns(vNode, modifiedAttributes);
     if (Array.isArray(runFragments)) {
       for (let index = 0; index < runFragments.length; index++) {
         const runFragment = runFragments[index];
@@ -621,13 +697,13 @@ const buildTableBorders = () => {
   return tableBordersFragment;
 };
 
-const buildTableWidth = (width) => {
+const buildTableWidth = (tableWidth) => {
   const tableWidthFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'tblW')
     .att('@w', 'type', 'dxa')
-    .att('@w', 'w', String(width))
+    .att('@w', 'w', String(tableWidth))
     .up();
 
   return tableWidthFragment;
@@ -690,31 +766,51 @@ const buildPresetGeometry = () => {
   return presetGeometryFragment;
 };
 
-const buildGraphicFrameTransform = () => {
-  const graphicFrameTransformFragment = fragment({
+const buildExtents = ({ width, height }) => {
+  const extentsFragment = fragment({
     namespaceAlias: { a: namespaces.a },
   })
-    .ele('@a', 'xfrm')
+    .ele('@a', 'ext')
+    .att('cx', width)
+    .att('cy', height)
+    .up();
+
+  return extentsFragment;
+};
+
+const buildOffset = () => {
+  const offsetFragment = fragment({
+    namespaceAlias: { a: namespaces.a },
+  })
     .ele('@a', 'off')
     .att('x', '0')
     .att('y', '0')
-    .up()
-    .ele('@a', 'ext')
-    .att('cx', '5943600')
-    .att('cy', '3347085')
     .up();
+
+  return offsetFragment;
+};
+
+const buildGraphicFrameTransform = (attributes) => {
+  const graphicFrameTransformFragment = fragment({
+    namespaceAlias: { a: namespaces.a },
+  }).ele('@a', 'xfrm');
+
+  const offsetFragment = buildOffset();
+  graphicFrameTransformFragment.import(offsetFragment);
+  const extentsFragment = buildExtents(attributes);
+  graphicFrameTransformFragment.import(extentsFragment);
 
   graphicFrameTransformFragment.up();
 
   return graphicFrameTransformFragment;
 };
 
-const buildShapeProperties = () => {
+const buildShapeProperties = (attributes) => {
   const shapeProperties = fragment({
     namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'spPr');
 
-  const graphicFrameTransformFragment = buildGraphicFrameTransform();
+  const graphicFrameTransformFragment = buildGraphicFrameTransform(attributes);
   shapeProperties.import(graphicFrameTransformFragment);
   const presetGeometryFragment = buildPresetGeometry();
   shapeProperties.import(presetGeometryFragment);
@@ -841,7 +937,14 @@ const buildNonVisualPictureProperties = (
   return nonVisualPicturePropertiesFragment;
 };
 
-const buildPicture = ({ id, fileNameWithExtension, description, relationshipId }) => {
+const buildPicture = ({
+  id,
+  fileNameWithExtension,
+  description,
+  relationshipId,
+  width,
+  height,
+}) => {
   const pictureFragment = fragment({
     namespaceAlias: { pic: namespaces.pic },
   }).ele('@pic', 'pic');
@@ -853,7 +956,7 @@ const buildPicture = ({ id, fileNameWithExtension, description, relationshipId }
   pictureFragment.import(nonVisualPicturePropertiesFragment);
   const binaryLargeImageOrPictureFill = buildBinaryLargeImageOrPictureFill(relationshipId);
   pictureFragment.import(binaryLargeImageOrPictureFill);
-  const shapeProperties = buildShapeProperties();
+  const shapeProperties = buildShapeProperties({ width, height });
   pictureFragment.import(shapeProperties);
   pictureFragment.up();
 
@@ -938,13 +1041,13 @@ const buildEffectExtentFragment = () => {
   return effectExtentFragment;
 };
 
-const buildExtent = () => {
+const buildExtent = ({ width, height }) => {
   const extentFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
   })
     .ele('@wp', 'extent')
-    .att('cx', '5943600')
-    .att('cy', '3347085')
+    .att('cx', width)
+    .att('cy', height)
     .up();
 
   return extentFragment;
@@ -1012,7 +1115,7 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
   anchoredDrawingFragment.import(positionHFragment);
   const positionVFragment = buildPositionV();
   anchoredDrawingFragment.import(positionVFragment);
-  const extentFragment = buildExtent();
+  const extentFragment = buildExtent({ width: attributes.width, height: attributes.height });
   anchoredDrawingFragment.import(extentFragment);
   const effectExtentFragment = buildEffectExtentFragment();
   anchoredDrawingFragment.import(effectExtentFragment);
@@ -1058,11 +1161,11 @@ const buildInlineDrawing = (graphicType, attributes) => {
   return inlineDrawingFragment;
 };
 
-const buildDrawing = (float = false, graphicType, attributes) => {
+const buildDrawing = (inlineOrAnchored = false, graphicType, attributes) => {
   const drawingFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'drawing');
-  const inlineOrAnchoredDrawingFragment = float
+  const inlineOrAnchoredDrawingFragment = inlineOrAnchored
     ? buildInlineDrawing(graphicType, attributes)
     : buildAnchoredDrawing(graphicType, attributes);
   drawingFragment.import(inlineOrAnchoredDrawingFragment);

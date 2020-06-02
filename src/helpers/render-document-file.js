@@ -9,6 +9,7 @@ const VText = require('virtual-dom/vnode/vtext');
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
 const escape = require('escape-html');
+const sizeOf = require('image-size');
 
 const convertHTML = require('html-to-vdom')({
   VNode,
@@ -37,12 +38,17 @@ const buildImage = (docxDocumentInstance, vNode) => {
       'Internal'
     );
 
+    const imageBuffer = Buffer.from(response.fileContent, 'base64');
+    const imageProperties = sizeOf(imageBuffer);
+
     const imageFragment = xmlBuilder.buildParagraph(vNode, {
       type: 'picture',
       inlineOrAnchored: false,
       relationshipId: documentRelsId,
       ...response,
       maximumWidth: docxDocumentInstance.availableDocumentSpace,
+      originalWidth: imageProperties.width,
+      originalHeight: imageProperties.height,
     });
 
     return imageFragment;
