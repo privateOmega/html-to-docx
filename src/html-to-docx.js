@@ -82,6 +82,9 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
     .file('document.xml', docxDocument.generateDocumentXML(), {
       createFolders: false,
     })
+    .file('fontTable.xml', docxDocument.generateFontTableXML(), {
+      createFolders: false,
+    })
     .file('styles.xml', docxDocument.generateStylesXML(), {
       createFolders: false,
     })

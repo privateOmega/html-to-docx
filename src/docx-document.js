@@ -8,6 +8,7 @@ import {
   settingsXML as settingsXMLString,
   webSettingsXML as webSettingsXMLString,
   contentTypesXML as contentTypesXMLString,
+  fontTableXML as fontTableXMLString,
 } from './schemas';
 import { convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
@@ -94,6 +95,7 @@ class DocxDocument {
     this.generateSettingsXML = this.generateSettingsXML.bind(this);
     this.generateWebSettingsXML = this.generateWebSettingsXML.bind(this);
     this.generateStylesXML = this.generateStylesXML.bind(this);
+    this.generateFontTableXML = this.generateFontTableXML.bind(this);
     this.generateNumberingXML = this.generateNumberingXML.bind(this);
     this.generateDocumentRelsXML = this.generateDocumentRelsXML.bind(this);
     this.createMediaFile = this.createMediaFile.bind(this);
@@ -204,6 +206,13 @@ class DocxDocument {
     const stylesXML = create({ encoding: 'UTF-8', standalone: true }, generateStylesXML());
 
     return stylesXML.toString({ prettyPrint: true });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  generateFontTableXML() {
+    const fontTableXML = create({ encoding: 'UTF-8', standalone: true }, fontTableXMLString);
+
+    return fontTableXML.toString({ prettyPrint: true });
   }
 
   generateNumberingXML() {
