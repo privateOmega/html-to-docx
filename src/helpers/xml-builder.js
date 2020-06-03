@@ -11,6 +11,7 @@ import { pixelsToEMU, pixelRegex, TWIPToEMU, percentageRegex } from '../utils/un
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
+const colorNames = require('color-name');
 
 const buildVerticalAlign = (verticalAlign) => {
   const vAlignEquivalentValue = verticalAlign === 'middle' ? 'both' : 'center';
@@ -269,8 +270,11 @@ const buildRun = (vNode, attributes) => {
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
-  // eslint-disable-next-line no-unused-expressions
-  if (rgbRegex.test(colorCodeString)) {
+  if (Object.prototype.hasOwnProperty.call(colorNames, colorCodeString.toLowerCase())) {
+    const [red, green, blue] = colorNames[colorCodeString.toLowerCase()];
+
+    return rgbToHex(red, green, blue);
+  } else if (rgbRegex.test(colorCodeString)) {
     const matchedParts = colorCodeString.match(rgbRegex);
     const red = matchedParts[1];
     const green = matchedParts[2];
