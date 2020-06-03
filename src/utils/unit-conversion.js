@@ -41,3 +41,19 @@ export const HIPToTWIP = (HIPValue) => {
 export const TWIPToHIP = (TWIPValue) => {
   return Math.round(TWIPValue / 10);
 };
+
+export const pixelsToTWIP = (pixelValue) => {
+  return EMUToTWIP(pixelsToEMU(pixelValue));
+};
+
+export const TWIPToPixels = (TWIPValue) => {
+  return EMUToPixels(TWIPToEMU(TWIPValue));
+};
+
+export const pixelsToHIP = (pixelValue) => {
+  return TWIPToHIP(EMUToTWIP(pixelsToEMU(pixelValue)));
+};
+
+export const HIPToPixels = (HIPValue) => {
+  return EMUToPixels(TWIPToEMU(HIPToTWIP(HIPValue)));
+};
