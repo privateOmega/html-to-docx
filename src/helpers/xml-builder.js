@@ -7,7 +7,16 @@ import { fragment } from 'xmlbuilder2';
 // eslint-disable-next-line import/no-named-default
 import { default as namespaces } from './namespaces';
 import { rgbToHex, hslToHex, hslRegex, rgbRegex, hexRegex } from '../utils/color-conversion';
-import { pixelsToEMU, pixelRegex, TWIPToEMU, percentageRegex } from '../utils/unit-conversion';
+import {
+  pixelsToEMU,
+  pixelRegex,
+  TWIPToEMU,
+  percentageRegex,
+  pointRegex,
+  pointsToHIP,
+  HIPToTWIP,
+  pointsToTWIP,
+} from '../utils/unit-conversion';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
@@ -35,6 +44,17 @@ const buildColor = (colorCode) => {
     .up();
 
   return colorFragment;
+};
+
+const buildFontSize = (fontSize) => {
+  const fontSizeFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'sz')
+    .att('@w', 'val', fontSize)
+    .up();
+
+  return fontSizeFragment;
 };
 
 const buildShading = (colorCode) => {
@@ -213,6 +233,11 @@ const buildRunProperties = (attributes) => {
         case 'backgroundColor':
           const shadingFragment = buildShading(attributes[key]);
           runPropertiesFragment.import(shadingFragment);
+          break;
+        case 'fontSize':
+          const fontSizeFragment = buildFontSize(attributes[key]);
+          runPropertiesFragment.import(fontSizeFragment);
+          break;
       }
     });
   }
@@ -303,6 +328,15 @@ const fixupColorCode = (colorCodeString) => {
     const matchedParts = colorCodeString.match(hexRegex);
 
     return matchedParts[1];
+  }
+};
+
+// eslint-disable-next-line consistent-return
+const fixupFontSize = (fontSizeString) => {
+  if (pointRegex.test(fontSizeString)) {
+    const matchedParts = fontSizeString.match(pointRegex);
+    // convert point to half point
+    return pointsToHIP(matchedParts[1]);
   }
 };
 
@@ -561,6 +595,9 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
     // FIXME: remove bold check when other font weights are handled.
     if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
       modifiedAttributes.strong = vNode.properties.style['font-weight'];
+    }
+    if (vNode.properties.style['font-size']) {
+      modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
     }
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
