@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.4](https://github.com/privateOmega/html-to-docx/compare/v1.1.3...v1.1.4) (2020-06-03)
+
+
+### Features
+
+* added css color string ([cb0db2f](https://github.com/privateOmega/html-to-docx/commit/cb0db2ff2d3f2f66df823dbafbc5603030241bc3))
+* added horizontal text alignment ([d29669f](https://github.com/privateOmega/html-to-docx/commit/d29669ffdb0d63b7bdbbe09c6bca990e4c28cfb8))
+
+
+### Bug Fixes
+
+* bold based on font-weight ([3f0376e](https://github.com/privateOmega/html-to-docx/commit/3f0376e0a1e267705117a2ec50c9f382286b2a60))
+* handling nested formatting ([04f0d7e](https://github.com/privateOmega/html-to-docx/commit/04f0d7e822a57fc3ba98d3990e17b9153c54afc7))
+
 ### 1.1.3 (2020-06-03)
 
 
