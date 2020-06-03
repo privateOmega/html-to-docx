@@ -13,17 +13,17 @@ const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
 const colorNames = require('color-name');
 
-const buildVerticalAlign = (verticalAlign) => {
-  const vAlignEquivalentValue = verticalAlign === 'middle' ? 'both' : 'center';
+const buildVerticalAlignment = (verticalAlignment) => {
+  const vAlignEquivalentValue = verticalAlignment === 'middle' ? 'both' : 'center';
 
-  const verticalAlignFragment = fragment({
+  const verticalAlignmentFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'vAlign')
     .att('@w', 'val', vAlignEquivalentValue)
     .up();
 
-  return verticalAlignFragment;
+  return verticalAlignmentFragment;
 };
 
 const buildColor = (colorCode) => {
@@ -242,12 +242,23 @@ const buildRun = (vNode, attributes) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
-  if (isVNode(vNode) && ['strong', 'i', 'u'].includes(vNode.tagName)) {
-    while (isVNode(vNode)) {
+  if (isVNode(vNode)) {
+    while (isVNode(vNode) && ['strong', 'i', 'u'].includes(vNode.tagName)) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
-      // eslint-disable-next-line no-param-reassign, prefer-destructuring
-      vNode = vNode.children[0];
+      if (vNode.children.length === 1) {
+        // eslint-disable-next-line no-param-reassign, prefer-destructuring
+        vNode = vNode.children[0];
+      } else {
+        // FIXME: Multiple formatting children nodes under single formatting parent node.
+        for (let index = 0; index < vNode.children.length; index++) {
+          const childVNode = vNode.children[index];
+          if (isVNode(childVNode) && ['strong', 'i', 'u'].includes(childVNode.tagName)) {
+            // eslint-disable-next-line no-param-reassign
+            vNode = childVNode;
+          }
+        }
+      }
     }
   }
   runFragment.import(runPropertiesFragment);
@@ -408,26 +419,43 @@ const buildIndentation = () => {
   return indentationFragment;
 };
 
-const buildHorizontalAlignment = () => {
+const buildHorizontalAlignment = (horizontalAlignment) => {
   const horizontalAlignmentFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'jc')
+    .att('@w', 'val', horizontalAlignment)
     .up();
 
   return horizontalAlignmentFragment;
 };
 
-const buildParagraphProperties = (attributes, styles) => {
+const buildParagraphProperties = (attributes) => {
   const paragraphPropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'pPr');
-  if (attributes && Object.prototype.hasOwnProperty.call(attributes, 'numbering')) {
-    const { levelId, numberingId } = attributes.numbering;
-    const numberingPropertiesFragment = buildNumberingProperties(levelId, numberingId);
-    paragraphPropertiesFragment.import(numberingPropertiesFragment);
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      // eslint-disable-next-line default-case
+      switch (key) {
+        case 'numbering':
+          const { levelId, numberingId } = attributes[key];
+          const numberingPropertiesFragment = buildNumberingProperties(levelId, numberingId);
+          paragraphPropertiesFragment.import(numberingPropertiesFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.numbering;
+          break;
+        case 'textAlign':
+          const horizontalAlignmentFragment = buildHorizontalAlignment(attributes[key]);
+          paragraphPropertiesFragment.import(horizontalAlignmentFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.textAlign;
+          break;
+      }
+    });
   }
-  // TODO: Add styles within it
   paragraphPropertiesFragment.up();
 
   return paragraphPropertiesFragment;
@@ -508,17 +536,41 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'p');
-  const paragraphPropertiesFragment = buildParagraphProperties(
-    attributes,
-    isVNode(vNode) ? vNode.properties.attributes.style : {}
-  );
+  const modifiedAttributes = { ...attributes };
+  if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
+    if (
+      vNode.properties.style.color &&
+      !['transparent', 'auto'].includes(vNode.properties.style.color)
+    ) {
+      modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
+    }
+    if (
+      vNode.properties.style['background-color'] &&
+      !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+    ) {
+      modifiedAttributes.backgroundColor = fixupColorCode(
+        vNode.properties.style['background-color']
+      );
+    }
+    if (vNode.properties.style['vertical-align']) {
+      modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
+    }
+    if (vNode.properties.style['text-align']) {
+      modifiedAttributes.textAlign = vNode.properties.style['text-align'];
+    }
+    // FIXME: remove bold check when other font weights are handled.
+    if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
+      modifiedAttributes.strong = vNode.properties.style['font-weight'];
+    }
+  }
+  const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       const runOrHyperlinkFragments = buildRunOrHyperLink(
         childVNode,
-        attributes,
+        modifiedAttributes,
         docxDocumentInstance
       );
       if (Array.isArray(runOrHyperlinkFragments)) {
@@ -538,7 +590,6 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   } else {
     // In case paragraphs has to be rendered where vText is present. Eg. table-cell
     // Or in case the vNode is something like img
-    const modifiedAttributes = { ...attributes };
     if (isVNode(vNode) && vNode.tagName === 'img') {
       computeImageDimensions(vNode, modifiedAttributes);
     }
@@ -574,8 +625,8 @@ const buildTableCellProperties = (attributes) => {
           delete attributes.backgroundColor;
           break;
         case 'verticalAlign':
-          const verticalAlignFragment = buildVerticalAlign(attributes[key]);
-          tableCellPropertiesFragment.import(verticalAlignFragment);
+          const verticalAlignmentFragment = buildVerticalAlignment(attributes[key]);
+          tableCellPropertiesFragment.import(verticalAlignmentFragment);
           // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.verticalAlign;
@@ -1183,7 +1234,6 @@ export {
   buildTable,
   buildNumberingInstances,
   buildLineBreak,
-  buildHorizontalAlignment,
   buildIndentation,
   buildTextElement,
   buildBold,
