@@ -241,12 +241,23 @@ const buildRun = (vNode, attributes) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
-  if (isVNode(vNode) && ['strong', 'i', 'u'].includes(vNode.tagName)) {
-    while (isVNode(vNode)) {
+  if (isVNode(vNode)) {
+    while (isVNode(vNode) && ['strong', 'i', 'u'].includes(vNode.tagName)) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
-      // eslint-disable-next-line no-param-reassign, prefer-destructuring
-      vNode = vNode.children[0];
+      if (vNode.children.length === 1) {
+        // eslint-disable-next-line no-param-reassign, prefer-destructuring
+        vNode = vNode.children[0];
+      } else {
+        // FIXME: Multiple formatting children nodes under single formatting parent node.
+        for (let index = 0; index < vNode.children.length; index++) {
+          const childVNode = vNode.children[index];
+          if (isVNode(childVNode) && ['strong', 'i', 'u'].includes(childVNode.tagName)) {
+            // eslint-disable-next-line no-param-reassign
+            vNode = childVNode;
+          }
+        }
+      }
     }
   }
   runFragment.import(runPropertiesFragment);
