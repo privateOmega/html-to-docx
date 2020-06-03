@@ -16,6 +16,7 @@ import {
   pointsToHIP,
   HIPToTWIP,
   pointsToTWIP,
+  pixelsToHIP,
 } from '../utils/unit-conversion';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
@@ -356,6 +357,10 @@ const fixupFontSize = (fontSizeString) => {
     const matchedParts = fontSizeString.match(pointRegex);
     // convert point to half point
     return pointsToHIP(matchedParts[1]);
+  } else if (pixelRegex.test(fontSizeString)) {
+    const matchedParts = fontSizeString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelsToHIP(matchedParts[1]);
   }
 };
 
@@ -380,6 +385,9 @@ const buildRunOrRuns = (vNode, attributes) => {
           modifiedAttributes.backgroundColor = fixupColorCode(
             vNode.properties.style['background-color']
           );
+        }
+        if (vNode.properties.style['font-size']) {
+          modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
         }
       }
       runFragments.push(buildRun(childVNode, modifiedAttributes));
