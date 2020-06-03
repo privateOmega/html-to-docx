@@ -554,6 +554,10 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
     if (vNode.properties.style['text-align']) {
       modifiedAttributes.textAlign = vNode.properties.style['text-align'];
     }
+    // FIXME: remove bold check when other font weights are handled.
+    if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
+      modifiedAttributes.strong = vNode.properties.style['font-weight'];
+    }
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
