@@ -332,6 +332,25 @@ const fixupColorCode = (colorCodeString) => {
 };
 
 // eslint-disable-next-line consistent-return
+const fixupLineHeight = (lineHeight, fontSize) => {
+  // FIXME: If line height is anything other than a number
+  // eslint-disable-next-line no-restricted-globals
+  if (!isNaN(lineHeight)) {
+    if (fontSize) {
+      const actualLineHeight = +lineHeight * fontSize;
+
+      return HIPToTWIP(actualLineHeight);
+    } else {
+      // 240 TWIP or 12 point is default line height
+      return +lineHeight * 240;
+    }
+  } else {
+    // 240 TWIP or 12 point is default line height
+    return 240;
+  }
+};
+
+// eslint-disable-next-line consistent-return
 const fixupFontSize = (fontSizeString) => {
   if (pointRegex.test(fontSizeString)) {
     const matchedParts = fontSizeString.match(pointRegex);
@@ -433,11 +452,13 @@ const buildNumberingInstances = () => {
   return numberingInstancesFragment;
 };
 
-const buildSpacing = () => {
+const buildSpacing = (lineSpacing) => {
   const spacingFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'spacing')
+    .att('@w', 'line', lineSpacing)
+    .att('@w', 'lineRule', 'exact')
     .up();
 
   return spacingFragment;
@@ -486,6 +507,13 @@ const buildParagraphProperties = (attributes) => {
           // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.textAlign;
+          break;
+        case 'lineHeight':
+          const spacingFragment = buildSpacing(attributes[key]);
+          paragraphPropertiesFragment.import(spacingFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.lineHeight;
           break;
       }
     });
@@ -598,6 +626,14 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
     }
     if (vNode.properties.style['font-size']) {
       modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
+    }
+    if (vNode.properties.style['line-height']) {
+      modifiedAttributes.lineHeight = fixupLineHeight(
+        vNode.properties.style['line-height'],
+        vNode.properties.style['font-size']
+          ? fixupFontSize(vNode.properties.style['font-size'])
+          : null
+      );
     }
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
