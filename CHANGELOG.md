@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.7](https://github.com/privateOmega/html-to-docx/compare/v1.1.6...v1.1.7) (2020-06-04)
+
+
+### Features
+
+* added table row height support ([031c3aa](https://github.com/privateOmega/html-to-docx/commit/031c3aa963e5a7b2ee985ae8ac6ff612c89ae974))
+
+
+### Bug Fixes
+
+* added table header support ([592aa89](https://github.com/privateOmega/html-to-docx/commit/592aa893fa115a83bc1d056c98480dbe5cc872f9))
+
 ### 1.1.6 (2020-06-04)
 
 
