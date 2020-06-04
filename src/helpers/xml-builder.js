@@ -771,7 +771,7 @@ const buildTableRow = (vNode) => {
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      if (childVNode.tagName === 'td') {
+      if (['td', 'th'].includes(childVNode.tagName)) {
         const tableCellFragment = buildTableCell(childVNode);
         tableRowFragment.import(tableCellFragment);
       }
@@ -872,6 +872,14 @@ const buildTable = (vNode, attributes) => {
       if (childVNode.tagName === 'colgroup') {
         const tableGridFragment = buildTableGrid(childVNode, attributes);
         tableFragment.import(tableGridFragment);
+      } else if (childVNode.tagName === 'thead') {
+        for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
+          const grandChildVNode = childVNode.children[iteratorIndex];
+          if (grandChildVNode.tagName === 'tr') {
+            const tableRowFragment = buildTableRow(grandChildVNode);
+            tableFragment.import(tableRowFragment);
+          }
+        }
       } else if (childVNode.tagName === 'tbody') {
         for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
           const grandChildVNode = childVNode.children[iteratorIndex];
