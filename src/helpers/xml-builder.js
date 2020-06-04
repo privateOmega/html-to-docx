@@ -7,7 +7,17 @@ import { fragment } from 'xmlbuilder2';
 // eslint-disable-next-line import/no-named-default
 import { default as namespaces } from './namespaces';
 import { rgbToHex, hslToHex, hslRegex, rgbRegex, hexRegex } from '../utils/color-conversion';
-import { pixelsToEMU, pixelRegex, TWIPToEMU, percentageRegex } from '../utils/unit-conversion';
+import {
+  pixelsToEMU,
+  pixelRegex,
+  TWIPToEMU,
+  percentageRegex,
+  pointRegex,
+  pointsToHIP,
+  HIPToTWIP,
+  pointsToTWIP,
+  pixelsToHIP,
+} from '../utils/unit-conversion';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
@@ -35,6 +45,17 @@ const buildColor = (colorCode) => {
     .up();
 
   return colorFragment;
+};
+
+const buildFontSize = (fontSize) => {
+  const fontSizeFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'sz')
+    .att('@w', 'val', fontSize)
+    .up();
+
+  return fontSizeFragment;
 };
 
 const buildShading = (colorCode) => {
@@ -213,6 +234,11 @@ const buildRunProperties = (attributes) => {
         case 'backgroundColor':
           const shadingFragment = buildShading(attributes[key]);
           runPropertiesFragment.import(shadingFragment);
+          break;
+        case 'fontSize':
+          const fontSizeFragment = buildFontSize(attributes[key]);
+          runPropertiesFragment.import(fontSizeFragment);
+          break;
       }
     });
   }
@@ -306,6 +332,38 @@ const fixupColorCode = (colorCodeString) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
+const fixupLineHeight = (lineHeight, fontSize) => {
+  // FIXME: If line height is anything other than a number
+  // eslint-disable-next-line no-restricted-globals
+  if (!isNaN(lineHeight)) {
+    if (fontSize) {
+      const actualLineHeight = +lineHeight * fontSize;
+
+      return HIPToTWIP(actualLineHeight);
+    } else {
+      // 240 TWIP or 12 point is default line height
+      return +lineHeight * 240;
+    }
+  } else {
+    // 240 TWIP or 12 point is default line height
+    return 240;
+  }
+};
+
+// eslint-disable-next-line consistent-return
+const fixupFontSize = (fontSizeString) => {
+  if (pointRegex.test(fontSizeString)) {
+    const matchedParts = fontSizeString.match(pointRegex);
+    // convert point to half point
+    return pointsToHIP(matchedParts[1]);
+  } else if (pixelRegex.test(fontSizeString)) {
+    const matchedParts = fontSizeString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelsToHIP(matchedParts[1]);
+  }
+};
+
 const buildRunOrRuns = (vNode, attributes) => {
   if (isVNode(vNode) && vNode.tagName === 'span') {
     const runFragments = [];
@@ -327,6 +385,9 @@ const buildRunOrRuns = (vNode, attributes) => {
           modifiedAttributes.backgroundColor = fixupColorCode(
             vNode.properties.style['background-color']
           );
+        }
+        if (vNode.properties.style['font-size']) {
+          modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
         }
       }
       runFragments.push(buildRun(childVNode, modifiedAttributes));
@@ -399,11 +460,13 @@ const buildNumberingInstances = () => {
   return numberingInstancesFragment;
 };
 
-const buildSpacing = () => {
+const buildSpacing = (lineSpacing) => {
   const spacingFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'spacing')
+    .att('@w', 'line', lineSpacing)
+    .att('@w', 'lineRule', 'exact')
     .up();
 
   return spacingFragment;
@@ -452,6 +515,13 @@ const buildParagraphProperties = (attributes) => {
           // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.textAlign;
+          break;
+        case 'lineHeight':
+          const spacingFragment = buildSpacing(attributes[key]);
+          paragraphPropertiesFragment.import(spacingFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.lineHeight;
           break;
       }
     });
@@ -561,6 +631,17 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
     // FIXME: remove bold check when other font weights are handled.
     if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
       modifiedAttributes.strong = vNode.properties.style['font-weight'];
+    }
+    if (vNode.properties.style['font-size']) {
+      modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
+    }
+    if (vNode.properties.style['line-height']) {
+      modifiedAttributes.lineHeight = fixupLineHeight(
+        vNode.properties.style['line-height'],
+        vNode.properties.style['font-size']
+          ? fixupFontSize(vNode.properties.style['font-size'])
+          : null
+      );
     }
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
