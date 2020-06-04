@@ -17,11 +17,24 @@ import {
   HIPToTWIP,
   pointsToTWIP,
   pixelsToHIP,
+  pixelsToTWIP,
 } from '../utils/unit-conversion';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
 const colorNames = require('color-name');
+
+const buildTableRowHeight = (tableRowHeight) => {
+  const tableRowHeightFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'trHeight')
+    .att('@w', 'val', tableRowHeight)
+    .att('@w', 'hRule', 'atLeast')
+    .up();
+
+  return tableRowHeightFragment;
+};
 
 const buildVerticalAlignment = (verticalAlignment) => {
   const vAlignEquivalentValue = verticalAlignment === 'middle' ? 'both' : 'center';
@@ -361,6 +374,19 @@ const fixupFontSize = (fontSizeString) => {
     const matchedParts = fontSizeString.match(pixelRegex);
     // convert pixels to half point
     return pixelsToHIP(matchedParts[1]);
+  }
+};
+
+// eslint-disable-next-line consistent-return
+const fixupRowHeight = (rowHeightString) => {
+  if (pointRegex.test(rowHeightString)) {
+    const matchedParts = rowHeightString.match(pointRegex);
+    // convert point to half point
+    return pointsToTWIP(matchedParts[1]);
+  } else if (pixelRegex.test(rowHeightString)) {
+    const matchedParts = rowHeightString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelsToTWIP(matchedParts[1]);
   }
 };
 
@@ -764,10 +790,56 @@ const buildTableCell = (vNode) => {
   return tableCellFragment;
 };
 
+const buildTableRowProperties = (attributes) => {
+  const tableRowPropertiesFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  }).ele('@w', 'trPr');
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      // eslint-disable-next-line default-case
+      switch (key) {
+        case 'tableRowHeight':
+          const tableRowHeightFragment = buildTableRowHeight(attributes[key]);
+          tableRowPropertiesFragment.import(tableRowHeightFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.tableRowHeight;
+          break;
+      }
+    });
+  }
+  tableRowPropertiesFragment.up();
+
+  return tableRowPropertiesFragment;
+};
+
 const buildTableRow = (vNode) => {
   const tableRowFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tr');
+  const attributes = {};
+  if (isVNode(vNode) && vNode.properties) {
+    // FIXME: find a better way to get row height from cell style
+    if (
+      (vNode.properties.style && vNode.properties.style.height) ||
+      (vNode.children[0] &&
+        isVNode(vNode.children[0]) &&
+        vNode.children[0].properties.style &&
+        vNode.children[0].properties.style.height)
+    ) {
+      attributes.tableRowHeight = fixupRowHeight(
+        (vNode.properties.style && vNode.properties.style.height) ||
+          (vNode.children[0] &&
+          isVNode(vNode.children[0]) &&
+          vNode.children[0].properties.style &&
+          vNode.children[0].properties.style.height
+            ? vNode.children[0].properties.style.height
+            : undefined)
+      );
+    }
+  }
+  const tableRowPropertiesFragment = buildTableRowProperties(attributes);
+  tableRowFragment.import(tableRowPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
