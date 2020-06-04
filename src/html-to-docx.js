@@ -33,6 +33,9 @@ const defaultDocumentOptions = {
   modifiedAt: new Date(),
   headerType: 'default',
   header: false,
+  font: 'Times New Roman',
+  fontSize: 22,
+  complexScriptFontSize: 22,
 };
 
 const mergeOptions = (options, patch) => ({ ...options, ...patch });

@@ -52,6 +52,9 @@ class DocxDocument {
     modifiedAt,
     headerType,
     header,
+    font,
+    fontSize,
+    complexScriptFontSize,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -77,6 +80,9 @@ class DocxDocument {
     this.modifiedAt = modifiedAt || new Date();
     this.headerType = headerType || 'default';
     this.header = header || false;
+    this.font = font || 'Times New Roman';
+    this.fontSize = fontSize || 22;
+    this.complexScriptFontSize = complexScriptFontSize || 22;
 
     this.lastNumberingId = 0;
     this.lastDocumentRelsId = 4;
@@ -203,7 +209,10 @@ class DocxDocument {
 
   // eslint-disable-next-line class-methods-use-this
   generateStylesXML() {
-    const stylesXML = create({ encoding: 'UTF-8', standalone: true }, generateStylesXML());
+    const stylesXML = create(
+      { encoding: 'UTF-8', standalone: true },
+      generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize)
+    );
 
     return stylesXML.toString({ prettyPrint: true });
   }
