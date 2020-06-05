@@ -6,7 +6,15 @@ import { fragment } from 'xmlbuilder2';
 
 // eslint-disable-next-line import/no-named-default
 import { default as namespaces } from './namespaces';
-import { rgbToHex, hslToHex, hslRegex, rgbRegex, hexRegex } from '../utils/color-conversion';
+import {
+  rgbToHex,
+  hslToHex,
+  hslRegex,
+  rgbRegex,
+  hexRegex,
+  hex3Regex,
+  hex3ToHex,
+} from '../utils/color-conversion';
 import {
   pixelsToEMU,
   pixelRegex,
@@ -342,6 +350,13 @@ const fixupColorCode = (colorCodeString) => {
     const matchedParts = colorCodeString.match(hexRegex);
 
     return matchedParts[1];
+  } else if (hex3Regex.test(colorCodeString)) {
+    const matchedParts = colorCodeString.match(hex3Regex);
+    const red = matchedParts[1];
+    const green = matchedParts[2];
+    const blue = matchedParts[3];
+
+    return hex3ToHex(red, green, blue);
   }
 };
 
