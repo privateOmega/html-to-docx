@@ -3,6 +3,7 @@
 export const rgbRegex = /rgb\((\d+),\s*([\d.]+),\s*([\d.]+)\)/i;
 export const hslRegex = /hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/i;
 export const hexRegex = /#([0-9A-F]{6})/i;
+export const hex3Regex = /#([0-9A-F])([0-9A-F])([0-9A-F])/i;
 
 // eslint-disable-next-line import/prefer-default-export
 export const rgbToHex = (red, green, blue) => {
@@ -50,4 +51,10 @@ export const hslToHex = (hue, saturation, luminosity) => {
       return hex.length === 1 ? `0${hex}` : hex;
     })
     .join('');
+};
+
+export const hex3ToHex = (red, green, blue) => {
+  const hexColorCode = [red, green, blue].map((x) => `${x}${x}`).join('');
+
+  return hexColorCode;
 };
