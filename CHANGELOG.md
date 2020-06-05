@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.8](https://github.com/privateOmega/html-to-docx/compare/v1.1.7...v1.1.8) (2020-06-05)
+
+
+### Features
+
+* added font support in styles ([18b3281](https://github.com/privateOmega/html-to-docx/commit/18b3281ac3f91e5c1905efa0487354ff78badec2))
+* added font table ([0903d6b](https://github.com/privateOmega/html-to-docx/commit/0903d6b98fae6dc378cdeafdadd80a86501c9959))
+
+
+### Bug Fixes
+
+* 3 digit hex color code support ([255fe82](https://github.com/privateOmega/html-to-docx/commit/255fe82fc47e2a447c795c346ae7c6634ae442d1))
+
 ### [1.1.7](https://github.com/privateOmega/html-to-docx/compare/v1.1.6...v1.1.7) (2020-06-04)
 
 
