@@ -48,6 +48,9 @@ full fledged examples can be found under `example/`
   - `modifiedAt` <?[Date]> time of last modification of the document. Defaults to current time.
   - `headerType` <"default"|"first"|"even"> type of header. Defaults to `default`
   - `header` <?[Boolean]> flag to enable header. Defaults to `false`.
+  - `font` <?[String]> font name to be used. Defaults to `Times New Roman`.
+  - `fontSize` <?[Number]> size of font in HIP(Half of point). Defaults to 22.
+  - `complexScriptFontSize` <?[Number]> size of complex script font in HIP(Half of point). Defaults to 22.
 
 ### Returns
 
