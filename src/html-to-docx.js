@@ -33,6 +33,9 @@ const defaultDocumentOptions = {
   modifiedAt: new Date(),
   headerType: 'default',
   header: false,
+  font: 'Times New Roman',
+  fontSize: 22,
+  complexScriptFontSize: 22,
 };
 
 const mergeOptions = (options, patch) => ({ ...options, ...patch });
@@ -80,6 +83,9 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
   zip
     .folder('word')
     .file('document.xml', docxDocument.generateDocumentXML(), {
+      createFolders: false,
+    })
+    .file('fontTable.xml', docxDocument.generateFontTableXML(), {
       createFolders: false,
     })
     .file('styles.xml', docxDocument.generateStylesXML(), {
