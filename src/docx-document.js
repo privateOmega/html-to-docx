@@ -230,24 +230,80 @@ class DocxDocument {
       generateNumberingXMLTemplate()
     );
 
-    const xmlFragment = fragment();
+    const abstractNumberingFragments = fragment();
+    const numberingFragments = fragment();
 
     this.numberingObjects.forEach(
       // eslint-disable-next-line array-callback-return
       ({ numberingId, ordered }) => {
+        const abstractNumberingFragment = fragment({
+          namespaceAlias: { w: namespaces.w },
+        })
+          .ele('@w', 'abstractNum')
+          .att('@w', 'abstractNumId', String(numberingId))
+          .ele('@w', 'multiLevelType')
+          .att('@w', 'val', 'singleLevel')
+          .up()
+          .ele('@w', 'lvl')
+          .att('@w', 'ilvl', '0')
+          .ele('@w', 'start')
+          .att('@w', 'val', '1')
+          .up()
+          .ele('@w', 'numFmt')
+          .att('@w', 'val', ordered ? 'decimal' : 'bullet')
+          .up()
+          .ele('@w', 'lvlText')
+          .att('@w', 'val', ordered ? '%1' : '')
+          .up()
+          .ele('@w', 'lvlJc')
+          .att('@w', 'val', 'left')
+          .up()
+          .ele('@w', 'pPr')
+          .ele('@w', 'tabs')
+          .ele('@w', 'tab')
+          .att('@w', 'val', 'num')
+          .att('@w', 'pos', '720')
+          .up()
+          .up()
+          .ele('@w', 'ind')
+          .att('@w', 'left', '720')
+          .att('@w', 'hanging', '360')
+          .up()
+          .up()
+          .up()
+          .up();
+
+        if (!ordered) {
+          const runPropertiesFragment = fragment({
+            namespaceAlias: { w: namespaces.w },
+          })
+            .ele('@w', 'rPr')
+            .ele('@w', 'rFonts')
+            .att('@w', 'ascii', 'Wingdings')
+            .att('@w', 'hAnsi', 'Wingdings')
+            .att('@w', 'hint', 'default')
+            .up()
+            .up();
+          abstractNumberingFragment.first().last().import(runPropertiesFragment);
+        }
+
         const numberingFragment = fragment({
           namespaceAlias: { w: namespaces.w },
         })
           .ele('@w', 'num')
           .att('@w', 'numId', String(numberingId))
           .ele('@w', 'abstractNumId')
-          .att('@w', 'val', ordered ? '0' : '1')
+          .att('@w', 'val', String(numberingId))
           .up()
           .up();
-        xmlFragment.import(numberingFragment);
+
+        abstractNumberingFragments.import(abstractNumberingFragment);
+        numberingFragments.import(numberingFragment);
       }
     );
-    numberingXML.root().import(xmlFragment);
+
+    numberingXML.root().import(abstractNumberingFragments);
+    numberingXML.root().import(numberingFragments);
 
     return numberingXML.toString({ prettyPrint: true });
   }
