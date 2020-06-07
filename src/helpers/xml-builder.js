@@ -731,6 +731,17 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   return paragraphFragment;
 };
 
+const buildGridSpanFragment = (spanValue) => {
+  const gridSpanFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'gridSpan')
+    .att('@w', 'val', spanValue)
+    .up();
+
+  return gridSpanFragment;
+};
+
 const buildTableCellProperties = (attributes) => {
   const tableCellPropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -753,6 +764,9 @@ const buildTableCellProperties = (attributes) => {
           // eslint-disable-next-line no-param-reassign
           delete attributes.verticalAlign;
           break;
+        case 'colSpan':
+          const gridSpanFragment = buildGridSpanFragment(attributes[key]);
+          tableCellPropertiesFragment.import(gridSpanFragment);
       }
     });
   }
@@ -766,21 +780,31 @@ const buildTableCell = (vNode) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tc');
   const attributes = {};
-  if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
+  if (isVNode(vNode) && vNode.properties) {
     if (
-      vNode.properties.style.color &&
-      !['transparent', 'auto'].includes(vNode.properties.style.color)
+      vNode.properties.colSpan ||
+      (vNode.properties.style && vNode.properties.style['column-span'])
     ) {
-      attributes.color = fixupColorCode(vNode.properties.style.color);
+      attributes.colSpan =
+        vNode.properties.colSpan ||
+        (vNode.properties.style && vNode.properties.style['column-span']);
     }
-    if (
-      vNode.properties.style['background-color'] &&
-      !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
-    ) {
-      attributes.backgroundColor = fixupColorCode(vNode.properties.style['background-color']);
-    }
-    if (vNode.properties.style['vertical-align']) {
-      attributes.verticalAlign = vNode.properties.style['vertical-align'];
+    if (vNode.properties.style) {
+      if (
+        vNode.properties.style.color &&
+        !['transparent', 'auto'].includes(vNode.properties.style.color)
+      ) {
+        attributes.color = fixupColorCode(vNode.properties.style.color);
+      }
+      if (
+        vNode.properties.style['background-color'] &&
+        !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+      ) {
+        attributes.backgroundColor = fixupColorCode(vNode.properties.style['background-color']);
+      }
+      if (vNode.properties.style['vertical-align']) {
+        attributes.verticalAlign = vNode.properties.style['vertical-align'];
+      }
     }
   }
   const tableCellPropertiesFragment = buildTableCellProperties(attributes);
