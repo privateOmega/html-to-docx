@@ -45,7 +45,7 @@ const buildTableRowHeight = (tableRowHeight) => {
 };
 
 const buildVerticalAlignment = (verticalAlignment) => {
-  const vAlignEquivalentValue = verticalAlignment === 'middle' ? 'both' : 'center';
+  const vAlignEquivalentValue = verticalAlignment === 'middle' ? 'center' : 'both';
 
   const verticalAlignmentFragment = fragment({
     namespaceAlias: { w: namespaces.w },
