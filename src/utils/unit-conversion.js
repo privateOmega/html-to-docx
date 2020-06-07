@@ -1,6 +1,8 @@
 export const pixelRegex = /([\d.]+)px/i;
 export const percentageRegex = /([\d.]+)%/i;
 export const pointRegex = /(\d+)pt/i;
+export const cmRegex = /([\d.]+)cm/i;
+export const inchRegex = /(\d+)in/i;
 
 export const pixelToEMU = (pixelValue) => {
   return Math.round(pixelValue * 9525);
@@ -56,4 +58,20 @@ export const pixelToHIP = (pixelValue) => {
 
 export const HIPToPixel = (HIPValue) => {
   return EMUToPixel(TWIPToEMU(HIPToTWIP(HIPValue)));
+};
+
+export const inchToPoint = (inchValue) => {
+  return Math.round(inchValue * 72);
+};
+
+export const inchToTWIP = (inchValue) => {
+  return pointToTWIP(inchToPoint(inchValue));
+};
+
+export const cmToInch = (cmValue) => {
+  return cmValue * 0.3937008;
+};
+
+export const cmToTWIP = (cmValue) => {
+  return inchToTWIP(cmToInch(cmValue));
 };
