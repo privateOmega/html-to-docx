@@ -3,6 +3,7 @@ import { fragment } from 'xmlbuilder2';
 
 import * as xmlBuilder from './xml-builder';
 import namespaces from './namespaces';
+import { pixelToHIP, defaultHeadingSizesInPixel } from '../utils/unit-conversion';
 
 const VNode = require('virtual-dom/vnode/vnode');
 const VText = require('virtual-dom/vnode/vtext');
@@ -61,6 +62,20 @@ const buildImage = (docxDocumentInstance, vNode) => {
 
 function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
   switch (vNode.tagName) {
+    case 'h1':
+    case 'h2':
+    case 'h3':
+    case 'h4':
+    case 'h5':
+    case 'h6':
+      const fontSize = pixelToHIP(defaultHeadingSizesInPixel[vNode.tagName]);
+      const lineHeight = xmlBuilder.fixupLineHeight(1, fontSize);
+      const headingFragment = xmlBuilder.buildParagraph(vNode, {
+        fontSize,
+        lineHeight: Math.max(lineHeight, 240),
+      });
+      xmlFragment.import(headingFragment);
+      return;
     case 'p':
       const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
