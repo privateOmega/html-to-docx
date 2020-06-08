@@ -91,6 +91,17 @@ const buildShading = (colorCode) => {
   return shadingFragment;
 };
 
+const buildVertAlign = (type = 'subscript') => {
+  const vertAlignFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'vertAlign')
+    .att('@w', 'val', type)
+    .up();
+
+  return vertAlignFragment;
+};
+
 const buildStrike = () => {
   const strikeFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -297,6 +308,12 @@ const buildTextFormatting = (vNode) => {
     case 's':
       const strikeFragment = buildStrike();
       return strikeFragment;
+    case 'sub':
+      const subscriptFragment = buildVertAlign('subscript');
+      return subscriptFragment;
+    case 'sup':
+      const superscriptFragment = buildVertAlign('subscript');
+      return superscriptFragment;
   }
 };
 
@@ -306,7 +323,10 @@ const buildRun = (vNode, attributes) => {
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
   if (isVNode(vNode)) {
-    while (isVNode(vNode) && ['strong', 'i', 'u', 'strike', 'del', 's'].includes(vNode.tagName)) {
+    while (
+      isVNode(vNode) &&
+      ['strong', 'i', 'u', 'strike', 'del', 's', 'sub', 'sup'].includes(vNode.tagName)
+    ) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
       if (vNode.children.length === 1) {
@@ -318,7 +338,7 @@ const buildRun = (vNode, attributes) => {
           const childVNode = vNode.children[index];
           if (
             isVNode(childVNode) &&
-            ['strong', 'i', 'u', 'strike', 'del', 's'].includes(childVNode.tagName)
+            ['strong', 'i', 'u', 'strike', 'del', 's', 'sub', 'sup'].includes(childVNode.tagName)
           ) {
             // eslint-disable-next-line no-param-reassign
             vNode = childVNode;
