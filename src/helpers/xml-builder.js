@@ -91,6 +91,28 @@ const buildShading = (colorCode) => {
   return shadingFragment;
 };
 
+const buildVertAlign = (type = 'subscript') => {
+  const vertAlignFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'vertAlign')
+    .att('@w', 'val', type)
+    .up();
+
+  return vertAlignFragment;
+};
+
+const buildStrike = () => {
+  const strikeFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'strike')
+    .att('@w', 'val', true)
+    .up();
+
+  return strikeFragment;
+};
+
 const buildBold = () => {
   const boldFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -273,14 +295,28 @@ const buildTextFormatting = (vNode) => {
   // eslint-disable-next-line default-case
   switch (vNode.tagName) {
     case 'strong':
+    case 'b':
       const boldFragment = buildBold();
       return boldFragment;
+    case 'em':
     case 'i':
       const italicsFragment = buildItalics();
       return italicsFragment;
+    case 'ins':
     case 'u':
       const underlineFragment = buildUnderline();
       return underlineFragment;
+    case 'strike':
+    case 'del':
+    case 's':
+      const strikeFragment = buildStrike();
+      return strikeFragment;
+    case 'sub':
+      const subscriptFragment = buildVertAlign('subscript');
+      return subscriptFragment;
+    case 'sup':
+      const superscriptFragment = buildVertAlign('subscript');
+      return superscriptFragment;
   }
 };
 
@@ -290,7 +326,12 @@ const buildRun = (vNode, attributes) => {
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
   if (isVNode(vNode)) {
-    while (isVNode(vNode) && ['strong', 'i', 'u'].includes(vNode.tagName)) {
+    while (
+      isVNode(vNode) &&
+      ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
+        vNode.tagName
+      )
+    ) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
       if (vNode.children.length === 1) {
@@ -300,7 +341,12 @@ const buildRun = (vNode, attributes) => {
         // FIXME: Multiple formatting children nodes under single formatting parent node.
         for (let index = 0; index < vNode.children.length; index++) {
           const childVNode = vNode.children[index];
-          if (isVNode(childVNode) && ['strong', 'i', 'u'].includes(childVNode.tagName)) {
+          if (
+            isVNode(childVNode) &&
+            ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
+              childVNode.tagName
+            )
+          ) {
             // eslint-disable-next-line no-param-reassign
             vNode = childVNode;
           }
