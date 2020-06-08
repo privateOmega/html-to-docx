@@ -1440,4 +1440,5 @@ export {
   buildItalics,
   buildUnderline,
   buildDrawing,
+  fixupLineHeight,
 };
