@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.9](https://github.com/privateOmega/html-to-docx/compare/v1.1.8...v1.1.9) (2020-06-08)
+
+
+### Features
+
+* added more unit converters ([8f78c52](https://github.com/privateOmega/html-to-docx/commit/8f78c5241cf33d471c8b08e3f941f401d6a50d7b))
+* added other measure units for margins and fonts ([1ae584a](https://github.com/privateOmega/html-to-docx/commit/1ae584a1b0a5350943e10c0d129402b843d7b9a2))
+
+
+### Bug Fixes
+
+* added colspan support for table cells ([bdf92f8](https://github.com/privateOmega/html-to-docx/commit/bdf92f8dbb10b4b58188364f3bdc5ff91e9cc982))
+* created seperate abstract numbering for each lists ([c723c74](https://github.com/privateOmega/html-to-docx/commit/c723c746a3feb2612e73dddac14f1c40864e9ad9))
+* renamed unit converters ([eee4487](https://github.com/privateOmega/html-to-docx/commit/eee44877cfee7228eb27b9efeb10b07a0e67ada9))
+* table cell vertical align issue ([424d2c1](https://github.com/privateOmega/html-to-docx/commit/424d2c1177e1d335dbfa2b016d59cd50817e679a))
+
 ### [1.1.8](https://github.com/privateOmega/html-to-docx/compare/v1.1.7...v1.1.8) (2020-06-05)
 
 
