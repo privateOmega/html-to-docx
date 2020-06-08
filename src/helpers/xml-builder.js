@@ -16,16 +16,16 @@ import {
   hex3ToHex,
 } from '../utils/color-conversion';
 import {
-  pixelsToEMU,
+  pixelToEMU,
   pixelRegex,
   TWIPToEMU,
   percentageRegex,
   pointRegex,
-  pointsToHIP,
+  pointToHIP,
   HIPToTWIP,
-  pointsToTWIP,
-  pixelsToHIP,
-  pixelsToTWIP,
+  pointToTWIP,
+  pixelToHIP,
+  pixelToTWIP,
 } from '../utils/unit-conversion';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
@@ -384,11 +384,11 @@ const fixupFontSize = (fontSizeString) => {
   if (pointRegex.test(fontSizeString)) {
     const matchedParts = fontSizeString.match(pointRegex);
     // convert point to half point
-    return pointsToHIP(matchedParts[1]);
+    return pointToHIP(matchedParts[1]);
   } else if (pixelRegex.test(fontSizeString)) {
     const matchedParts = fontSizeString.match(pixelRegex);
     // convert pixels to half point
-    return pixelsToHIP(matchedParts[1]);
+    return pixelToHIP(matchedParts[1]);
   }
 };
 
@@ -397,11 +397,11 @@ const fixupRowHeight = (rowHeightString) => {
   if (pointRegex.test(rowHeightString)) {
     const matchedParts = rowHeightString.match(pointRegex);
     // convert point to half point
-    return pointsToTWIP(matchedParts[1]);
+    return pointToTWIP(matchedParts[1]);
   } else if (pixelRegex.test(rowHeightString)) {
     const matchedParts = rowHeightString.match(pixelRegex);
     // convert pixels to half point
-    return pixelsToTWIP(matchedParts[1]);
+    return pixelToTWIP(matchedParts[1]);
   }
 };
 
@@ -576,8 +576,8 @@ const computeImageDimensions = (vNode, attributes) => {
   const { maximumWidth, originalWidth, originalHeight } = attributes;
   const aspectRatio = originalWidth / originalHeight;
   const maximumWidthInEMU = TWIPToEMU(maximumWidth);
-  let originalWidthInEMU = pixelsToEMU(originalWidth);
-  let originalHeightInEMU = pixelsToEMU(originalHeight);
+  let originalWidthInEMU = pixelToEMU(originalWidth);
+  let originalHeightInEMU = pixelToEMU(originalHeight);
   if (originalWidthInEMU > maximumWidthInEMU) {
     originalWidthInEMU = maximumWidthInEMU;
     originalHeightInEMU = Math.round(originalWidthInEMU / aspectRatio);
@@ -589,7 +589,7 @@ const computeImageDimensions = (vNode, attributes) => {
     if (vNode.properties.style.width) {
       if (vNode.properties.style.width !== 'auto') {
         if (pixelRegex.test(vNode.properties.style.width)) {
-          modifiedWidth = pixelsToEMU(vNode.properties.style.width.match(pixelRegex)[1]);
+          modifiedWidth = pixelToEMU(vNode.properties.style.width.match(pixelRegex)[1]);
         } else if (percentageRegex.test(vNode.properties.style.width)) {
           const percentageValue = vNode.properties.style.width.match(percentageRegex)[1];
 
@@ -606,7 +606,7 @@ const computeImageDimensions = (vNode, attributes) => {
     if (vNode.properties.style.height) {
       if (vNode.properties.style.height !== 'auto') {
         if (pixelRegex.test(vNode.properties.style.height)) {
-          modifiedHeight = pixelsToEMU(vNode.properties.style.height.match(pixelRegex)[1]);
+          modifiedHeight = pixelToEMU(vNode.properties.style.height.match(pixelRegex)[1]);
         } else if (percentageRegex.test(vNode.properties.style.height)) {
           const percentageValue = vNode.properties.style.width.match(percentageRegex)[1];
 
