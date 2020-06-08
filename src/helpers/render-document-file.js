@@ -75,6 +75,9 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
               maximumWidth: docxDocumentInstance.availableDocumentSpace,
             });
             xmlFragment.import(tableFragment);
+            // Adding empty paragraph for space after table
+            const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
+            xmlFragment.import(emptyParagraphFragment);
           } else if (childVNode.tagName === 'img') {
             const imageFragment = buildImage(docxDocumentInstance, childVNode);
             if (imageFragment) {
@@ -89,6 +92,9 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         maximumWidth: docxDocumentInstance.availableDocumentSpace,
       });
       xmlFragment.import(tableFragment);
+      // Adding empty paragraph for space after table
+      const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
+      xmlFragment.import(emptyParagraphFragment);
       return;
     case 'ol':
     case 'ul':

@@ -687,7 +687,7 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (isVNode(vNode) && vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       const runOrHyperlinkFragments = buildRunOrHyperLink(
