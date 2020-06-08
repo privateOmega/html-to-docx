@@ -297,6 +297,7 @@ const buildTextFormatting = (vNode) => {
     case 'strong':
       const boldFragment = buildBold();
       return boldFragment;
+    case 'em':
     case 'i':
       const italicsFragment = buildItalics();
       return italicsFragment;
@@ -326,7 +327,7 @@ const buildRun = (vNode, attributes) => {
   if (isVNode(vNode)) {
     while (
       isVNode(vNode) &&
-      ['strong', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(vNode.tagName)
+      ['strong', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(vNode.tagName)
     ) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
@@ -339,7 +340,7 @@ const buildRun = (vNode, attributes) => {
           const childVNode = vNode.children[index];
           if (
             isVNode(childVNode) &&
-            ['strong', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
+            ['strong', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
               childVNode.tagName
             )
           ) {
