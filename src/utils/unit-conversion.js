@@ -1,12 +1,14 @@
 export const pixelRegex = /([\d.]+)px/i;
 export const percentageRegex = /([\d.]+)%/i;
 export const pointRegex = /(\d+)pt/i;
+export const cmRegex = /([\d.]+)cm/i;
+export const inchRegex = /(\d+)in/i;
 
-export const pixelsToEMU = (pixelValue) => {
+export const pixelToEMU = (pixelValue) => {
   return Math.round(pixelValue * 9525);
 };
 
-export const EMUToPixels = (EMUValue) => {
+export const EMUToPixel = (EMUValue) => {
   return Math.round(EMUValue / 9525);
 };
 
@@ -18,19 +20,19 @@ export const EMUToTWIP = (EMUValue) => {
   return Math.round(EMUValue / 635);
 };
 
-export const pointsToTWIP = (pointValue) => {
+export const pointToTWIP = (pointValue) => {
   return Math.round(pointValue * 20);
 };
 
-export const TWIPToPoints = (TWIPValue) => {
+export const TWIPToPoint = (TWIPValue) => {
   return Math.round(TWIPValue / 20);
 };
 
-export const pointsToHIP = (pointValue) => {
+export const pointToHIP = (pointValue) => {
   return Math.round(pointValue * 2);
 };
 
-export const HIPToPoints = (HIPValue) => {
+export const HIPToPoint = (HIPValue) => {
   return Math.round(HIPValue / 2);
 };
 
@@ -42,18 +44,34 @@ export const TWIPToHIP = (TWIPValue) => {
   return Math.round(TWIPValue / 10);
 };
 
-export const pixelsToTWIP = (pixelValue) => {
-  return EMUToTWIP(pixelsToEMU(pixelValue));
+export const pixelToTWIP = (pixelValue) => {
+  return EMUToTWIP(pixelToEMU(pixelValue));
 };
 
-export const TWIPToPixels = (TWIPValue) => {
-  return EMUToPixels(TWIPToEMU(TWIPValue));
+export const TWIPToPixel = (TWIPValue) => {
+  return EMUToPixel(TWIPToEMU(TWIPValue));
 };
 
-export const pixelsToHIP = (pixelValue) => {
-  return TWIPToHIP(EMUToTWIP(pixelsToEMU(pixelValue)));
+export const pixelToHIP = (pixelValue) => {
+  return TWIPToHIP(EMUToTWIP(pixelToEMU(pixelValue)));
 };
 
-export const HIPToPixels = (HIPValue) => {
-  return EMUToPixels(TWIPToEMU(HIPToTWIP(HIPValue)));
+export const HIPToPixel = (HIPValue) => {
+  return EMUToPixel(TWIPToEMU(HIPToTWIP(HIPValue)));
+};
+
+export const inchToPoint = (inchValue) => {
+  return Math.round(inchValue * 72);
+};
+
+export const inchToTWIP = (inchValue) => {
+  return pointToTWIP(inchToPoint(inchValue));
+};
+
+export const cmToInch = (cmValue) => {
+  return cmValue * 0.3937008;
+};
+
+export const cmToTWIP = (cmValue) => {
+  return inchToTWIP(cmToInch(cmValue));
 };

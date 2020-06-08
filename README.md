@@ -30,13 +30,13 @@ full fledged examples can be found under `example/`
 - `documentOptions` <?[Object]>
   - `orientation` <"portrait"|"landscape"> defines the general orientation of the document. Defaults to portrait.
   - `margins` <?[Object]>
-    - `top` <[Number]> distance between the top of the text margins for the main document and the top of the page for all pages in this section in [TWIP]. Defaults to 1440.
-    - `right` <[Number]> distance between the right edge of the page and the right edge of the text extents for this document in [TWIP]. Defaults to 1800.
-    - `bottom` <[Number]> distance between the bottom of text margins for the document and the bottom of the page in [TWIP]. Defaults to 1440.
-    - `left` <[Number]> distance between the left edge of the page and the left edge of the text extents for this document in [TWIP]. Defaults to 1800.
-    - `header` <[Number]> distance from the top edge of the page to the top edge of the header in [TWIP]. Defaults to 720.
-    - `footer` <[Number]> distance from the bottom edge of the page to the bottom edge of the footer in [TWIP]. Defaults to 720.
-    - `gutter` <[Number]> amount of extra space added to the specified margin, above any existing margin values. This setting is typically used when a document is being created for binding in [TWIP]. Defaults to 0.
+    - `top` <[Number]> distance between the top of the text margins for the main document and the top of the page for all pages in this section in [TWIP]. Defaults to 1440. Supports equivalent measurement in [pixel], [cm] or [inch].
+    - `right` <[Number]> distance between the right edge of the page and the right edge of the text extents for this document in [TWIP]. Defaults to 1800. Supports equivalent measurement in [pixel], [cm] or [inch].
+    - `bottom` <[Number]> distance between the bottom of text margins for the document and the bottom of the page in [TWIP]. Defaults to 1440. Supports equivalent measurement in [pixel], [cm] or [inch].
+    - `left` <[Number]> distance between the left edge of the page and the left edge of the text extents for this document in [TWIP]. Defaults to 1800. Supports equivalent measurement in [pixel], [cm] or [inch].
+    - `header` <[Number]> distance from the top edge of the page to the top edge of the header in [TWIP]. Defaults to 720. Supports equivalent measurement in [pixel], [cm] or [inch].
+    - `footer` <[Number]> distance from the bottom edge of the page to the bottom edge of the footer in [TWIP]. Defaults to 720. Supports equivalent measurement in [pixel], [cm] or [inch].
+    - `gutter` <[Number]> amount of extra space added to the specified margin, above any existing margin values. This setting is typically used when a document is being created for binding in [TWIP]. Defaults to 0. Supports equivalent measurement in [pixel], [cm] or [inch].
   - `title` <?[String]> title of the document.
   - `subject` <?[String]> subject of the document.
   - `creator` <?[String]> creator of the document. Defaults to `html-to-docx`
@@ -49,8 +49,8 @@ full fledged examples can be found under `example/`
   - `headerType` <"default"|"first"|"even"> type of header. Defaults to `default`
   - `header` <?[Boolean]> flag to enable header. Defaults to `false`.
   - `font` <?[String]> font name to be used. Defaults to `Times New Roman`.
-  - `fontSize` <?[Number]> size of font in HIP(Half of point). Defaults to 22.
-  - `complexScriptFontSize` <?[Number]> size of complex script font in HIP(Half of point). Defaults to 22.
+  - `fontSize` <?[Number]> size of font in HIP(Half of point). Defaults to 22. Supports equivalent measure in [pt].
+  - `complexScriptFontSize` <?[Number]> size of complex script font in HIP(Half of point). Defaults to 22. Supports equivalent measure in [pt].
 
 ### Returns
 
@@ -81,3 +81,7 @@ MIT
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise"
 [Buffer]: https://nodejs.org/api/buffer.html#buffer_buffer "Buffer"
 [Blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob "Blob"
+[pixel]: https://en.wikipedia.org/wiki/Pixel#:~:text=Pixels%2C%20abbreviated%20as%20%22px%22,what%20screen%20resolution%20views%20it. "pixel"
+[cm]: https://en.wikipedia.org/wiki/Centimetre "cm"
+[inch]: https://en.wikipedia.org/wiki/Inch "inch"
+[pt]: https://en.wikipedia.org/wiki/Point_(typography) "pt"
