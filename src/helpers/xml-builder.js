@@ -300,6 +300,7 @@ const buildTextFormatting = (vNode) => {
     case 'i':
       const italicsFragment = buildItalics();
       return italicsFragment;
+    case 'ins':
     case 'u':
       const underlineFragment = buildUnderline();
       return underlineFragment;
@@ -325,7 +326,7 @@ const buildRun = (vNode, attributes) => {
   if (isVNode(vNode)) {
     while (
       isVNode(vNode) &&
-      ['strong', 'i', 'u', 'strike', 'del', 's', 'sub', 'sup'].includes(vNode.tagName)
+      ['strong', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(vNode.tagName)
     ) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
@@ -338,7 +339,9 @@ const buildRun = (vNode, attributes) => {
           const childVNode = vNode.children[index];
           if (
             isVNode(childVNode) &&
-            ['strong', 'i', 'u', 'strike', 'del', 's', 'sub', 'sup'].includes(childVNode.tagName)
+            ['strong', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
+              childVNode.tagName
+            )
           ) {
             // eslint-disable-next-line no-param-reassign
             vNode = childVNode;
