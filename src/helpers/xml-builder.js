@@ -295,6 +295,7 @@ const buildTextFormatting = (vNode) => {
   // eslint-disable-next-line default-case
   switch (vNode.tagName) {
     case 'strong':
+    case 'b':
       const boldFragment = buildBold();
       return boldFragment;
     case 'em':
@@ -327,7 +328,9 @@ const buildRun = (vNode, attributes) => {
   if (isVNode(vNode)) {
     while (
       isVNode(vNode) &&
-      ['strong', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(vNode.tagName)
+      ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
+        vNode.tagName
+      )
     ) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
@@ -340,7 +343,7 @@ const buildRun = (vNode, attributes) => {
           const childVNode = vNode.children[index];
           if (
             isVNode(childVNode) &&
-            ['strong', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
+            ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
               childVNode.tagName
             )
           ) {
