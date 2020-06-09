@@ -1,6 +1,8 @@
 /* eslint-disable no-case-declarations */
 import { fragment } from 'xmlbuilder2';
 
+// FIXME: remove the cyclic dependency
+// eslint-disable-next-line import/no-cycle
 import * as xmlBuilder from './xml-builder';
 import namespaces from './namespaces';
 import { pixelToHIP, defaultHeadingSizesInPixel } from '../utils/unit-conversion';
@@ -18,7 +20,7 @@ const convertHTML = require('html-to-vdom')({
 });
 
 // eslint-disable-next-line consistent-return
-const buildImage = (docxDocumentInstance, vNode) => {
+export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => {
   let response = null;
   try {
     response = docxDocumentInstance.createMediaFile(vNode.properties.src);
@@ -49,7 +51,7 @@ const buildImage = (docxDocumentInstance, vNode) => {
         inlineOrAnchored: true,
         relationshipId: documentRelsId,
         ...response,
-        maximumWidth: docxDocumentInstance.availableDocumentSpace,
+        maximumWidth: maximumWidth || docxDocumentInstance.availableDocumentSpace,
         originalWidth: imageProperties.width,
         originalHeight: imageProperties.height,
       },
@@ -86,9 +88,13 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         for (let index = 0; index < vNode.children.length; index++) {
           const childVNode = vNode.children[index];
           if (childVNode.tagName === 'table') {
-            const tableFragment = xmlBuilder.buildTable(childVNode, {
-              maximumWidth: docxDocumentInstance.availableDocumentSpace,
-            });
+            const tableFragment = xmlBuilder.buildTable(
+              childVNode,
+              {
+                maximumWidth: docxDocumentInstance.availableDocumentSpace,
+              },
+              docxDocumentInstance
+            );
             xmlFragment.import(tableFragment);
             // Adding empty paragraph for space after table
             const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
@@ -103,9 +109,13 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       }
       return;
     case 'table':
-      const tableFragment = xmlBuilder.buildTable(vNode, {
-        maximumWidth: docxDocumentInstance.availableDocumentSpace,
-      });
+      const tableFragment = xmlBuilder.buildTable(
+        vNode,
+        {
+          maximumWidth: docxDocumentInstance.availableDocumentSpace,
+        },
+        docxDocumentInstance
+      );
       xmlFragment.import(tableFragment);
       // Adding empty paragraph for space after table
       const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});

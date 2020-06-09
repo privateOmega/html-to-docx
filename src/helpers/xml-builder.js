@@ -28,6 +28,9 @@ import {
   pixelToHIP,
   pixelToTWIP,
 } from '../utils/unit-conversion';
+// FIXME: remove the cyclic dependency
+// eslint-disable-next-line import/no-cycle
+import { buildImage } from './render-document-file';
 
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
@@ -954,7 +957,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
   }
 };
 
-const buildTableCell = (vNode, attributes) => {
+const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
   const tableCellFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tc');
@@ -996,8 +999,19 @@ const buildTableCell = (vNode, attributes) => {
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      const paragraphFragment = buildParagraph(childVNode, modifiedAttributes);
-      tableCellFragment.import(paragraphFragment);
+      if (isVNode(childVNode) && childVNode.tagName === 'img') {
+        const imageFragment = buildImage(
+          docxDocumentInstance,
+          childVNode,
+          modifiedAttributes.maximumWidth
+        );
+        if (imageFragment) {
+          tableCellFragment.import(imageFragment);
+        }
+      } else {
+        const paragraphFragment = buildParagraph(childVNode, modifiedAttributes);
+        tableCellFragment.import(paragraphFragment);
+      }
     }
   } else {
     // TODO: Figure out why building with buildParagraph() isn't working
@@ -1036,7 +1050,7 @@ const buildTableRowProperties = (attributes) => {
   return tableRowPropertiesFragment;
 };
 
-const buildTableRow = (vNode, attributes) => {
+const buildTableRow = (vNode, attributes, docxDocumentInstance) => {
   const tableRowFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tr');
@@ -1067,10 +1081,19 @@ const buildTableRow = (vNode, attributes) => {
   const tableRowPropertiesFragment = buildTableRowProperties(modifiedAttributes);
   tableRowFragment.import(tableRowPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+    const tableColumns = vNode.children.filter((childVNode) =>
+      ['td', 'th'].includes(childVNode.tagName)
+    );
+    const columnWidth = docxDocumentInstance.availableDocumentSpace / tableColumns.length;
+
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (['td', 'th'].includes(childVNode.tagName)) {
-        const tableCellFragment = buildTableCell(childVNode, modifiedAttributes);
+        const tableCellFragment = buildTableCell(
+          childVNode,
+          { ...modifiedAttributes, maximumWidth: columnWidth },
+          docxDocumentInstance
+        );
         tableRowFragment.import(tableCellFragment);
       }
     }
@@ -1189,7 +1212,7 @@ const buildTableProperties = (attributes) => {
   return tablePropertiesFragment;
 };
 
-const buildTable = (vNode, attributes) => {
+const buildTable = (vNode, attributes, docxDocumentInstance) => {
   const tableFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tbl');
@@ -1258,7 +1281,11 @@ const buildTable = (vNode, attributes) => {
         for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
           const grandChildVNode = childVNode.children[iteratorIndex];
           if (grandChildVNode.tagName === 'tr') {
-            const tableRowFragment = buildTableRow(grandChildVNode, modifiedAttributes);
+            const tableRowFragment = buildTableRow(
+              grandChildVNode,
+              modifiedAttributes,
+              docxDocumentInstance
+            );
             tableFragment.import(tableRowFragment);
           }
         }
@@ -1266,12 +1293,20 @@ const buildTable = (vNode, attributes) => {
         for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
           const grandChildVNode = childVNode.children[iteratorIndex];
           if (grandChildVNode.tagName === 'tr') {
-            const tableRowFragment = buildTableRow(grandChildVNode, modifiedAttributes);
+            const tableRowFragment = buildTableRow(
+              grandChildVNode,
+              modifiedAttributes,
+              docxDocumentInstance
+            );
             tableFragment.import(tableRowFragment);
           }
         }
       } else if (childVNode.tagName === 'tr') {
-        const tableRowFragment = buildTableRow(childVNode, modifiedAttributes);
+        const tableRowFragment = buildTableRow(
+          childVNode,
+          modifiedAttributes,
+          docxDocumentInstance
+        );
         tableFragment.import(tableRowFragment);
       }
     }
