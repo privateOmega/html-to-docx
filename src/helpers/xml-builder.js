@@ -255,6 +255,7 @@ const buildTextElement = (text) => {
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 't')
+    .att('@xml', 'space', 'preserve')
     .txt(text)
     .up();
 
