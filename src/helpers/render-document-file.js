@@ -46,7 +46,7 @@ const buildImage = (docxDocumentInstance, vNode) => {
       vNode,
       {
         type: 'picture',
-        inlineOrAnchored: false,
+        inlineOrAnchored: true,
         relationshipId: documentRelsId,
         ...response,
         maximumWidth: docxDocumentInstance.availableDocumentSpace,

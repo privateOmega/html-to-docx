@@ -1470,7 +1470,7 @@ const buildInlineDrawing = (graphicType, attributes) => {
     .att('distR', '0')
     .att('distT', '0');
 
-  const extentFragment = buildExtent();
+  const extentFragment = buildExtent({ width: attributes.width, height: attributes.height });
   inlineDrawingFragment.import(extentFragment);
   const effectExtentFragment = buildEffectExtentFragment();
   inlineDrawingFragment.import(effectExtentFragment);
