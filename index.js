@@ -1,8 +1,33 @@
+/* eslint-disable no-param-reassign */
 import JSZip from 'jszip';
 import { addFilesToContainer } from './src/html-to-docx';
 
+const { minify } = require('html-minifier');
+
+const minifyHTMLString = (htmlString) => {
+  if (typeof htmlString === 'string' || htmlString instanceof String) {
+    try {
+      const minifiedHTMLString = minify(htmlString, {
+        caseSensitive: true,
+        collapseWhitespace: true,
+        html5: false,
+        keepClosingSlash: true,
+      });
+
+      return minifiedHTMLString;
+    } catch (error) {
+      return null;
+    }
+  } else {
+    return null;
+  }
+};
+
 async function generateContainer(htmlString, headerHTMLString, documentOptions = {}) {
   const zip = new JSZip();
+
+  htmlString = minifyHTMLString(htmlString);
+  headerHTMLString = minifyHTMLString(headerHTMLString);
 
   addFilesToContainer(zip, htmlString, documentOptions, headerHTMLString);
 

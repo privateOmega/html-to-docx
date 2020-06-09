@@ -47,6 +47,7 @@
   "dependencies": {
     "color-name": "^1.1.4",
     "escape-html": "^1.0.3",
+    "html-minifier": "^4.0.0",
     "html-to-vdom": "^0.7.0",
     "image-size": "^0.8.3",
     "jszip": "^3.4.0",
