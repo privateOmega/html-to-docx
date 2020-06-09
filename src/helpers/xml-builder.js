@@ -91,6 +91,17 @@ const buildShading = (colorCode) => {
   return shadingFragment;
 };
 
+const buildHighlight = (color = 'yellow') => {
+  const highlightFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'highlight')
+    .att('@w', 'val', color)
+    .up();
+
+  return highlightFragment;
+};
+
 const buildVertAlign = (type = 'subscript') => {
   const vertAlignFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -317,6 +328,9 @@ const buildTextFormatting = (vNode) => {
     case 'sup':
       const superscriptFragment = buildVertAlign('subscript');
       return superscriptFragment;
+    case 'mark':
+      const highlightFragment = buildHighlight();
+      return highlightFragment;
   }
 };
 
@@ -328,7 +342,7 @@ const buildRun = (vNode, attributes) => {
   if (isVNode(vNode)) {
     while (
       isVNode(vNode) &&
-      ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
+      ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup', 'mark'].includes(
         vNode.tagName
       )
     ) {
@@ -343,9 +357,20 @@ const buildRun = (vNode, attributes) => {
           const childVNode = vNode.children[index];
           if (
             isVNode(childVNode) &&
-            ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup'].includes(
-              childVNode.tagName
-            )
+            [
+              'strong',
+              'b',
+              'em',
+              'i',
+              'u',
+              'ins',
+              'strike',
+              'del',
+              's',
+              'sub',
+              'sup',
+              'mark',
+            ].includes(childVNode.tagName)
           ) {
             // eslint-disable-next-line no-param-reassign
             vNode = childVNode;
