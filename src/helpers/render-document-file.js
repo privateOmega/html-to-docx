@@ -1,8 +1,11 @@
 /* eslint-disable no-case-declarations */
 import { fragment } from 'xmlbuilder2';
 
+// FIXME: remove the cyclic dependency
+// eslint-disable-next-line import/no-cycle
 import * as xmlBuilder from './xml-builder';
 import namespaces from './namespaces';
+import { pixelToHIP, defaultHeadingSizesInPixel } from '../utils/unit-conversion';
 
 const VNode = require('virtual-dom/vnode/vnode');
 const VText = require('virtual-dom/vnode/vtext');
@@ -17,7 +20,7 @@ const convertHTML = require('html-to-vdom')({
 });
 
 // eslint-disable-next-line consistent-return
-const buildImage = (docxDocumentInstance, vNode) => {
+export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => {
   let response = null;
   try {
     response = docxDocumentInstance.createMediaFile(vNode.properties.src);
@@ -45,10 +48,10 @@ const buildImage = (docxDocumentInstance, vNode) => {
       vNode,
       {
         type: 'picture',
-        inlineOrAnchored: false,
+        inlineOrAnchored: true,
         relationshipId: documentRelsId,
         ...response,
-        maximumWidth: docxDocumentInstance.availableDocumentSpace,
+        maximumWidth: maximumWidth || docxDocumentInstance.availableDocumentSpace,
         originalWidth: imageProperties.width,
         originalHeight: imageProperties.height,
       },
@@ -61,6 +64,20 @@ const buildImage = (docxDocumentInstance, vNode) => {
 
 function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
   switch (vNode.tagName) {
+    case 'h1':
+    case 'h2':
+    case 'h3':
+    case 'h4':
+    case 'h5':
+    case 'h6':
+      const fontSize = pixelToHIP(defaultHeadingSizesInPixel[vNode.tagName]);
+      const lineHeight = xmlBuilder.fixupLineHeight(1, fontSize);
+      const headingFragment = xmlBuilder.buildParagraph(vNode, {
+        fontSize,
+        lineHeight: Math.max(lineHeight, 240),
+      });
+      xmlFragment.import(headingFragment);
+      return;
     case 'p':
       const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
@@ -71,10 +88,17 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         for (let index = 0; index < vNode.children.length; index++) {
           const childVNode = vNode.children[index];
           if (childVNode.tagName === 'table') {
-            const tableFragment = xmlBuilder.buildTable(childVNode, {
-              maximumWidth: docxDocumentInstance.availableDocumentSpace,
-            });
+            const tableFragment = xmlBuilder.buildTable(
+              childVNode,
+              {
+                maximumWidth: docxDocumentInstance.availableDocumentSpace,
+              },
+              docxDocumentInstance
+            );
             xmlFragment.import(tableFragment);
+            // Adding empty paragraph for space after table
+            const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
+            xmlFragment.import(emptyParagraphFragment);
           } else if (childVNode.tagName === 'img') {
             const imageFragment = buildImage(docxDocumentInstance, childVNode);
             if (imageFragment) {
@@ -85,10 +109,17 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       }
       return;
     case 'table':
-      const tableFragment = xmlBuilder.buildTable(vNode, {
-        maximumWidth: docxDocumentInstance.availableDocumentSpace,
-      });
+      const tableFragment = xmlBuilder.buildTable(
+        vNode,
+        {
+          maximumWidth: docxDocumentInstance.availableDocumentSpace,
+        },
+        docxDocumentInstance
+      );
       xmlFragment.import(tableFragment);
+      // Adding empty paragraph for space after table
+      const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
+      xmlFragment.import(emptyParagraphFragment);
       return;
     case 'ol':
     case 'ul':
@@ -114,6 +145,10 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       if (imageFragment) {
         xmlFragment.import(imageFragment);
       }
+      return;
+    case 'br':
+      const linebreakFragment = xmlBuilder.buildParagraph(null, {});
+      xmlFragment.import(linebreakFragment);
       return;
     default:
       break;

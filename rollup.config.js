@@ -7,7 +7,15 @@ import * as meta from './package.json';
 
 export default {
   input: 'index.js',
-  external: ['escape-html', 'html-to-vdom', 'jszip', 'virtual-dom', 'xmlbuilder2'],
+  external: [
+    'color-name',
+    'escape-html',
+    'html-minifier',
+    'html-to-vdom',
+    'jszip',
+    'virtual-dom',
+    'xmlbuilder2',
+  ],
   plugins: [resolve(), json({ include: 'package.json', preferConst: true }), commonjs(), terser()],
 
   output: [

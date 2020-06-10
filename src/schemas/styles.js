@@ -18,7 +18,7 @@ const generateStylesXML = (font = 'Times New Roman', fontSize = 22, complexScrip
           </w:rPrDefault>
           <w:pPrDefault>
             <w:pPr>
-              <w:spacing w:after="160" w:line="240" w:lineRule="exact"/>
+              <w:spacing w:after="160" w:line="240" w:lineRule="atLeast"/>
             </w:pPr>
           </w:pPrDefault>
         </w:docDefaults>
