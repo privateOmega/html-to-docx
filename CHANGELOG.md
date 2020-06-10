@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.10](https://github.com/privateOmega/html-to-docx/compare/v1.1.9...v1.1.10) (2020-06-10)
+
+
+### Features
+
+* added b tag support ([f867abd](https://github.com/privateOmega/html-to-docx/commit/f867abd41c6bc85bbba207a27c58d441f1a2b532))
+* added em tag support ([6a06265](https://github.com/privateOmega/html-to-docx/commit/6a06265f724a611b50144cb988e576bc4e40b4d4))
+* added heading sizes ([bb18e72](https://github.com/privateOmega/html-to-docx/commit/bb18e724c42b0c4581722b2899d5ff808c1495c4))
+* added headings support ([fd489ee](https://github.com/privateOmega/html-to-docx/commit/fd489eeebfeedc7d05991f9366aeae2adc49fd6f))
+* added highlight support ([6159925](https://github.com/privateOmega/html-to-docx/commit/6159925495b74ab254cd7dc5628526d531595a92))
+* added ins tag support ([6d64908](https://github.com/privateOmega/html-to-docx/commit/6d64908858dac290aa34421c236bdaf2d8ef07a7))
+* added linebreak support ([57c054c](https://github.com/privateOmega/html-to-docx/commit/57c054cd65f49d7c4244272af0117f2c141a8bc7))
+* added strike through support ([b73e8c7](https://github.com/privateOmega/html-to-docx/commit/b73e8c76d0051bc6449ed57861b4ce1c7ad4b408))
+* added support for subscript and superscript ([f1ee4ed](https://github.com/privateOmega/html-to-docx/commit/f1ee4edf183a45731b48bba2b91154da591c203f))
+
+
+### Bug Fixes
+
+* added empty paragraph for spacing after table ([6bae787](https://github.com/privateOmega/html-to-docx/commit/6bae787cbf3f376b8ec34389f444d8c7c5f3b340))
+* added html string minifier ([8faa19c](https://github.com/privateOmega/html-to-docx/commit/8faa19c46ff85a31b16e89207cbc2120c6ed5805))
+* added image in table cell support ([7d98a16](https://github.com/privateOmega/html-to-docx/commit/7d98a16b1509b57910e8294cfb3985a88b7154ae))
+* added table and cell border support ([985f6a1](https://github.com/privateOmega/html-to-docx/commit/985f6a1e7a2e52f3b0a609a00da8a11bf113ef16))
+* added table cell border support ([852c091](https://github.com/privateOmega/html-to-docx/commit/852c091e15a3b2add7b622472be8fc021bb05c06))
+* changed line spacing rule to work with inline images ([489f1c6](https://github.com/privateOmega/html-to-docx/commit/489f1c62fc093b108bc16aee33d74baad4ced7d8))
+* preserve spacing on text ([f2f12b1](https://github.com/privateOmega/html-to-docx/commit/f2f12b1f4903aa7caf6bae5cad3b88d9aed46d18))
+* table cell border style support ([2c5a205](https://github.com/privateOmega/html-to-docx/commit/2c5a2055d33ee02f55a07e9c8ba985e2e07f2871))
+* used image dimensions for extent fragment ([aa17f74](https://github.com/privateOmega/html-to-docx/commit/aa17f74d3a2fab51cfa730ce62c09c2862bad532))
+
 ### [1.1.9](https://github.com/privateOmega/html-to-docx/compare/v1.1.8...v1.1.9) (2020-06-08)
 
 
