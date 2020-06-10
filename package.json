@@ -2,6 +2,14 @@
   "name": "html-to-docx",
   "version": "1.1.10",
   "description": "HTML to DOCX converter",
+  "keywords": [
+    "html",
+    "docx",
+    "html-to-docx",
+    "html to docx",
+    "office",
+    "word"
+  ],
   "main": "dist/html-to-docx.cjs.js",
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
