@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
@@ -897,6 +898,62 @@ const buildTableCellProperties = (attributes) => {
   return tableCellPropertiesFragment;
 };
 
+const fixupTableCellBorder = (vNode, attributes) => {
+  if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] === '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      top: 0,
+    };
+  } else if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] !== '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      top: 1,
+    };
+  }
+  if (vNode.properties.style['border-left'] && vNode.properties.style['border-left'] === '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      left: 0,
+    };
+  } else if (
+    vNode.properties.style['border-left'] &&
+    vNode.properties.style['border-left'] !== '0'
+  ) {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      left: 1,
+    };
+  }
+  if (vNode.properties.style['border-bottom'] && vNode.properties.style['border-bottom'] === '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      bottom: 0,
+    };
+  } else if (
+    vNode.properties.style['border-bottom'] &&
+    vNode.properties.style['border-bottom'] !== '0'
+  ) {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      bottom: 1,
+    };
+  }
+  if (vNode.properties.style['border-right'] && vNode.properties.style['border-right'] === '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      right: 0,
+    };
+  } else if (
+    vNode.properties.style['border-right'] &&
+    vNode.properties.style['border-right'] !== '0'
+  ) {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      right: 1,
+    };
+  }
+};
+
 const buildTableCell = (vNode, attributes) => {
   const tableCellFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -929,6 +986,9 @@ const buildTableCell = (vNode, attributes) => {
       if (vNode.properties.style['vertical-align']) {
         modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
       }
+    }
+    if (vNode.properties.style) {
+      fixupTableCellBorder(vNode, modifiedAttributes);
     }
   }
   const tableCellPropertiesFragment = buildTableCellProperties(modifiedAttributes);
@@ -999,6 +1059,9 @@ const buildTableRow = (vNode, attributes) => {
             ? vNode.children[0].properties.style.height
             : undefined)
       );
+    }
+    if (vNode.properties.style) {
+      fixupTableCellBorder(vNode, modifiedAttributes);
     }
   }
   const tableRowPropertiesFragment = buildTableRowProperties(modifiedAttributes);
@@ -1134,7 +1197,8 @@ const buildTable = (vNode, attributes) => {
   if (isVNode(vNode) && vNode.properties) {
     if (
       vNode.properties.border === '0' ||
-      (vNode.properties.style && vNode.properties.style.border === 'none')
+      (vNode.properties.style && vNode.properties.style.border === 'none') ||
+      (!vNode.properties.border && !(vNode.properties.style && vNode.properties.style.border))
     ) {
       modifiedAttributes.tableBorder = {
         top: 0,
@@ -1147,7 +1211,7 @@ const buildTable = (vNode, attributes) => {
     } else {
       // eslint-disable-next-line no-lonely-if
       if (
-        !vNode.properties.style['border-collapse'] ||
+        (vNode.properties.style && !vNode.properties.style['border-collapse']) ||
         (vNode.properties.style && vNode.properties.style['border-collapse'] === 'separate')
       ) {
         modifiedAttributes.tableBorder = {
