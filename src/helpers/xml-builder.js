@@ -1200,8 +1200,10 @@ const buildTableProperties = (attributes) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tblPr');
 
-  const tableWidthFragment = buildTableWidth(attributes.maximumWidth);
-  tablePropertiesFragment.import(tableWidthFragment);
+  if (attributes.width) {
+    const tableWidthFragment = buildTableWidth(attributes.width);
+    tablePropertiesFragment.import(tableWidthFragment);
+  }
 
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
@@ -1285,6 +1287,17 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
           insideV: 1,
         };
       }
+    }
+    if (vNode.properties.style && vNode.properties.style.width) {
+      let width;
+      if (pixelRegex.test(vNode.properties.style.width)) {
+        width = pixelToTWIP(vNode.properties.style.width.match(pixelRegex)[1]);
+      } else if (percentageRegex.test(vNode.properties.style.width)) {
+        const percentageValue = vNode.properties.style.width.match(percentageRegex)[1];
+
+        width = Math.round((percentageValue / 100) * attributes.maximumWidth);
+      }
+      modifiedAttributes.width = width;
     }
   }
   const tablePropertiesFragment = buildTableProperties(modifiedAttributes);
