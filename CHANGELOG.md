@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.11](https://github.com/privateOmega/html-to-docx/compare/v1.1.10...v1.1.11) (2020-06-10)
+
+
+### Bug Fixes
+
+* added table width support ([73b172b](https://github.com/privateOmega/html-to-docx/commit/73b172b584aaeb7137d58e0eb2d8b73c4bb92561))
+
 ### [1.1.10](https://github.com/privateOmega/html-to-docx/compare/v1.1.9...v1.1.10) (2020-06-10)
 
 
