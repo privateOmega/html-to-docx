@@ -1039,6 +1039,27 @@ const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
         if (imageFragment) {
           tableCellFragment.import(imageFragment);
         }
+      } else if (isVNode(childVNode) && childVNode.tagName === 'figure') {
+        if (
+          childVNode.children &&
+          Array.isArray(childVNode.children) &&
+          childVNode.children.length
+        ) {
+          // eslint-disable-next-line no-plusplus
+          for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
+            const grandChildVNode = childVNode.children[iteratorIndex];
+            if (grandChildVNode.tagName === 'img') {
+              const imageFragment = buildImage(
+                docxDocumentInstance,
+                grandChildVNode,
+                modifiedAttributes.maximumWidth
+              );
+              if (imageFragment) {
+                tableCellFragment.import(imageFragment);
+              }
+            }
+          }
+        }
       } else {
         const paragraphFragment = buildParagraph(childVNode, modifiedAttributes);
         tableCellFragment.import(paragraphFragment);
