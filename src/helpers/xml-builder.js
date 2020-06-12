@@ -602,6 +602,9 @@ const buildIndentation = () => {
 };
 
 const buildHorizontalAlignment = (horizontalAlignment) => {
+  if (horizontalAlignment === 'justify') {
+    horizontalAlignment = 'both';
+  }
   const horizontalAlignmentFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
@@ -747,7 +750,10 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
     ) {
       modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
     }
-    if (vNode.properties.style['text-align']) {
+    if (
+      vNode.properties.style['text-align'] &&
+      ['left', 'right', 'center', 'justify'].includes(vNode.properties.style['text-align'])
+    ) {
       modifiedAttributes.textAlign = vNode.properties.style['text-align'];
     }
     // FIXME: remove bold check when other font weights are handled.
