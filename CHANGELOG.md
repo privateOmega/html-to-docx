@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.15](https://github.com/privateOmega/html-to-docx/compare/v1.1.14...v1.1.15) (2020-06-12)
+
 ### 1.1.14 (2020-06-12)
 
 
