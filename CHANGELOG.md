@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.12](https://github.com/privateOmega/html-to-docx/compare/v1.1.11...v1.1.12) (2020-06-12)
+
+
+### Bug Fixes
+
+* handled horizontal alignment ([72478cb](https://github.com/privateOmega/html-to-docx/commit/72478cb2308ac029f9a8149c416012101d23c18c))
+* handled vertical alignment ([b2b3bcc](https://github.com/privateOmega/html-to-docx/commit/b2b3bcc382dc645a3cdebe18d99558538bad6282))
+
 ### [1.1.11](https://github.com/privateOmega/html-to-docx/compare/v1.1.10...v1.1.11) (2020-06-10)
 
 
