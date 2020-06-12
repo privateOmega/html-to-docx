@@ -49,13 +49,15 @@ const buildTableRowHeight = (tableRowHeight) => {
 };
 
 const buildVerticalAlignment = (verticalAlignment) => {
-  const vAlignEquivalentValue = verticalAlignment === 'middle' ? 'center' : 'both';
+  if (verticalAlignment.toLowerCase() === 'middle') {
+    verticalAlignment = 'center';
+  }
 
   const verticalAlignmentFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'vAlign')
-    .att('@w', 'val', vAlignEquivalentValue)
+    .att('@w', 'val', verticalAlignment)
     .up();
 
   return verticalAlignmentFragment;
@@ -739,7 +741,10 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
         vNode.properties.style['background-color']
       );
     }
-    if (vNode.properties.style['vertical-align']) {
+    if (
+      vNode.properties.style['vertical-align'] &&
+      ['top', 'middle', 'bottom'].includes(vNode.properties.style['vertical-align'])
+    ) {
       modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
     }
     if (vNode.properties.style['text-align']) {
@@ -1003,7 +1008,10 @@ const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
           vNode.properties.style['background-color']
         );
       }
-      if (vNode.properties.style['vertical-align']) {
+      if (
+        vNode.properties.style['vertical-align'] &&
+        ['top', 'middle', 'bottom'].includes(vNode.properties.style['vertical-align'])
+      ) {
         modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
       }
     }
