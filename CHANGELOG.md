@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.16](https://github.com/privateOmega/html-to-docx/compare/v1.1.15...v1.1.16) (2020-06-12)
+
+
+### Bug Fixes
+
+* handled image inside table cell ([339c18a](https://github.com/privateOmega/html-to-docx/commit/339c18a3de7e7e86e4133a72e54cb6ed5ec386c2))
+
 ### [1.1.15](https://github.com/privateOmega/html-to-docx/compare/v1.1.14...v1.1.15) (2020-06-12)
 
 ### 1.1.14 (2020-06-12)
