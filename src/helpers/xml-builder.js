@@ -645,6 +645,17 @@ const buildParagraphProperties = (attributes) => {
           // eslint-disable-next-line no-param-reassign
           delete attributes.lineHeight;
           break;
+        case 'backgroundColor':
+          // Add shading to Paragraph Properties only if display is block
+          // Essentially if background color needs to be across the row
+          if (attributes.display === 'block') {
+            const shadingFragment = buildShading(attributes[key]);
+            paragraphPropertiesFragment.import(shadingFragment);
+            // Delete used property
+            // eslint-disable-next-line no-param-reassign
+            delete attributes.backgroundColor;
+          }
+          break;
       }
     });
   }
@@ -770,6 +781,9 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
           ? fixupFontSize(vNode.properties.style['font-size'])
           : null
       );
+    }
+    if (vNode.properties.style.display) {
+      modifiedAttributes.display = vNode.properties.style.display;
     }
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
