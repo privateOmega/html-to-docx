@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.17](https://github.com/privateOmega/html-to-docx/compare/v1.1.16...v1.1.17) (2020-06-15)
+
+
+### Bug Fixes
+
+* added support for decimal inch ([6027d2f](https://github.com/privateOmega/html-to-docx/commit/6027d2f36bbc9bb97ff4cbcaa59372df33528a54))
+* added support for full width background color ([733a937](https://github.com/privateOmega/html-to-docx/commit/733a9373ba13ccb0b781f66fe87d91a3eed4aab9))
+
 ### [1.1.16](https://github.com/privateOmega/html-to-docx/compare/v1.1.15...v1.1.16) (2020-06-12)
 
 
