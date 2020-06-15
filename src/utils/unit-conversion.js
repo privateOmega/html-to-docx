@@ -11,7 +11,7 @@ export const pixelRegex = /([\d.]+)px/i;
 export const percentageRegex = /([\d.]+)%/i;
 export const pointRegex = /(\d+)pt/i;
 export const cmRegex = /([\d.]+)cm/i;
-export const inchRegex = /(\d+)in/i;
+export const inchRegex = /([\d.]+)in/i;
 
 export const pixelToEMU = (pixelValue) => {
   return Math.round(pixelValue * 9525);
