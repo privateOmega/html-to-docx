@@ -172,85 +172,85 @@ const buildLineBreak = (type = 'textWrapping') => {
   return lineBreakFragment;
 };
 
-const buildInsideVBorder = () => {
+const buildInsideVBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
   const insideVBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'insideV')
     .att('@w', 'val', 'single')
-    .att('@w', 'sz', '4')
-    .att('@w', 'space', '0')
-    .att('@w', 'color', 'auto')
+    .att('@w', 'sz', borderSize)
+    .att('@w', 'space', borderSpacing)
+    .att('@w', 'color', borderColor)
     .up();
 
   return insideVBorderFragment;
 };
 
-const buildInsideHBorder = () => {
+const buildInsideHBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
   const insideHBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'insideH')
     .att('@w', 'val', 'single')
-    .att('@w', 'sz', '4')
-    .att('@w', 'space', '0')
-    .att('@w', 'color', 'auto')
+    .att('@w', 'sz', borderSize)
+    .att('@w', 'space', borderSpacing)
+    .att('@w', 'color', borderColor)
     .up();
 
   return insideHBorderFragment;
 };
 
-const buildRightBorder = () => {
+const buildRightBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
   const rightBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'right')
     .att('@w', 'val', 'single')
-    .att('@w', 'sz', '4')
-    .att('@w', 'space', '0')
-    .att('@w', 'color', 'auto')
+    .att('@w', 'sz', borderSize)
+    .att('@w', 'space', borderSpacing)
+    .att('@w', 'color', borderColor)
     .up();
 
   return rightBorderFragment;
 };
 
-const buildBottomBorder = () => {
+const buildBottomBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
   const bottomBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'bottom')
     .att('@w', 'val', 'single')
-    .att('@w', 'sz', '4')
-    .att('@w', 'space', '0')
-    .att('@w', 'color', 'auto')
+    .att('@w', 'sz', borderSize)
+    .att('@w', 'space', borderSpacing)
+    .att('@w', 'color', borderColor)
     .up();
 
   return bottomBorderFragment;
 };
 
-const buildLeftBorder = () => {
+const buildLeftBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
   const leftBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'left')
     .att('@w', 'val', 'single')
-    .att('@w', 'sz', '4')
-    .att('@w', 'space', '0')
-    .att('@w', 'color', 'auto')
+    .att('@w', 'sz', borderSize)
+    .att('@w', 'space', borderSpacing)
+    .att('@w', 'color', borderColor)
     .up();
 
   return leftBorderFragment;
 };
 
-const buildTopBorder = () => {
+const buildTopBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
   const topBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'top')
     .att('@w', 'val', 'single')
-    .att('@w', 'sz', '4')
-    .att('@w', 'space', '0')
-    .att('@w', 'color', 'auto')
+    .att('@w', 'sz', borderSize)
+    .att('@w', 'space', borderSpacing)
+    .att('@w', 'color', borderColor)
     .up();
 
   return topBorderFragment;
@@ -615,6 +615,27 @@ const buildHorizontalAlignment = (horizontalAlignment) => {
   return horizontalAlignmentFragment;
 };
 
+const buildParagraphBorder = () => {
+  const paragraphBorderFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  }).ele('@w', 'pBdr');
+  const topBorderFragment = buildTopBorder(0, 3, 'FFFFFF');
+  paragraphBorderFragment.import(topBorderFragment);
+
+  const leftBorderFragment = buildLeftBorder(0, 3, 'FFFFFF');
+  paragraphBorderFragment.import(leftBorderFragment);
+
+  const bottomBorderFragment = buildBottomBorder(0, 3, 'FFFFFF');
+  paragraphBorderFragment.import(bottomBorderFragment);
+
+  const rightBorderFragment = buildRightBorder(0, 3, 'FFFFFF');
+  paragraphBorderFragment.import(rightBorderFragment);
+
+  paragraphBorderFragment.up();
+
+  return paragraphBorderFragment;
+};
+
 const buildParagraphProperties = (attributes) => {
   const paragraphPropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -651,6 +672,9 @@ const buildParagraphProperties = (attributes) => {
           if (attributes.display === 'block') {
             const shadingFragment = buildShading(attributes[key]);
             paragraphPropertiesFragment.import(shadingFragment);
+            // FIXME: Inner padding in case of shaded paragraphs.
+            const paragraphBorderFragment = buildParagraphBorder();
+            paragraphPropertiesFragment.import(paragraphBorderFragment);
             // Delete used property
             // eslint-disable-next-line no-param-reassign
             delete attributes.backgroundColor;
