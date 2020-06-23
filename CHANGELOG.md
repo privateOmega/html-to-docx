@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.18](https://github.com/privateOmega/html-to-docx/compare/v1.1.17...v1.1.18) (2020-06-23)
+
+
+### Bug Fixes
+
+* added border for paragraph padding ([252ead6](https://github.com/privateOmega/html-to-docx/commit/252ead6dc9f09b84edc9f1b145bb76ad2cb4fc01))
+
 ### [1.1.17](https://github.com/privateOmega/html-to-docx/compare/v1.1.16...v1.1.17) (2020-06-15)
 
 
