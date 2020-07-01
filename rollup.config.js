@@ -2,6 +2,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
+import cleaner from 'rollup-plugin-cleaner';
 
 import * as meta from './package.json';
 
@@ -16,7 +17,15 @@ export default {
     'virtual-dom',
     'xmlbuilder2',
   ],
-  plugins: [resolve(), json({ include: 'package.json', preferConst: true }), commonjs(), terser()],
+  plugins: [
+    resolve(),
+    json({ include: 'package.json', preferConst: true }),
+    commonjs(),
+    terser(),
+    cleaner({
+      targets: ['./dist/'],
+    }),
+  ],
 
   output: [
     {
