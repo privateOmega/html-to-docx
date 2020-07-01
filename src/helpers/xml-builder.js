@@ -355,6 +355,9 @@ const buildRun = (vNode, attributes) => {
     ) {
       const formattingFragment = buildTextFormatting(vNode);
       runPropertiesFragment.import(formattingFragment);
+      if (vNode.children.length === 0) {
+        break;
+      }
       if (vNode.children.length === 1) {
         // eslint-disable-next-line no-param-reassign, prefer-destructuring
         vNode = vNode.children[0];
