@@ -438,6 +438,8 @@ const fixupColorCode = (colorCodeString) => {
     const blue = matchedParts[3];
 
     return hex3ToHex(red, green, blue);
+  } else {
+    return '000000';
   }
 };
 
