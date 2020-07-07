@@ -23,7 +23,8 @@ const convertHTML = require('html-to-vdom')({
 export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => {
   let response = null;
   try {
-    response = docxDocumentInstance.createMediaFile(vNode.properties.src);
+    // libtidy encodes the image src
+    response = docxDocumentInstance.createMediaFile(decodeURIComponent(vNode.properties.src));
   } catch (error) {
     // NOOP
   }

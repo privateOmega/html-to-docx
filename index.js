@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { addFilesToContainer } from './src/html-to-docx';
 
 const { minify } = require('html-minifier');
+const libtidy = require('libtidy-updated');
 
 const minifyHTMLString = (htmlString) => {
   if (typeof htmlString === 'string' || htmlString instanceof String) {
@@ -23,13 +24,46 @@ const minifyHTMLString = (htmlString) => {
   }
 };
 
+const tidyHTMLString = async (htmlString) => {
+  if (typeof htmlString === 'string' || htmlString instanceof String) {
+    try {
+      const libTidyOutput = await libtidy.tidyBuffer(htmlString, {
+        doctype: 'omit',
+        bare: true,
+        'coerce-endtags': true,
+        'drop-empty-elements': true,
+        'drop-empty-paras': true,
+        'drop-proprietary-attributes': true,
+        'hide-comments': true,
+        'merge-spans': true,
+        'output-html': true,
+        'show-body-only': true,
+      });
+
+      return libTidyOutput.output.toString();
+    } catch (error) {
+      throw new Error('Incorrect/Unsupported HTML string');
+    }
+  }
+
+  return null;
+};
+
 async function generateContainer(htmlString, headerHTMLString, documentOptions = {}) {
   const zip = new JSZip();
 
-  htmlString = minifyHTMLString(htmlString);
-  headerHTMLString = minifyHTMLString(headerHTMLString);
+  let contentHTML = htmlString;
+  let headerHTML = headerHTMLString;
+  if (htmlString) {
+    contentHTML = await tidyHTMLString(contentHTML);
+    contentHTML = minifyHTMLString(contentHTML);
+  }
+  if (headerHTMLString) {
+    headerHTML = await tidyHTMLString(headerHTML);
+    headerHTML = minifyHTMLString(headerHTML);
+  }
 
-  addFilesToContainer(zip, htmlString, documentOptions, headerHTMLString);
+  addFilesToContainer(zip, contentHTML, documentOptions, headerHTML);
 
   const buffer = await zip.generateAsync({ type: 'arraybuffer' });
   if (Object.prototype.hasOwnProperty.call(global, 'Blob')) {
