@@ -60,6 +60,7 @@
     "html-to-vdom": "^0.7.0",
     "image-size": "^0.8.3",
     "jszip": "^3.4.0",
+    "libtidy-updated": "^0.4.1",
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "2.1.2"
   },
