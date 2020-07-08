@@ -16,6 +16,7 @@ export default {
     'jszip',
     'virtual-dom',
     'xmlbuilder2',
+    'libtidy-updated',
   ],
   plugins: [
     resolve(),
