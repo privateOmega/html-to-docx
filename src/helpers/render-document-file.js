@@ -80,6 +80,19 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       });
       xmlFragment.import(headingFragment);
       return;
+    case 'span':
+    case 'strong':
+    case 'b':
+    case 'em':
+    case 'i':
+    case 'u':
+    case 'ins':
+    case 'strike':
+    case 'del':
+    case 's':
+    case 'sub':
+    case 'sup':
+    case 'mark':
     case 'p':
       const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
