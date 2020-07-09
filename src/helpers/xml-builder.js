@@ -824,10 +824,25 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
   if (isVNode(vNode) && vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    for (let index = 0; index < vNode.children.length; index++) {
-      const childVNode = vNode.children[index];
+    if (
+      [
+        'span',
+        'strong',
+        'b',
+        'em',
+        'i',
+        'u',
+        'ins',
+        'strike',
+        'del',
+        's',
+        'sub',
+        'sup',
+        'mark',
+      ].includes(vNode.tagName)
+    ) {
       const runOrHyperlinkFragments = buildRunOrHyperLink(
-        childVNode,
+        vNode,
         modifiedAttributes,
         docxDocumentInstance
       );
@@ -843,6 +858,28 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
         }
       } else {
         paragraphFragment.import(runOrHyperlinkFragments);
+      }
+    } else {
+      for (let index = 0; index < vNode.children.length; index++) {
+        const childVNode = vNode.children[index];
+        const runOrHyperlinkFragments = buildRunOrHyperLink(
+          childVNode,
+          modifiedAttributes,
+          docxDocumentInstance
+        );
+        if (Array.isArray(runOrHyperlinkFragments)) {
+          for (
+            let iteratorIndex = 0;
+            iteratorIndex < runOrHyperlinkFragments.length;
+            iteratorIndex++
+          ) {
+            const runOrHyperlinkFragment = runOrHyperlinkFragments[iteratorIndex];
+
+            paragraphFragment.import(runOrHyperlinkFragment);
+          }
+        } else {
+          paragraphFragment.import(runOrHyperlinkFragments);
+        }
       }
     }
   } else {
