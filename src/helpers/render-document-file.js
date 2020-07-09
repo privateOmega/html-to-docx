@@ -76,6 +76,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       const headingFragment = xmlBuilder.buildParagraph(vNode, {
         fontSize,
         lineHeight: Math.max(lineHeight, 240),
+        strong: 'bold',
       });
       xmlFragment.import(headingFragment);
       return;
