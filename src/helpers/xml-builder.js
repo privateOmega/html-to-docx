@@ -35,6 +35,7 @@ import { buildImage } from './render-document-file';
 const isVNode = require('virtual-dom/vnode/is-vnode');
 const isVText = require('virtual-dom/vnode/is-vtext');
 const colorNames = require('color-name');
+const VText = require('virtual-dom/vnode/vtext');
 
 const buildTableRowHeight = (tableRowHeight) => {
   const tableRowHeightFragment = fragment({
@@ -346,49 +347,54 @@ const buildRun = (vNode, attributes) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
-  if (isVNode(vNode)) {
-    while (
-      isVNode(vNode) &&
-      ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup', 'mark'].includes(
-        vNode.tagName
-      )
-    ) {
-      const formattingFragment = buildTextFormatting(vNode);
-      runPropertiesFragment.import(formattingFragment);
-      if (vNode.children.length === 0) {
-        break;
+
+  if (
+    isVNode(vNode) &&
+    [
+      'span',
+      'strong',
+      'b',
+      'em',
+      'i',
+      'u',
+      'ins',
+      'strike',
+      'del',
+      's',
+      'sub',
+      'sup',
+      'mark',
+    ].includes(vNode.tagName)
+  ) {
+    const textArray = [];
+
+    let vNodes = [vNode];
+    while (vNodes.length) {
+      const tempVNode = vNodes.shift();
+      if (isVText(tempVNode)) {
+        textArray.push(tempVNode.text);
       }
-      if (vNode.children.length === 1) {
-        // eslint-disable-next-line no-param-reassign, prefer-destructuring
-        vNode = vNode.children[0];
-      } else {
-        // FIXME: Multiple formatting children nodes under single formatting parent node.
-        for (let index = 0; index < vNode.children.length; index++) {
-          const childVNode = vNode.children[index];
-          if (
-            isVNode(childVNode) &&
-            [
-              'strong',
-              'b',
-              'em',
-              'i',
-              'u',
-              'ins',
-              'strike',
-              'del',
-              's',
-              'sub',
-              'sup',
-              'mark',
-            ].includes(childVNode.tagName)
-          ) {
-            // eslint-disable-next-line no-param-reassign
-            vNode = childVNode;
-          }
-        }
+      if (
+        isVNode(tempVNode) &&
+        ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup', 'mark'].includes(
+          tempVNode.tagName
+        )
+      ) {
+        const formattingFragment = buildTextFormatting(tempVNode);
+        runPropertiesFragment.import(formattingFragment);
+      }
+
+      if (tempVNode.children && tempVNode.children.length) {
+        vNodes = tempVNode.children.slice().concat(vNodes);
       }
     }
+    if (textArray.length) {
+      const combinedString = textArray.join('');
+      // eslint-disable-next-line no-param-reassign
+      vNode = new VText(combinedString);
+    }
   }
+
   runFragment.import(runPropertiesFragment);
   if (isVText(vNode)) {
     const textFragment = buildTextElement(vNode.text);
@@ -438,6 +444,8 @@ const fixupColorCode = (colorCodeString) => {
     const blue = matchedParts[3];
 
     return hex3ToHex(red, green, blue);
+  } else {
+    return '000000';
   }
 };
 
@@ -816,10 +824,25 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
   if (isVNode(vNode) && vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
-    for (let index = 0; index < vNode.children.length; index++) {
-      const childVNode = vNode.children[index];
+    if (
+      [
+        'span',
+        'strong',
+        'b',
+        'em',
+        'i',
+        'u',
+        'ins',
+        'strike',
+        'del',
+        's',
+        'sub',
+        'sup',
+        'mark',
+      ].includes(vNode.tagName)
+    ) {
       const runOrHyperlinkFragments = buildRunOrHyperLink(
-        childVNode,
+        vNode,
         modifiedAttributes,
         docxDocumentInstance
       );
@@ -835,6 +858,28 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
         }
       } else {
         paragraphFragment.import(runOrHyperlinkFragments);
+      }
+    } else {
+      for (let index = 0; index < vNode.children.length; index++) {
+        const childVNode = vNode.children[index];
+        const runOrHyperlinkFragments = buildRunOrHyperLink(
+          childVNode,
+          modifiedAttributes,
+          docxDocumentInstance
+        );
+        if (Array.isArray(runOrHyperlinkFragments)) {
+          for (
+            let iteratorIndex = 0;
+            iteratorIndex < runOrHyperlinkFragments.length;
+            iteratorIndex++
+          ) {
+            const runOrHyperlinkFragment = runOrHyperlinkFragments[iteratorIndex];
+
+            paragraphFragment.import(runOrHyperlinkFragment);
+          }
+        } else {
+          paragraphFragment.import(runOrHyperlinkFragments);
+        }
       }
     }
   } else {

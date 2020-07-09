@@ -23,7 +23,8 @@ const convertHTML = require('html-to-vdom')({
 export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => {
   let response = null;
   try {
-    response = docxDocumentInstance.createMediaFile(vNode.properties.src);
+    // libtidy encodes the image src
+    response = docxDocumentInstance.createMediaFile(decodeURIComponent(vNode.properties.src));
   } catch (error) {
     // NOOP
   }
@@ -75,9 +76,23 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       const headingFragment = xmlBuilder.buildParagraph(vNode, {
         fontSize,
         lineHeight: Math.max(lineHeight, 240),
+        strong: 'bold',
       });
       xmlFragment.import(headingFragment);
       return;
+    case 'span':
+    case 'strong':
+    case 'b':
+    case 'em':
+    case 'i':
+    case 'u':
+    case 'ins':
+    case 'strike':
+    case 'del':
+    case 's':
+    case 'sub':
+    case 'sup':
+    case 'mark':
     case 'p':
       const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);

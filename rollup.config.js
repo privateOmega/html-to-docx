@@ -16,12 +16,15 @@ export default {
     'jszip',
     'virtual-dom',
     'xmlbuilder2',
+    'libtidy-updated',
   ],
   plugins: [
     resolve(),
     json({ include: 'package.json', preferConst: true }),
     commonjs(),
-    terser(),
+    terser({
+      mangle: false,
+    }),
     cleaner({
       targets: ['./dist/'],
     }),
