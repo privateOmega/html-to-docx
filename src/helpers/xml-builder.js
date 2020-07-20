@@ -39,6 +39,42 @@ const isVText = require('virtual-dom/vnode/is-vtext');
 const colorNames = require('color-name');
 const VText = require('virtual-dom/vnode/vtext');
 
+// eslint-disable-next-line consistent-return
+const fixupColorCode = (colorCodeString) => {
+  if (Object.prototype.hasOwnProperty.call(colorNames, colorCodeString.toLowerCase())) {
+    const [red, green, blue] = colorNames[colorCodeString.toLowerCase()];
+
+    return rgbToHex(red, green, blue);
+  } else if (rgbRegex.test(colorCodeString)) {
+    const matchedParts = colorCodeString.match(rgbRegex);
+    const red = matchedParts[1];
+    const green = matchedParts[2];
+    const blue = matchedParts[3];
+
+    return rgbToHex(red, green, blue);
+  } else if (hslRegex.test(colorCodeString)) {
+    const matchedParts = colorCodeString.match(hslRegex);
+    const hue = matchedParts[1];
+    const saturation = matchedParts[2];
+    const luminosity = matchedParts[3];
+
+    return hslToHex(hue, saturation, luminosity);
+  } else if (hexRegex.test(colorCodeString)) {
+    const matchedParts = colorCodeString.match(hexRegex);
+
+    return matchedParts[1];
+  } else if (hex3Regex.test(colorCodeString)) {
+    const matchedParts = colorCodeString.match(hex3Regex);
+    const red = matchedParts[1];
+    const green = matchedParts[2];
+    const blue = matchedParts[3];
+
+    return hex3ToHex(red, green, blue);
+  } else {
+    return '000000';
+  }
+};
+
 const buildTableRowHeight = (tableRowHeight) => {
   const tableRowHeightFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -179,7 +215,7 @@ const buildBorder = (
   borderSide = 'top',
   borderSize = 4,
   borderSpacing = 0,
-  borderColor = 'auto',
+  borderColor = fixupColorCode('white'),
   borderStroke = 'single'
 ) => {
   const borderFragment = fragment({
@@ -349,42 +385,6 @@ const buildRun = (vNode, attributes) => {
   runFragment.up();
 
   return runFragment;
-};
-
-// eslint-disable-next-line consistent-return
-const fixupColorCode = (colorCodeString) => {
-  if (Object.prototype.hasOwnProperty.call(colorNames, colorCodeString.toLowerCase())) {
-    const [red, green, blue] = colorNames[colorCodeString.toLowerCase()];
-
-    return rgbToHex(red, green, blue);
-  } else if (rgbRegex.test(colorCodeString)) {
-    const matchedParts = colorCodeString.match(rgbRegex);
-    const red = matchedParts[1];
-    const green = matchedParts[2];
-    const blue = matchedParts[3];
-
-    return rgbToHex(red, green, blue);
-  } else if (hslRegex.test(colorCodeString)) {
-    const matchedParts = colorCodeString.match(hslRegex);
-    const hue = matchedParts[1];
-    const saturation = matchedParts[2];
-    const luminosity = matchedParts[3];
-
-    return hslToHex(hue, saturation, luminosity);
-  } else if (hexRegex.test(colorCodeString)) {
-    const matchedParts = colorCodeString.match(hexRegex);
-
-    return matchedParts[1];
-  } else if (hex3Regex.test(colorCodeString)) {
-    const matchedParts = colorCodeString.match(hex3Regex);
-    const red = matchedParts[1];
-    const green = matchedParts[2];
-    const blue = matchedParts[3];
-
-    return hex3ToHex(red, green, blue);
-  } else {
-    return '000000';
-  }
 };
 
 // eslint-disable-next-line consistent-return
