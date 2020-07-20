@@ -1248,6 +1248,35 @@ const buildTableWidth = (tableWidth) => {
   return tableWidthFragment;
 };
 
+const buildCellMargin = (side, margin) => {
+  const marginFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', side)
+    .att('@w', 'type', 'dxa')
+    .att('@w', 'w', String(margin))
+    .up();
+
+  return marginFragment;
+};
+
+const buildTableCellMargins = (margin) => {
+  const tableCellMarFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  }).ele('@w', 'tblCellMar');
+
+  ['top', 'bottom'].forEach((side) => {
+    const marginFragment = buildCellMargin(side, margin / 2);
+    tableCellMarFragment.import(marginFragment);
+  });
+  ['left', 'right'].forEach((side) => {
+    const marginFragment = buildCellMargin(side, margin);
+    tableCellMarFragment.import(marginFragment);
+  });
+
+  return tableCellMarFragment;
+};
+
 const buildTableProperties = (attributes) => {
   const tablePropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -1279,6 +1308,9 @@ const buildTableProperties = (attributes) => {
       }
     });
   }
+  const tableCellMarginFragment = buildTableCellMargins(160);
+  tablePropertiesFragment.import(tableCellMarginFragment);
+
   tablePropertiesFragment.up();
 
   return tablePropertiesFragment;
@@ -1308,8 +1340,8 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
   }).ele('@w', 'tbl');
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
-    const tableAttributes = vNode.properties.attributes;
-    const tableStyles = vNode.properties.style;
+    const tableAttributes = vNode.properties.attributes || {};
+    const tableStyles = vNode.properties.style || {};
     const tableBorders = {};
     const tableCellBorders = {};
     let [borderSize, borderStrike, borderColor] = [2, 'single', '000000'];
