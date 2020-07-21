@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.23](https://github.com/privateOmega/html-to-docx/compare/v1.1.22...v1.1.23) (2020-07-21)
+
+
+### Features
+
+* added css border string parser ([15562e8](https://github.com/privateOmega/html-to-docx/commit/15562e817732d1d85b99fd33921694f2e3ad3ad7))
+* added eip conversions ([9d6e317](https://github.com/privateOmega/html-to-docx/commit/9d6e3171c0b0f9d71f776762357d4a329778cedb))
+* added minimum width support to tables ([b10d820](https://github.com/privateOmega/html-to-docx/commit/b10d820061b10531aa027fde304fbe3ceac849d5))
+* make tables center aligned ([077049b](https://github.com/privateOmega/html-to-docx/commit/077049b40babc45ec527b53211d4b33ba4f2b6ab))
+
+
+### Bug Fixes
+
+* border color ([a322450](https://github.com/privateOmega/html-to-docx/commit/a322450ceda77dbabaee24d1e9619ced04d88cad))
+* improved table border styling ([ba3aa67](https://github.com/privateOmega/html-to-docx/commit/ba3aa67fc484fa1a47b1f61f5dd7f69dff353f48))
+* set default values for table attributes and styles ([2a4fb23](https://github.com/privateOmega/html-to-docx/commit/2a4fb23747cc3830c1ed81fade8316a27f67efd7))
+
 ### 1.1.22 (2020-07-09)
 
 
