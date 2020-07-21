@@ -175,88 +175,24 @@ const buildLineBreak = (type = 'textWrapping') => {
   return lineBreakFragment;
 };
 
-const buildInsideVBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
-  const insideVBorderFragment = fragment({
+const buildBorder = (
+  borderSide = 'top',
+  borderSize = 4,
+  borderSpacing = 0,
+  borderColor = 'auto',
+  borderStroke = 'single'
+) => {
+  const borderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
-    .ele('@w', 'insideV')
-    .att('@w', 'val', 'single')
+    .ele('@w', borderSide)
+    .att('@w', 'val', borderStroke)
     .att('@w', 'sz', borderSize)
     .att('@w', 'space', borderSpacing)
     .att('@w', 'color', borderColor)
     .up();
 
-  return insideVBorderFragment;
-};
-
-const buildInsideHBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
-  const insideHBorderFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'insideH')
-    .att('@w', 'val', 'single')
-    .att('@w', 'sz', borderSize)
-    .att('@w', 'space', borderSpacing)
-    .att('@w', 'color', borderColor)
-    .up();
-
-  return insideHBorderFragment;
-};
-
-const buildRightBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
-  const rightBorderFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'right')
-    .att('@w', 'val', 'single')
-    .att('@w', 'sz', borderSize)
-    .att('@w', 'space', borderSpacing)
-    .att('@w', 'color', borderColor)
-    .up();
-
-  return rightBorderFragment;
-};
-
-const buildBottomBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
-  const bottomBorderFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'bottom')
-    .att('@w', 'val', 'single')
-    .att('@w', 'sz', borderSize)
-    .att('@w', 'space', borderSpacing)
-    .att('@w', 'color', borderColor)
-    .up();
-
-  return bottomBorderFragment;
-};
-
-const buildLeftBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
-  const leftBorderFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'left')
-    .att('@w', 'val', 'single')
-    .att('@w', 'sz', borderSize)
-    .att('@w', 'space', borderSpacing)
-    .att('@w', 'color', borderColor)
-    .up();
-
-  return leftBorderFragment;
-};
-
-const buildTopBorder = (borderSize = 4, borderSpacing = 0, borderColor = 'auto') => {
-  const topBorderFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'top')
-    .att('@w', 'val', 'single')
-    .att('@w', 'sz', borderSize)
-    .att('@w', 'space', borderSpacing)
-    .att('@w', 'color', borderColor)
-    .up();
-
-  return topBorderFragment;
+  return borderFragment;
 };
 
 const buildTextElement = (text) => {
@@ -632,17 +568,37 @@ const buildParagraphBorder = () => {
   const paragraphBorderFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'pBdr');
-  const topBorderFragment = buildTopBorder(0, 3, 'FFFFFF');
-  paragraphBorderFragment.import(topBorderFragment);
+  const bordersObject = {
+    top: {
+      size: 0,
+      spacing: 3,
+      color: 'FFFFFF',
+    },
+    left: {
+      size: 0,
+      spacing: 3,
+      color: 'FFFFFF',
+    },
+    bottom: {
+      size: 0,
+      spacing: 3,
+      color: 'FFFFFF',
+    },
+    right: {
+      size: 0,
+      spacing: 3,
+      color: 'FFFFFF',
+    },
+  };
 
-  const leftBorderFragment = buildLeftBorder(0, 3, 'FFFFFF');
-  paragraphBorderFragment.import(leftBorderFragment);
+  Object.keys(bordersObject).forEach((borderName) => {
+    if (bordersObject[borderName]) {
+      const { size, spacing, color } = bordersObject[borderName];
 
-  const bottomBorderFragment = buildBottomBorder(0, 3, 'FFFFFF');
-  paragraphBorderFragment.import(bottomBorderFragment);
-
-  const rightBorderFragment = buildRightBorder(0, 3, 'FFFFFF');
-  paragraphBorderFragment.import(rightBorderFragment);
+      const borderFragment = buildBorder(borderName, size, spacing, color);
+      paragraphBorderFragment.import(borderFragment);
+    }
+  });
 
   paragraphBorderFragment.up();
 
@@ -917,12 +873,12 @@ const buildGridSpanFragment = (spanValue) => {
   return gridSpanFragment;
 };
 
-const buildTableCellSpacing = () => {
+const buildTableCellSpacing = (cellSpacing = 0) => {
   const tableCellSpacingFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'tblCellSpacing')
-    .att('@w', 'w', '36')
+    .att('@w', 'w', cellSpacing)
     .att('@w', 'type', 'dxa')
     .up();
 
@@ -934,22 +890,12 @@ const buildTableCellBorders = (tableCellBorder) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tcBorders');
 
-  if (tableCellBorder.top) {
-    const topBorderFragment = buildTopBorder();
-    tableCellBordersFragment.import(topBorderFragment);
-  }
-  if (tableCellBorder.left) {
-    const leftBorderFragment = buildLeftBorder();
-    tableCellBordersFragment.import(leftBorderFragment);
-  }
-  if (tableCellBorder.bottom) {
-    const bottomBorderFragment = buildBottomBorder();
-    tableCellBordersFragment.import(bottomBorderFragment);
-  }
-  if (tableCellBorder.right) {
-    const rightBorderFragment = buildRightBorder();
-    tableCellBordersFragment.import(rightBorderFragment);
-  }
+  Object.keys(tableCellBorder).forEach((border) => {
+    if (tableCellBorder[border]) {
+      const borderFragment = buildBorder(border, tableCellBorder[border]);
+      tableCellBordersFragment.import(borderFragment);
+    }
+  });
 
   tableCellBordersFragment.up();
 
@@ -1276,30 +1222,14 @@ const buildTableBorders = (tableBorder) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tblBorders');
 
-  if (tableBorder.top) {
-    const topBorderFragment = buildTopBorder();
-    tableBordersFragment.import(topBorderFragment);
-  }
-  if (tableBorder.left) {
-    const leftBorderFragment = buildLeftBorder();
-    tableBordersFragment.import(leftBorderFragment);
-  }
-  if (tableBorder.bottom) {
-    const bottomBorderFragment = buildBottomBorder();
-    tableBordersFragment.import(bottomBorderFragment);
-  }
-  if (tableBorder.right) {
-    const rightBorderFragment = buildRightBorder();
-    tableBordersFragment.import(rightBorderFragment);
-  }
-  if (tableBorder.insideH) {
-    const insideHBorderFragment = buildInsideHBorder();
-    tableBordersFragment.import(insideHBorderFragment);
-  }
-  if (tableBorder.insideV) {
-    const insideVBorderFragment = buildInsideVBorder();
-    tableBordersFragment.import(insideVBorderFragment);
-  }
+  const { color, stroke, ...borders } = tableBorder;
+
+  Object.keys(borders).forEach((border) => {
+    if (borders[border]) {
+      const borderFragment = buildBorder(border, borders[border], 0, color, stroke);
+      tableBordersFragment.import(borderFragment);
+    }
+  });
 
   tableBordersFragment.up();
 
@@ -1337,10 +1267,10 @@ const buildTableProperties = (attributes) => {
           tablePropertiesFragment.import(tableBordersFragment);
           // Delete used property
           // eslint-disable-next-line no-param-reassign
-          delete attributes.border;
+          delete attributes.tableBorder;
           break;
         case 'tableCellSpacing':
-          const tableCellSpacingFragment = buildTableCellSpacing();
+          const tableCellSpacingFragment = buildTableCellSpacing(attributes[key]);
           tablePropertiesFragment.import(tableCellSpacingFragment);
           // Delete used property
           // eslint-disable-next-line no-param-reassign
@@ -1378,68 +1308,60 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
   }).ele('@w', 'tbl');
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
-    if (
-      vNode.properties.attributes.border === '0' ||
-      (vNode.properties.style && vNode.properties.style.border === 'none') ||
-      (!vNode.properties.attributes.border &&
-        !(vNode.properties.style && vNode.properties.style.border))
-    ) {
-      modifiedAttributes.tableBorder = {
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        insideH: 0,
-        insideV: 0,
-      };
-    } else {
-      // eslint-disable-next-line no-lonely-if
-      if (
-        (vNode.properties.style && !vNode.properties.style['border-collapse']) ||
-        (vNode.properties.style && vNode.properties.style['border-collapse'] === 'separate')
-      ) {
-        modifiedAttributes.tableBorder = {
-          top: 1,
-          left: 1,
-          bottom: 1,
-          right: 1,
-          insideH: 0,
-          insideV: 0,
-        };
-        modifiedAttributes.tableCellBorder = {
-          top: 1,
-          left: 1,
-          bottom: 1,
-          right: 1,
-        };
-        // TODO: Cell spacing has to be defined.
-        // value is in TWIPs.
-        modifiedAttributes.tableCellSpacing = 36;
-      } else if (
-        vNode.properties.style &&
-        vNode.properties.style['border-collapse'] === 'collapse'
-      ) {
-        modifiedAttributes.tableBorder = {
-          top: 1,
-          left: 1,
-          bottom: 1,
-          right: 1,
-          insideH: 1,
-          insideV: 1,
-        };
-      }
-    }
-    if (vNode.properties.style && vNode.properties.style.width) {
-      let width;
-      if (pixelRegex.test(vNode.properties.style.width)) {
-        width = pixelToTWIP(vNode.properties.style.width.match(pixelRegex)[1]);
-      } else if (percentageRegex.test(vNode.properties.style.width)) {
-        const percentageValue = vNode.properties.style.width.match(percentageRegex)[1];
+    const tableAttributes = vNode.properties.attributes;
+    const tableStyles = vNode.properties.style;
+    const tableBorders = {};
+    const tableCellBorders = {};
+    let [borderSize, borderStrike, borderColor] = [2, 'single', '000000'];
 
-        width = Math.round((percentageValue / 100) * attributes.maximumWidth);
-      }
-      modifiedAttributes.width = width;
+    // eslint-disable-next-line no-restricted-globals
+    if (!isNaN(tableAttributes.border)) {
+      borderSize = parseInt(tableAttributes.border, 10);
     }
+
+    // css style overrides table border properties
+    if (tableStyles.border) {
+      const [cssSize, cssStroke, cssColor] = cssBorderParser(tableStyles.border);
+      borderSize = cssSize || borderSize;
+      borderColor = cssColor || borderColor;
+      borderStrike = cssStroke || borderStrike;
+    }
+
+    tableBorders.top = borderSize;
+    tableBorders.bottom = borderSize;
+    tableBorders.left = borderSize;
+    tableBorders.right = borderSize;
+    tableBorders.stroke = borderStrike;
+    tableBorders.color = borderColor;
+
+    if (tableStyles['border-collapse'] === 'collapse') {
+      tableBorders.insideV = borderSize;
+      tableBorders.insideH = borderSize;
+    } else {
+      tableBorders.insideV = 0;
+      tableBorders.insideH = 0;
+      tableCellBorders.top = 1;
+      tableCellBorders.bottom = 1;
+      tableCellBorders.left = 1;
+      tableCellBorders.right = 1;
+    }
+
+    modifiedAttributes.tableBorder = tableBorders;
+    modifiedAttributes.tableCellSpacing = 0;
+
+    if (Object.keys(tableCellBorders).length) {
+      modifiedAttributes.tableCellBorder = tableCellBorders;
+    }
+
+    let width;
+    if (pixelRegex.test(tableStyles.width)) {
+      width = pixelToTWIP(tableStyles.width.match(pixelRegex)[1]);
+    } else if (percentageRegex.test(tableStyles.width)) {
+      const percentageValue = tableStyles.width.match(percentageRegex)[1];
+
+      width = Math.round((percentageValue / 100) * attributes.maximumWidth);
+    }
+    modifiedAttributes.width = width;
   }
   const tablePropertiesFragment = buildTableProperties(modifiedAttributes);
   tableFragment.import(tablePropertiesFragment);
