@@ -1282,11 +1282,6 @@ const buildTableProperties = (attributes) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tblPr');
 
-  if (attributes.width) {
-    const tableWidthFragment = buildTableWidth(attributes.width);
-    tablePropertiesFragment.import(tableWidthFragment);
-  }
-
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
       // eslint-disable-next-line default-case
@@ -1304,6 +1299,15 @@ const buildTableProperties = (attributes) => {
           // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellSpacing;
+          break;
+        case 'width':
+          if (attributes[key]) {
+            const tableWidthFragment = buildTableWidth(attributes[key]);
+            tablePropertiesFragment.import(tableWidthFragment);
+          }
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.width;
           break;
       }
     });
@@ -1389,15 +1393,27 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
       modifiedAttributes.tableCellBorder = tableCellBorders;
     }
 
+    let minimumWidth;
     let width;
+    // Calculate minimum width of table
+    if (pixelRegex.test(tableStyles['min-width'])) {
+      minimumWidth = pixelToTWIP(tableStyles['min-width'].match(pixelRegex)[1]);
+    } else if (percentageRegex.test(tableStyles['min-width'])) {
+      const percentageValue = tableStyles['min-width'].match(percentageRegex)[1];
+      minimumWidth = Math.round((percentageValue / 100) * attributes.maximumWidth);
+    }
+
+    // Calculate specified width of table
     if (pixelRegex.test(tableStyles.width)) {
       width = pixelToTWIP(tableStyles.width.match(pixelRegex)[1]);
     } else if (percentageRegex.test(tableStyles.width)) {
       const percentageValue = tableStyles.width.match(percentageRegex)[1];
-
       width = Math.round((percentageValue / 100) * attributes.maximumWidth);
     }
-    modifiedAttributes.width = width;
+
+    // Choose the higher of the two widths
+    modifiedAttributes.width =
+      width && minimumWidth ? Math.max(width, minimumWidth) : width || minimumWidth;
   }
   const tablePropertiesFragment = buildTableProperties(modifiedAttributes);
   tableFragment.import(tablePropertiesFragment);
