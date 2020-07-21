@@ -15,7 +15,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "release": "standard-version",
-    "lint": "eslint .",
+    "lint": "eslint --fix .",
     "prettier:check": "prettier --check '**/*.{js}'",
     "validate": "run-s lint prettier:check",
     "build": "rollup -c"
