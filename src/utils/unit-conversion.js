@@ -84,3 +84,27 @@ export const cmToInch = (cmValue) => {
 export const cmToTWIP = (cmValue) => {
   return inchToTWIP(cmToInch(cmValue));
 };
+
+export const pixelToPoint = (pixelValue) => {
+  return HIPToPoint(pixelToHIP(pixelValue));
+};
+
+export const pointToPixel = (pointValue) => {
+  return HIPToPixel(pointToHIP(pointValue));
+};
+
+export const EIPToPoint = (EIPValue) => {
+  return Math.round(EIPValue / 8);
+};
+
+export const pointToEIP = (PointValue) => {
+  return Math.round(PointValue * 8);
+};
+
+export const pixelToEIP = (pixelValue) => {
+  return pointToEIP(pixelToPoint(pixelValue));
+};
+
+export const EIPToPixel = (EIPValue) => {
+  return pointToPixel(EIPToPoint(EIPValue));
+};
