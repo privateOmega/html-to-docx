@@ -2,7 +2,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
-/* eslint-disable no-unused-vars */
 import { fragment } from 'xmlbuilder2';
 
 // eslint-disable-next-line import/no-named-default
@@ -213,9 +212,9 @@ const buildLineBreak = (type = 'textWrapping') => {
 
 const buildBorder = (
   borderSide = 'top',
-  borderSize = 4,
+  borderSize = 0,
   borderSpacing = 0,
-  borderColor = fixupColorCode('white'),
+  borderColor = fixupColorCode('black'),
   borderStroke = 'single'
 ) => {
   const borderFragment = fragment({
@@ -890,9 +889,10 @@ const buildTableCellBorders = (tableCellBorder) => {
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tcBorders');
 
-  Object.keys(tableCellBorder).forEach((border) => {
+  const { color, stroke, ...borders } = tableCellBorder;
+  Object.keys(borders).forEach((border) => {
     if (tableCellBorder[border]) {
-      const borderFragment = buildBorder(border, tableCellBorder[border]);
+      const borderFragment = buildBorder(border, tableCellBorder[border], 0, color, stroke);
       tableCellBordersFragment.import(borderFragment);
     }
   });
@@ -934,6 +934,7 @@ const buildTableCellProperties = (attributes) => {
         case 'tableCellBorder':
           const tableCellBorderFragment = buildTableCellBorders(attributes[key]);
           tableCellPropertiesFragment.import(tableCellBorderFragment);
+
           // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellBorder;
@@ -949,18 +950,20 @@ const buildTableCellProperties = (attributes) => {
 const fixupTableCellBorder = (vNode, attributes) => {
   if (Object.prototype.hasOwnProperty.call(vNode.properties.style, 'border')) {
     if (vNode.properties.style.border === 'none' || vNode.properties.style.border === 0) {
-      attributes.tableCellBorder = {
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-      };
+      attributes.tableCellBorder = {};
     } else {
+      // eslint-disable-next-line no-use-before-define
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(
+        vNode.properties.style.border
+      );
+
       attributes.tableCellBorder = {
-        top: 1,
-        left: 1,
-        bottom: 1,
-        right: 1,
+        top: borderSize,
+        left: borderSize,
+        bottom: borderSize,
+        right: borderSize,
+        color: borderColor,
+        stroke: borderStroke,
       };
     }
   }
@@ -970,9 +973,15 @@ const fixupTableCellBorder = (vNode, attributes) => {
       top: 0,
     };
   } else if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] !== '0') {
+    // eslint-disable-next-line no-use-before-define
+    const [borderSize, borderStroke, borderColor] = cssBorderParser(
+      vNode.properties.style['border-top']
+    );
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
-      top: 1,
+      top: borderSize,
+      color: borderColor,
+      stroke: borderStroke,
     };
   }
   if (vNode.properties.style['border-left'] && vNode.properties.style['border-left'] === '0') {
@@ -984,9 +993,15 @@ const fixupTableCellBorder = (vNode, attributes) => {
     vNode.properties.style['border-left'] &&
     vNode.properties.style['border-left'] !== '0'
   ) {
+    // eslint-disable-next-line no-use-before-define
+    const [borderSize, borderStroke, borderColor] = cssBorderParser(
+      vNode.properties.style['border-left']
+    );
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
-      left: 1,
+      left: borderSize,
+      color: borderColor,
+      stroke: borderStroke,
     };
   }
   if (vNode.properties.style['border-bottom'] && vNode.properties.style['border-bottom'] === '0') {
@@ -998,9 +1013,15 @@ const fixupTableCellBorder = (vNode, attributes) => {
     vNode.properties.style['border-bottom'] &&
     vNode.properties.style['border-bottom'] !== '0'
   ) {
+    // eslint-disable-next-line no-use-before-define
+    const [borderSize, borderStroke, borderColor] = cssBorderParser(
+      vNode.properties.style['border-bottom']
+    );
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
-      bottom: 1,
+      bottom: borderSize,
+      color: borderColor,
+      stroke: borderStroke,
     };
   }
   if (vNode.properties.style['border-right'] && vNode.properties.style['border-right'] === '0') {
@@ -1012,9 +1033,15 @@ const fixupTableCellBorder = (vNode, attributes) => {
     vNode.properties.style['border-right'] &&
     vNode.properties.style['border-right'] !== '0'
   ) {
+    // eslint-disable-next-line no-use-before-define
+    const [borderSize, borderStroke, borderColor] = cssBorderParser(
+      vNode.properties.style['border-right']
+    );
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
-      right: 1,
+      right: borderSize,
+      color: borderColor,
+      stroke: borderStroke,
     };
   }
 };
@@ -1132,7 +1159,6 @@ const buildTableRowProperties = (attributes) => {
     });
   }
   tableRowPropertiesFragment.up();
-
   return tableRowPropertiesFragment;
 };
 
@@ -1323,6 +1349,7 @@ const buildTableProperties = (attributes) => {
 
   return tablePropertiesFragment;
 };
+
 const cssBorderParser = (borderString) => {
   let [size, stroke, color] = borderString.split(' ');
 
@@ -1724,6 +1751,7 @@ const buildWrapSquare = () => {
   return wrapSquareFragment;
 };
 
+// eslint-disable-next-line no-unused-vars
 const buildWrapNone = () => {
   const wrapNoneFragment = fragment({
     namespaceAlias: { wp: namespaces.wp },
