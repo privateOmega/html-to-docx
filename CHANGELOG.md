@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.24](https://github.com/privateOmega/html-to-docx/compare/v1.1.23...v1.1.24) (2020-07-22)
+
+
+### Bug Fixes
+
+* updated row borders to use css borders ([76aeb85](https://github.com/privateOmega/html-to-docx/commit/76aeb85e8f75edb2c669f28674e5353599045866))
+
 ### [1.1.23](https://github.com/privateOmega/html-to-docx/compare/v1.1.22...v1.1.23) (2020-07-21)
 
 
