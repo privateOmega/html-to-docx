@@ -25,6 +25,10 @@
     "url": "git+https://github.com/privateOmega/html-to-docx.git"
   },
   "author": "privateOmega <privateOmega@protonmail.com>",
+  "contributors": [
+    "amrita-syn <amrita.yadav@synapsica.com>",
+    "charuthaB <charutha.bhaskar@synapsica.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/privateOmega/html-to-docx/issues"
