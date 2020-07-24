@@ -34,9 +34,35 @@ const htmlString = `<!DOCTYPE html>
         <ul style="list-style-type: circle;">
             <li>Unordered list element</li>
         </ul>
+        <br>
         <ol style="list-style-type: decimal;">
             <li>Ordered list element</li>
         </ol>
+        <br>
+        <ul>
+            <li>Coffee</li>
+            <li>Tea
+                <ol>
+                    <li>Black tea
+                        <ol>
+                            <li>Srilankan Tea
+                                <ul>
+                                    <li>Uva Tea</li>
+                                </ul>
+                            </li>
+                            <li>Assam Tea</li>
+                        </ol>
+                    </li>
+                    <li>Green tea</li>
+                </ol>
+            </li>
+            <li>Milk
+                <ol>
+                    <li>Cow Milk</li>
+                    <li>Soy Milk</li>
+                </ol>
+            </li>
+        </ul>
     </body>
 </html>`;
 
