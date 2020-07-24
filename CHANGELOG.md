@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.25](https://github.com/privateOmega/html-to-docx/compare/v1.1.24...v1.1.25) (2020-07-24)
+
+
+### Features
+
+* changed list parsing to support nested lists ([4339f2f](https://github.com/privateOmega/html-to-docx/commit/4339f2f9d2bdc5ffd68def80449c9bce8c09c9a9))
+
+
+### Bug Fixes
+
+* modified abstractnumbering definition to support nested lists ([3dd6e3e](https://github.com/privateOmega/html-to-docx/commit/3dd6e3e6a8e02b1cd0892735c9053eb0ba518092))
+
 ### [1.1.24](https://github.com/privateOmega/html-to-docx/compare/v1.1.23...v1.1.24) (2020-07-22)
 
 
