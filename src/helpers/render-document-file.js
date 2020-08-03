@@ -85,15 +85,51 @@ export const buildList = (vNode) => {
       tempVNodeObject.node.children.length &&
       ['ul', 'ol', 'li'].includes(tempVNodeObject.node.tagName)
     ) {
-      const tempVNodeObjects = tempVNodeObject.node.children.map((node) => {
-        return {
-          node,
-          level: ['ul', 'ol'].includes(node.tagName)
-            ? tempVNodeObject.level + 1
-            : tempVNodeObject.level,
-          type: ['ul', 'ol'].includes(node.tagName) ? node.tagName : tempVNodeObject.type,
-        };
-      });
+      const tempVNodeObjects = tempVNodeObject.node.children.reduce((accumulator, childVNode) => {
+        if (['ul', 'ol'].includes(childVNode.tagName)) {
+          accumulator.push({
+            node: childVNode,
+            level: tempVNodeObject.level + 1,
+            type: childVNode.tagName,
+          });
+        } else {
+          // eslint-disable-next-line no-lonely-if
+          if (
+            accumulator.length > 0 &&
+            isVNode(accumulator[accumulator.length - 1].node) &&
+            accumulator[accumulator.length - 1].node.tagName.toLowerCase() === 'p'
+          ) {
+            accumulator[accumulator.length - 1].node.children.push(childVNode);
+          } else {
+            const paragraphVNode = new VNode(
+              'p',
+              null,
+              // eslint-disable-next-line no-nested-ternary
+              isVText(childVNode)
+                ? [childVNode]
+                : isVNode(childVNode) && childVNode.children
+                ? [...childVNode.children]
+                : []
+            );
+            accumulator.push({
+              // eslint-disable-next-line prettier/prettier, no-nested-ternary
+              node: isVNode(childVNode)
+                ? // eslint-disable-next-line prettier/prettier, no-nested-ternary
+                  childVNode.tagName.toLowerCase() === 'li'
+                  ? childVNode
+                  : childVNode.tagName.toLowerCase() !== 'p'
+                  ? paragraphVNode
+                  : childVNode
+                : // eslint-disable-next-line prettier/prettier
+                  paragraphVNode,
+              level: tempVNodeObject.level,
+              type: paragraphVNode.tagName,
+            });
+          }
+        }
+
+        return accumulator;
+      }, []);
       vNodeObjects = tempVNodeObjects.concat(vNodeObjects);
     }
   }
