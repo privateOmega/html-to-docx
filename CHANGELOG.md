@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.26](https://github.com/privateOmega/html-to-docx/compare/v1.1.25...v1.1.26) (2020-08-04)
+
+
+### Bug Fixes
+
+* handled formatting within list element ([aeb3f00](https://github.com/privateOmega/html-to-docx/commit/aeb3f0041d352ea8442551d30770644d04698e7a))
+
 ### [1.1.25](https://github.com/privateOmega/html-to-docx/compare/v1.1.24...v1.1.25) (2020-07-24)
 
 
