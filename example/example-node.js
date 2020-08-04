@@ -45,9 +45,9 @@ const htmlString = `<!DOCTYPE html>
                 <ol>
                     <li>Black tea
                         <ol>
-                            <li>Srilankan Tea
+                            <li>Srilankan <strong>Tea</strong>
                                 <ul>
-                                    <li>Uva Tea</li>
+                                    <li>Uva <b>Tea</b></li>
                                 </ul>
                             </li>
                             <li>Assam Tea</li>
