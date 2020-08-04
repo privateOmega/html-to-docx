@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.27](https://github.com/privateOmega/html-to-docx/compare/v1.1.26...v1.1.27) (2020-08-04)
+
+
+### Bug Fixes
+
+* list element render ([2881455](https://github.com/privateOmega/html-to-docx/commit/2881455633e81127e192f8e0de7fe4711c320583))
+
 ### [1.1.26](https://github.com/privateOmega/html-to-docx/compare/v1.1.25...v1.1.26) (2020-08-04)
 
 
