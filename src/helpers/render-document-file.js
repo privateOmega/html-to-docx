@@ -123,7 +123,7 @@ export const buildList = (vNode) => {
                 : // eslint-disable-next-line prettier/prettier
                   paragraphVNode,
               level: tempVNodeObject.level,
-              type: paragraphVNode.tagName,
+              type: tempVNodeObject.type,
             });
           }
         }
@@ -213,7 +213,6 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'ol':
     case 'ul':
       const listElements = buildList(vNode);
-
       const numberingId = docxDocumentInstance.createNumbering(listElements);
       // eslint-disable-next-line no-plusplus
       for (let index = 0; index < listElements.length; index++) {
