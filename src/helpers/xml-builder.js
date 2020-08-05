@@ -1421,6 +1421,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
     }
 
     let minimumWidth;
+    let maximumWidth;
     let width;
     // Calculate minimum width of table
     if (pixelRegex.test(tableStyles['min-width'])) {
@@ -1430,17 +1431,31 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
       minimumWidth = Math.round((percentageValue / 100) * attributes.maximumWidth);
     }
 
+    // Calculate maximum width of table
+    if (pixelRegex.test(tableStyles['max-width'])) {
+      pixelRegex.lastIndex = 0;
+      maximumWidth = pixelToTWIP(tableStyles['max-width'].match(pixelRegex)[1]);
+    } else if (percentageRegex.test(tableStyles['max-width'])) {
+      percentageRegex.lastIndex = 0;
+      const percentageValue = tableStyles['max-width'].match(percentageRegex)[1];
+      maximumWidth = Math.round((percentageValue / 100) * attributes.maximumWidth);
+    }
+
     // Calculate specified width of table
     if (pixelRegex.test(tableStyles.width)) {
+      pixelRegex.lastIndex = 0;
       width = pixelToTWIP(tableStyles.width.match(pixelRegex)[1]);
     } else if (percentageRegex.test(tableStyles.width)) {
+      percentageRegex.lastIndex = 0;
       const percentageValue = tableStyles.width.match(percentageRegex)[1];
       width = Math.round((percentageValue / 100) * attributes.maximumWidth);
     }
 
     // Choose the higher of the two widths
     modifiedAttributes.width =
-      width && minimumWidth ? Math.max(width, minimumWidth) : width || minimumWidth;
+      width && minimumWidth
+        ? Math.max(Math.min(width, maximumWidth), minimumWidth)
+        : Math.min(maximumWidth, width || minimumWidth || Number.POSITIVE_INFINITY);
   }
   const tablePropertiesFragment = buildTableProperties(modifiedAttributes);
   tableFragment.import(tablePropertiesFragment);
