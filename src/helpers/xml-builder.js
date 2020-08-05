@@ -527,14 +527,22 @@ const buildNumberingInstances = () => {
   return numberingInstancesFragment;
 };
 
-const buildSpacing = (lineSpacing) => {
+const buildSpacing = (lineSpacing, beforeSpacing, afterSpacing) => {
   const spacingFragment = fragment({
     namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'spacing')
-    .att('@w', 'line', lineSpacing)
-    .att('@w', 'lineRule', 'exact')
-    .up();
+  }).ele('@w', 'spacing');
+
+  if (lineSpacing) {
+    spacingFragment.att('@w', 'line', lineSpacing);
+  }
+  if (beforeSpacing) {
+    spacingFragment.att('@w', 'before', beforeSpacing);
+  }
+  if (afterSpacing) {
+    spacingFragment.att('@w', 'after', afterSpacing);
+  }
+
+  spacingFragment.att('@w', 'lineRule', 'exact').up();
 
   return spacingFragment;
 };
@@ -627,13 +635,6 @@ const buildParagraphProperties = (attributes) => {
           // eslint-disable-next-line no-param-reassign
           delete attributes.textAlign;
           break;
-        case 'lineHeight':
-          const spacingFragment = buildSpacing(attributes[key]);
-          paragraphPropertiesFragment.import(spacingFragment);
-          // Delete used property
-          // eslint-disable-next-line no-param-reassign
-          delete attributes.lineHeight;
-          break;
         case 'backgroundColor':
           // Add shading to Paragraph Properties only if display is block
           // Essentially if background color needs to be across the row
@@ -650,6 +651,21 @@ const buildParagraphProperties = (attributes) => {
           break;
       }
     });
+
+    const spacingFragment = buildSpacing(
+      attributes.lineHeight,
+      attributes.beforeSpacing,
+      attributes.afterSpacing
+    );
+    // Delete used properties
+    // eslint-disable-next-line no-param-reassign
+    delete attributes.lineHeight;
+    // eslint-disable-next-line no-param-reassign
+    delete attributes.beforeSpacing;
+    // eslint-disable-next-line no-param-reassign
+    delete attributes.afterSpacing;
+
+    paragraphPropertiesFragment.import(spacingFragment);
   }
   paragraphPropertiesFragment.up();
 
