@@ -151,6 +151,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         fontSize,
         lineHeight: Math.max(lineHeight, 240),
         strong: 'bold',
+        beforeSpacing: 240,
       });
       xmlFragment.import(headingFragment);
       return;
