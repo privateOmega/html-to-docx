@@ -1451,11 +1451,21 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
       width = Math.round((percentageValue / 100) * attributes.maximumWidth);
     }
 
-    // Choose the higher of the two widths
-    modifiedAttributes.width =
-      width && minimumWidth
-        ? Math.max(Math.min(width, maximumWidth), minimumWidth)
-        : Math.min(maximumWidth, width || minimumWidth || Number.POSITIVE_INFINITY);
+    // If width isn't supplied, we should have min-width as the width.
+    if (width) {
+      modifiedAttributes.width = width;
+      if (maximumWidth) {
+        modifiedAttributes.width = Math.min(modifiedAttributes.width, maximumWidth);
+      }
+      if (minimumWidth) {
+        modifiedAttributes.width = Math.max(modifiedAttributes.width, minimumWidth);
+      }
+    } else if (minimumWidth) {
+      modifiedAttributes.width = minimumWidth;
+    }
+    if (modifiedAttributes.width) {
+      modifiedAttributes.width = Math.min(modifiedAttributes.width, attributes.maximumWidth);
+    }
   }
   const tablePropertiesFragment = buildTableProperties(modifiedAttributes);
   tableFragment.import(tablePropertiesFragment);
