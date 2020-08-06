@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.28](https://github.com/privateOmega/html-to-docx/compare/v1.1.27...v1.1.28) (2020-08-06)
+
+
+### Features
+
+* added table max width support ([49ab5d3](https://github.com/privateOmega/html-to-docx/commit/49ab5d3876cdd58c2efd1b492fc5bb41e9a857e7))
+
+
+### Bug Fixes
+
+* added extra before spacing for heading elements ([dc50c8d](https://github.com/privateOmega/html-to-docx/commit/dc50c8dfe85a126be1780598974752cd939b6a9f))
+* changed width conditions to match suggestions ([48347ab](https://github.com/privateOmega/html-to-docx/commit/48347abe339aadc3b322d763d52bc607d1293680))
+
 ### [1.1.27](https://github.com/privateOmega/html-to-docx/compare/v1.1.26...v1.1.27) (2020-08-04)
 
 
