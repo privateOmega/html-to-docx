@@ -40,7 +40,11 @@ const htmlString = `<!DOCTYPE html>
         </ol>
         <br>
         <ul>
-            <li>Coffee</li>
+            <li>
+                <strong>
+                    <u>Coffee</u>
+                </strong>
+            </li>
             <li>Tea
                 <ol>
                     <li>Black tea

@@ -107,8 +107,11 @@ export const buildList = (vNode) => {
               // eslint-disable-next-line no-nested-ternary
               isVText(childVNode)
                 ? [childVNode]
-                : isVNode(childVNode) && childVNode.children
-                ? [...childVNode.children]
+                : // eslint-disable-next-line no-nested-ternary
+                isVNode(childVNode)
+                ? childVNode.tagName.toLowerCase() === 'li'
+                  ? [...childVNode.children]
+                  : [childVNode]
                 : []
             );
             accumulator.push({
