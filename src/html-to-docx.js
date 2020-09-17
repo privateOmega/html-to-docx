@@ -138,9 +138,12 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
   if (docxDocument.header && headerHTMLString) {
     const vTree = convertHTML(headerHTMLString);
 
+    docxDocument.relationshipFilename = 'header1';
     const { headerId, headerXML } = docxDocument.generateHeaderXML(vTree);
+    docxDocument.relationshipFilename = 'document';
 
     const relationshipId = docxDocument.createDocumentRelationships(
+      docxDocument.relationshipFilename,
       'header',
       `header${headerId}.xml`,
       'Internal'
@@ -172,11 +175,16 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
     })
     .file('webSettings.xml', docxDocument.generateWebSettingsXML(), {
       createFolders: false,
-    })
-    .folder('_rels')
-    .file('document.xml.rels', docxDocument.generateDocumentRelsXML(), {
-      createFolders: false,
     });
+
+  const relationshipXMLs = docxDocument.generateRelsXML();
+  if (relationshipXMLs && Array.isArray(relationshipXMLs)) {
+    relationshipXMLs.forEach(({ fileName, xmlString }) => {
+      zip.folder('word').folder('_rels').file(`${fileName}.xml.rels`, xmlString, {
+        createFolders: false,
+      });
+    });
+  }
 
   zip.file('[Content_Types].xml', docxDocument.generateContentTypesXML(), { createFolders: false });
 
