@@ -471,6 +471,7 @@ const buildRunOrRuns = (vNode, attributes) => {
 const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'a') {
     const relationshipId = docxDocumentInstance.createDocumentRelationships(
+      docxDocumentInstance.relationshipFilename,
       'hyperlink',
       vNode.properties && vNode.properties.href ? vNode.properties.href : ''
     );
