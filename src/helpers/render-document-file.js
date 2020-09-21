@@ -37,6 +37,7 @@ export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => 
       });
 
     const documentRelsId = docxDocumentInstance.createDocumentRelationships(
+      docxDocumentInstance.relationshipFilename,
       'image',
       `media/${response.fileNameWithExtension}`,
       'Internal'

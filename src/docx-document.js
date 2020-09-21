@@ -9,6 +9,7 @@ import {
   webSettingsXML as webSettingsXMLString,
   contentTypesXML as contentTypesXMLString,
   fontTableXML as fontTableXMLString,
+  genericRelsXML as genericRelsXMLString,
 } from './schemas';
 import { convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
@@ -85,12 +86,12 @@ class DocxDocument {
     this.complexScriptFontSize = complexScriptFontSize || 22;
 
     this.lastNumberingId = 0;
-    this.lastDocumentRelsId = 4;
     this.lastMediaId = 0;
     this.lastHeaderId = 0;
     this.stylesObjects = [];
     this.numberingObjects = [];
-    this.documentRelsObjects = [];
+    this.relationshipFilename = 'document';
+    this.relationships = [{ fileName: 'document', lastRelsId: 4, rels: [] }];
     this.mediaFiles = [];
     this.headerObjects = [];
     this.documentXML = null;
@@ -103,7 +104,7 @@ class DocxDocument {
     this.generateStylesXML = this.generateStylesXML.bind(this);
     this.generateFontTableXML = this.generateFontTableXML.bind(this);
     this.generateNumberingXML = this.generateNumberingXML.bind(this);
-    this.generateDocumentRelsXML = this.generateDocumentRelsXML.bind(this);
+    this.generateRelsXML = this.generateRelsXML.bind(this);
     this.createMediaFile = this.createMediaFile.bind(this);
     this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
@@ -322,10 +323,9 @@ class DocxDocument {
     return numberingXML.toString({ prettyPrint: true });
   }
 
-  generateDocumentRelsXML() {
-    const documentRelsXML = create({ encoding: 'UTF-8', standalone: true }, documentRelsXMLString);
-
-    this.documentRelsObjects.forEach(
+  // eslint-disable-next-line class-methods-use-this
+  appendRelationships(xmlFragment, relationships) {
+    relationships.forEach(
       // eslint-disable-next-line array-callback-return
       ({ relationshipId, type, target, targetMode }) => {
         const relationshipFragment = fragment({
@@ -337,11 +337,29 @@ class DocxDocument {
           .att('Target', target)
           .att('TargetMode', targetMode)
           .up();
-        documentRelsXML.root().import(relationshipFragment);
+
+        xmlFragment.import(relationshipFragment);
       }
     );
+  }
 
-    return documentRelsXML.toString({ prettyPrint: true });
+  generateRelsXML() {
+    const relationshipXMLStrings = this.relationships.map(({ fileName, rels }) => {
+      let xmlFragment;
+      if (fileName === 'document') {
+        xmlFragment = create({ encoding: 'UTF-8', standalone: true }, documentRelsXMLString);
+      } else {
+        xmlFragment = create({ encoding: 'UTF-8', standalone: true }, genericRelsXMLString);
+      }
+      this.appendRelationships(xmlFragment.root(), rels);
+
+      return {
+        fileName,
+        xmlString: xmlFragment.toString({ prettyPrint: true }),
+      };
+    });
+
+    return relationshipXMLStrings;
   }
 
   createNumbering(listElements) {
@@ -371,8 +389,18 @@ class DocxDocument {
     return { id: this.lastMediaId, fileContent: base64FileContent, fileNameWithExtension };
   }
 
-  createDocumentRelationships(type, target, targetMode = 'External') {
-    this.lastDocumentRelsId += 1;
+  createDocumentRelationships(fileName = 'document', type, target, targetMode = 'External') {
+    let relationshipObject = this.relationships.find(
+      (relationship) => relationship.fileName === fileName
+    );
+    let lastRelsId = 1;
+    if (relationshipObject) {
+      lastRelsId = relationshipObject.lastRelsId + 1;
+      relationshipObject.lastRelsId = lastRelsId;
+    } else {
+      relationshipObject = { fileName, lastRelsId, rels: [] };
+      this.relationships.push(relationshipObject);
+    }
     let relationshipType;
     switch (type) {
       case 'hyperlink':
@@ -388,14 +416,14 @@ class DocxDocument {
         break;
     }
 
-    this.documentRelsObjects.push({
-      relationshipId: this.lastDocumentRelsId,
+    relationshipObject.rels.push({
+      relationshipId: lastRelsId,
       type: relationshipType,
       target,
       targetMode,
     });
 
-    return this.lastDocumentRelsId;
+    return lastRelsId;
   }
 
   generateHeaderXML(vTree) {
