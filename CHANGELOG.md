@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.30](https://github.com/privateOmega/html-to-docx/compare/v1.1.29...v1.1.30) (2020-09-21)
+
+
+### Features
+
+* added generic rels xml string ([7d2ea84](https://github.com/privateOmega/html-to-docx/commit/7d2ea8404093fd99ce5e6bccaedaf3603830f574))
+* added header relationship support ([cc08355](https://github.com/privateOmega/html-to-docx/commit/cc083553e28a3ed88da3cc27ef0de0cbb26350b3))
+
 ### [1.1.29](https://github.com/privateOmega/html-to-docx/compare/v1.1.28...v1.1.29) (2020-08-11)
 
 
