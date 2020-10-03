@@ -46,6 +46,7 @@ const defaultDocumentOptions = {
   font: 'Times New Roman',
   fontSize: 22,
   complexScriptFontSize: 22,
+  tableRowCantSplit: false,
 };
 
 const mergeOptions = (options, patch) => ({ ...options, ...patch });
