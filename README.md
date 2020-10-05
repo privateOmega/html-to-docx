@@ -56,6 +56,9 @@ full fledged examples can be found under `example/`
 
 <[Promise]<[Buffer]|[Blob]>>
 
+## Notes
+
+Currently page break can be implemented by having div with classname "page-break" or style "page-break-after" despite the values of the "page-break-after", and contents inside the div element will be ignored. `<div class="page-break" style="page-break-after: always;"></div>`
 
 ## Contributing
 
