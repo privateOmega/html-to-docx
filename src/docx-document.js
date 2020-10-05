@@ -56,7 +56,7 @@ class DocxDocument {
     font,
     fontSize,
     complexScriptFontSize,
-    tableRowCantSplit,
+    table,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -85,7 +85,7 @@ class DocxDocument {
     this.font = font || 'Times New Roman';
     this.fontSize = fontSize || 22;
     this.complexScriptFontSize = complexScriptFontSize || 22;
-    this.tableRowCantSplit = tableRowCantSplit || false;
+    this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
