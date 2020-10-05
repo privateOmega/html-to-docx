@@ -7,6 +7,8 @@ html-to-docx is a js library for converting HTML documents to DOCX format suppor
 
 It was inspired by [html-docx-js] project but mitigates the problem of documents generated being non-compatiable with word processors like Google Docs and libreOffice Writer that doesn't support [altchunks] feature.
 
+html-to-docx earlier used to use [libtidy] to clean up the html before parsing, but had to remove it since it was causing so many dependency issues due to node-gyp.
+
 ## Installation
 
 Use the npm to install foobar.
@@ -25,8 +27,8 @@ full fledged examples can be found under `example/`
 
 ### Parameters
 
-- `htmlString` <[String]> html string equivalent of document content.
-- `headerHTMLString` <[String]> html string equivalent of header.
+- `htmlString` <[String]> clean html string equivalent of document content.
+- `headerHTMLString` <[String]> clean html string equivalent of header.
 - `documentOptions` <?[Object]>
   - `orientation` <"portrait"|"landscape"> defines the general orientation of the document. Defaults to portrait.
   - `margins` <?[Object]>
@@ -70,7 +72,8 @@ MIT
 [npm-image]: https://img.shields.io/npm/v/html-to-docx.svg
 [npm-url]: https://npmjs.org/package/html-to-docx
 [html-docx-js]: https://github.com/evidenceprime/html-docx-js "html-docx-js"
-[altchunks]: https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.altchunk?view=openxml-2.8.1 "altchunks "
+[altchunks]: https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.altchunk?view=openxml-2.8.1 "altchunks"
+[libtidy]: https://github.com/jure/node-libtidy "libtidy"
 [String]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type "String"
 [Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object "Object"
 [Number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
