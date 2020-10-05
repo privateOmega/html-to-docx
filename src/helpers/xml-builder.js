@@ -1172,6 +1172,19 @@ const buildTableRowProperties = (attributes) => {
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableRowHeight;
           break;
+        case 'rowCantSplit':
+          if (attributes.rowCantSplit) {
+            const cantSplitFragment = fragment({
+              namespaceAlias: { w: namespaces.w },
+            })
+              .ele('@w', 'cantSplit')
+              .up();
+            tableRowPropertiesFragment.import(cantSplitFragment);
+            // Delete used property
+            // eslint-disable-next-line no-param-reassign
+            delete attributes.rowCantSplit;
+          }
+          break;
       }
     });
   }

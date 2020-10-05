@@ -206,6 +206,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
               childVNode,
               {
                 maximumWidth: docxDocumentInstance.availableDocumentSpace,
+                rowCantSplit: docxDocumentInstance.tableRowCantSplit,
               },
               docxDocumentInstance
             );
@@ -227,6 +228,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         vNode,
         {
           maximumWidth: docxDocumentInstance.availableDocumentSpace,
+          rowCantSplit: docxDocumentInstance.tableRowCantSplit,
         },
         docxDocumentInstance
       );

@@ -53,6 +53,9 @@ full fledged examples can be found under `example/`
   - `font` <?[String]> font name to be used. Defaults to `Times New Roman`.
   - `fontSize` <?[Number]> size of font in HIP(Half of point). Defaults to 22. Supports equivalent measure in [pt].
   - `complexScriptFontSize` <?[Number]> size of complex script font in HIP(Half of point). Defaults to 22. Supports equivalent measure in [pt].
+  - `table` <?[Object]>
+    - `row` <?[Object]>
+      - `cantSplit` <?[Boolean]> flag to allow table row to split across pages. Defaults to `false`.
 
 ### Returns
 
