@@ -38,7 +38,7 @@ const htmlString = `<!DOCTYPE html>
         <ol style="list-style-type: decimal;">
             <li>Ordered list element</li>
         </ol>
-        <br>
+        <div class="page-break" style="page-break-after: always"></div>
         <ul>
             <li>
                 <strong>
