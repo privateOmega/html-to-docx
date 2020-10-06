@@ -142,6 +142,26 @@ export const buildList = (vNode) => {
 };
 
 function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
+  if (
+    vNode.tagName === 'div' &&
+    (vNode.properties.attributes.class === 'page-break' ||
+      (vNode.properties.style && vNode.properties.style['page-break-after']))
+  ) {
+    const paragraphFragment = fragment({
+      namespaceAlias: { w: namespaces.w },
+    })
+      .ele('@w', 'p')
+      .ele('@w', 'r')
+      .ele('@w', 'br')
+      .att('@w', 'type', 'page')
+      .up()
+      .up()
+      .up();
+
+    xmlFragment.import(paragraphFragment);
+    return;
+  }
+
   switch (vNode.tagName) {
     case 'h1':
     case 'h2':
@@ -186,6 +206,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
               childVNode,
               {
                 maximumWidth: docxDocumentInstance.availableDocumentSpace,
+                rowCantSplit: docxDocumentInstance.tableRowCantSplit,
               },
               docxDocumentInstance
             );
@@ -207,6 +228,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         vNode,
         {
           maximumWidth: docxDocumentInstance.availableDocumentSpace,
+          rowCantSplit: docxDocumentInstance.tableRowCantSplit,
         },
         docxDocumentInstance
       );

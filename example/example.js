@@ -38,7 +38,7 @@ const htmlString = `<!DOCTYPE html>
         <ol style="list-style-type: decimal;">
             <li>Ordered list element</li>
         </ol>
-        <br>
+        <div class="page-break" style="page-break-after: always"></div>
         <ul>
             <li>
                 <strong>
@@ -67,11 +67,26 @@ const htmlString = `<!DOCTYPE html>
                 </ol>
             </li>
         </ul>
+        <br>
+        <table>
+            <tr>
+                <th>Country</th>
+                <th>Capital</th>
+            </tr>
+            <tr>
+                <td>India</td>
+                <td>New Delhi</td>
+            </tr>
+            <tr>
+                <td>United States of America</td>
+                <td>Washington DC</td>
+            </tr>
+        </table>
     </body>
 </html>`;
 
 (async () => {
-  const fileBuffer = await HTMLtoDOCX(htmlString);
+  const fileBuffer = await HTMLtoDOCX(htmlString, null, { table: { row: { cantSplit: true } } });
 
   fs.writeFile(filePath, fileBuffer, (error) => {
     if (error) {
