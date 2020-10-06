@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.31](https://github.com/privateOmega/html-to-docx/compare/v1.1.30...v1.1.31) (2020-10-06)
+
+
+### Features
+
+* added page break support ([085ed2a](https://github.com/privateOmega/html-to-docx/commit/085ed2a2cb439ee2a4189b3664deca047926672b))
+* added table row cant split option ([252178c](https://github.com/privateOmega/html-to-docx/commit/252178c922d9910b8a89e6c4e30fafd2994d92d7))
+
+
+### Bug Fixes
+
+* removed html tidying ([0a43396](https://github.com/privateOmega/html-to-docx/commit/0a43396a9f8e022fe0f5069d513c7aa841e57d6c))
+* removed libtidy-updated ([aab3b19](https://github.com/privateOmega/html-to-docx/commit/aab3b19b725f53d3a34266f6bf49d8712190007e))
+* updated example ([ec6323a](https://github.com/privateOmega/html-to-docx/commit/ec6323aa0124bcfe5f0c11ad181c0930d9d9a825))
+* updated high level option ([84a11bc](https://github.com/privateOmega/html-to-docx/commit/84a11bc364991910b0428567b95a662149ca71c5))
+
 ### [1.1.30](https://github.com/privateOmega/html-to-docx/compare/v1.1.29...v1.1.30) (2020-09-21)
 
 
