@@ -86,7 +86,7 @@ const htmlString = `<!DOCTYPE html>
 </html>`;
 
 (async () => {
-  const fileBuffer = await HTMLtoDOCX(htmlString, null, { table: { row: { cantSplit: false } } });
+  const fileBuffer = await HTMLtoDOCX(htmlString, null, { table: { row: { cantSplit: true } } });
 
   fs.writeFile(filePath, fileBuffer, (error) => {
     if (error) {
