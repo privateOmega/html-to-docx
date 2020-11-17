@@ -22,6 +22,13 @@ const generateStylesXML = (font = 'Times New Roman', fontSize = 22, complexScrip
             </w:pPr>
           </w:pPrDefault>
         </w:docDefaults>
+        <w:style w:type="character" w:styleId="Hyperlink">
+          <w:name w:val="Hyperlink"/>
+          <w:rPr>
+            <w:color w:val="0000FF"/>
+            <w:u w:val="single"/>
+          </w:rPr>
+        </w:style>
     </w:styles>
   `;
 };
