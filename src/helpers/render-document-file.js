@@ -171,12 +171,16 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'h6':
       const fontSize = pixelToHIP(defaultHeadingSizesInPixel[vNode.tagName]);
       const lineHeight = xmlBuilder.fixupLineHeight(1, fontSize);
-      const headingFragment = xmlBuilder.buildParagraph(vNode, {
-        fontSize,
-        lineHeight: Math.max(lineHeight, 240),
-        strong: 'bold',
-        beforeSpacing: 240,
-      });
+      const headingFragment = xmlBuilder.buildParagraph(
+        vNode,
+        {
+          fontSize,
+          lineHeight: Math.max(lineHeight, 240),
+          strong: 'bold',
+          beforeSpacing: 240,
+        },
+        docxDocumentInstance
+      );
       xmlFragment.import(headingFragment);
       return;
     case 'span':
