@@ -193,6 +193,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'sup':
     case 'mark':
     case 'p':
+    case 'a':
       const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
       return;
