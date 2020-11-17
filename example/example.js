@@ -41,9 +41,11 @@ const htmlString = `<!DOCTYPE html>
         <div class="page-break" style="page-break-after: always"></div>
         <ul>
             <li>
-                <strong>
-                    <u>Coffee</u>
-                </strong>
+                <a href="https://en.wikipedia.org/wiki/Coffee">
+                    <strong>
+                        <u>Coffee</u>
+                    </strong>
+                </a>
             </li>
             <li>Tea
                 <ol>
