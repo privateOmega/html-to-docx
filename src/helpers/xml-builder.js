@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-plusplus */
@@ -110,6 +111,17 @@ const buildVerticalAlignment = (verticalAlignment) => {
     .up();
 
   return verticalAlignmentFragment;
+};
+
+const buildVerticalMerge = (verticalMerge = 'continue') => {
+  const verticalMergeFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'vMerge')
+    .att('@w', 'val', verticalMerge)
+    .up();
+
+  return verticalMergeFragment;
 };
 
 const buildColor = (colorCode) => {
@@ -975,6 +987,12 @@ const buildTableCellProperties = (attributes) => {
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellBorder;
           break;
+        case 'rowSpan':
+          const verticalMergeFragment = buildVerticalMerge(attributes[key]);
+          tableCellPropertiesFragment.import(verticalMergeFragment);
+
+          delete attributes.rowSpan;
+          break;
       }
     });
   }
@@ -1082,12 +1100,27 @@ const fixupTableCellBorder = (vNode, attributes) => {
   }
 };
 
-const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
+const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocumentInstance) => {
   const tableCellFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tc');
+
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
+    if (vNode.properties.rowSpan) {
+      rowSpanMap.set(columnIndex.index, { rowSpan: vNode.properties.rowSpan - 1, colSpan: 0 });
+      modifiedAttributes.rowSpan = 'restart';
+    } else {
+      const previousSpanObject = rowSpanMap.get(columnIndex.index);
+      rowSpanMap.set(
+        columnIndex.index,
+        // eslint-disable-next-line prefer-object-spread
+        Object.assign({}, previousSpanObject, {
+          rowSpan: 0,
+          colSpan: (previousSpanObject && previousSpanObject.colSpan) || 0,
+        })
+      );
+    }
     if (
       vNode.properties.colSpan ||
       (vNode.properties.style && vNode.properties.style['column-span'])
@@ -1095,6 +1128,15 @@ const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
       modifiedAttributes.colSpan =
         vNode.properties.colSpan ||
         (vNode.properties.style && vNode.properties.style['column-span']);
+      const previousSpanObject = rowSpanMap.get(columnIndex.index);
+      rowSpanMap.set(
+        columnIndex.index,
+        // eslint-disable-next-line prefer-object-spread
+        Object.assign({}, previousSpanObject, {
+          colSpan: parseInt(modifiedAttributes.colSpan) || 0,
+        })
+      );
+      columnIndex.index += parseInt(modifiedAttributes.colSpan) - 1;
     }
     if (vNode.properties.style) {
       if (
@@ -1117,8 +1159,6 @@ const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
       ) {
         modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
       }
-    }
-    if (vNode.properties.style) {
       fixupTableCellBorder(vNode, modifiedAttributes);
     }
   }
@@ -1180,6 +1220,42 @@ const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
   return tableCellFragment;
 };
 
+const buildRowSpanCell = (rowSpanMap, columnIndex) => {
+  const rowSpanCellFragments = [];
+  const spanObject = rowSpanMap.get(columnIndex.index);
+  if (spanObject && spanObject.rowSpan) {
+    const rowSpanCellFragment = fragment({
+      namespaceAlias: { w: namespaces.w },
+    }).ele('@w', 'tc');
+    const attributes = {
+      rowSpan: 'continue',
+      colSpan: spanObject.colSpan ? spanObject.colSpan : 0,
+    };
+
+    const tableCellPropertiesFragment = buildTableCellProperties(attributes);
+    rowSpanCellFragment.import(tableCellPropertiesFragment);
+
+    const paragraphFragment = fragment({
+      namespaceAlias: { w: namespaces.w },
+    })
+      .ele('@w', 'p')
+      .up();
+    rowSpanCellFragment.import(paragraphFragment);
+
+    rowSpanCellFragment.up();
+
+    rowSpanCellFragments.push(rowSpanCellFragment);
+
+    rowSpanMap.set(columnIndex.index, {
+      rowSpan: spanObject.rowSpan - 1,
+      colSpan: spanObject.colSpan || 0,
+    });
+    columnIndex.index += spanObject.colSpan || 0;
+  }
+
+  return rowSpanCellFragments;
+};
+
 const buildTableRowProperties = (attributes) => {
   const tableRowPropertiesFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -1215,7 +1291,7 @@ const buildTableRowProperties = (attributes) => {
   return tableRowPropertiesFragment;
 };
 
-const buildTableRow = (vNode, attributes, docxDocumentInstance) => {
+const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
   const tableRowFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'tr');
@@ -1245,6 +1321,9 @@ const buildTableRow = (vNode, attributes, docxDocumentInstance) => {
   }
   const tableRowPropertiesFragment = buildTableRowProperties(modifiedAttributes);
   tableRowFragment.import(tableRowPropertiesFragment);
+
+  const columnIndex = { index: 0 };
+
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     const tableColumns = vNode.children.filter((childVNode) =>
       ['td', 'th'].includes(childVNode.tagName)
@@ -1254,12 +1333,38 @@ const buildTableRow = (vNode, attributes, docxDocumentInstance) => {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (['td', 'th'].includes(childVNode.tagName)) {
+        const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex);
+        if (Array.isArray(rowSpanCellFragments)) {
+          for (
+            let iteratorIndex = 0;
+            iteratorIndex < rowSpanCellFragments.length;
+            iteratorIndex++
+          ) {
+            const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
+
+            tableRowFragment.import(rowSpanCellFragment);
+          }
+        }
         const tableCellFragment = buildTableCell(
           childVNode,
           { ...modifiedAttributes, maximumWidth: columnWidth },
+          rowSpanMap,
+          columnIndex,
           docxDocumentInstance
         );
+        columnIndex.index++;
+
         tableRowFragment.import(tableCellFragment);
+      }
+    }
+  }
+  if (columnIndex.index < rowSpanMap.size) {
+    const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex);
+    if (Array.isArray(rowSpanCellFragments)) {
+      for (let iteratorIndex = 0; iteratorIndex < rowSpanCellFragments.length; iteratorIndex++) {
+        const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
+
+        tableRowFragment.import(rowSpanCellFragment);
       }
     }
   }
@@ -1522,6 +1627,9 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
   }
   const tablePropertiesFragment = buildTableProperties(modifiedAttributes);
   tableFragment.import(tablePropertiesFragment);
+
+  const rowSpanMap = new Map();
+
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
@@ -1535,6 +1643,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
             const tableRowFragment = buildTableRow(
               grandChildVNode,
               modifiedAttributes,
+              rowSpanMap,
               docxDocumentInstance
             );
             tableFragment.import(tableRowFragment);
@@ -1547,6 +1656,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
             const tableRowFragment = buildTableRow(
               grandChildVNode,
               modifiedAttributes,
+              rowSpanMap,
               docxDocumentInstance
             );
             tableFragment.import(tableRowFragment);
@@ -1556,6 +1666,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
         const tableRowFragment = buildTableRow(
           childVNode,
           modifiedAttributes,
+          rowSpanMap,
           docxDocumentInstance
         );
         tableFragment.import(tableRowFragment);
