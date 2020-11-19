@@ -1158,7 +1158,11 @@ const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
           }
         }
       } else {
-        const paragraphFragment = buildParagraph(childVNode, modifiedAttributes);
+        const paragraphFragment = buildParagraph(
+          childVNode,
+          modifiedAttributes,
+          docxDocumentInstance
+        );
         tableCellFragment.import(paragraphFragment);
       }
     }
