@@ -74,6 +74,17 @@ const fixupColorCode = (colorCodeString) => {
   }
 };
 
+const buildRunStyleFragment = (type = 'Hyperlink') => {
+  const runStyleFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'rStyle')
+    .att('@w', 'val', type)
+    .up();
+
+  return runStyleFragment;
+};
+
 const buildTableRowHeight = (tableRowHeight) => {
   const tableRowHeightFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -273,6 +284,10 @@ const buildRunProperties = (attributes) => {
         case 'fontSize':
           const fontSizeFragment = buildFontSize(attributes[key]);
           runPropertiesFragment.import(fontSizeFragment);
+          break;
+        case 'hyperlink':
+          const hyperlinkStyleFragment = buildRunStyleFragment('Hyperlink');
+          runPropertiesFragment.import(hyperlinkStyleFragment);
           break;
       }
     });
@@ -481,7 +496,10 @@ const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
       .ele('@w', 'hyperlink')
       .att('@r', 'id', `rId${relationshipId}`);
 
-    const runFragments = buildRunOrRuns(vNode.children[0], attributes);
+    const modifiedAttributes = { ...attributes };
+    modifiedAttributes.hyperlink = true;
+
+    const runFragments = buildRunOrRuns(vNode.children[0], modifiedAttributes);
     if (Array.isArray(runFragments)) {
       for (let index = 0; index < runFragments.length; index++) {
         const runFragment = runFragments[index];
@@ -813,6 +831,7 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
         'sub',
         'sup',
         'mark',
+        'a',
       ].includes(vNode.tagName)
     ) {
       const runOrHyperlinkFragments = buildRunOrHyperLink(
@@ -1139,7 +1158,11 @@ const buildTableCell = (vNode, attributes, docxDocumentInstance) => {
           }
         }
       } else {
-        const paragraphFragment = buildParagraph(childVNode, modifiedAttributes);
+        const paragraphFragment = buildParagraph(
+          childVNode,
+          modifiedAttributes,
+          docxDocumentInstance
+        );
         tableCellFragment.import(paragraphFragment);
       }
     }
