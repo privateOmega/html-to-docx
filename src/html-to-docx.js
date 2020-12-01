@@ -53,6 +53,7 @@ const defaultDocumentOptions = {
       cantSplit: false,
     },
   },
+  pageNumber: false,
 };
 
 const mergeOptions = (options, patch) => ({ ...options, ...patch });

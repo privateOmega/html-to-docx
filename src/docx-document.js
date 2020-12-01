@@ -59,6 +59,7 @@ class DocxDocument {
     fontSize,
     complexScriptFontSize,
     table,
+    pageNumber,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -90,6 +91,7 @@ class DocxDocument {
     this.fontSize = fontSize || 22;
     this.complexScriptFontSize = complexScriptFontSize || 22;
     this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
+    this.pageNumber = pageNumber || false;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
@@ -526,6 +528,19 @@ class DocxDocument {
 
     const XMLFragment = fragment();
     convertVTreeToXML(this, vTree, XMLFragment);
+    if (XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
+      const fieldSimpleFragment = fragment({
+        namespaceAlias: {
+          w: namespaces.w,
+        },
+      })
+        .ele('@w', 'fldSimple')
+        .att('@w', 'instr', 'PAGE')
+        .ele('@w', 'r')
+        .up()
+        .up();
+      XMLFragment.first().import(fieldSimpleFragment);
+    }
     footerXML.root().import(XMLFragment);
 
     this.lastFooterId += 1;
