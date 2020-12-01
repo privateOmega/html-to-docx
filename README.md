@@ -58,6 +58,7 @@ full fledged examples can be found under `example/`
   - `table` <?[Object]>
     - `row` <?[Object]>
       - `cantSplit` <?[Boolean]> flag to allow table row to split across pages. Defaults to `false`.
+  - `pageNumber` <?[Boolean]> flag to enable page number in footer. Defaults to `false`.
 - `footerHTMLString` <[String]> clean html string equivalent of footer.
 
 ### Returns
