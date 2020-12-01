@@ -43,6 +43,8 @@ const defaultDocumentOptions = {
   modifiedAt: new Date(),
   headerType: 'default',
   header: false,
+  footerType: 'default',
+  footer: false,
   font: 'Times New Roman',
   fontSize: 22,
   complexScriptFontSize: 22,
@@ -120,7 +122,13 @@ const normalizeDocumentOptions = (documentOptions) => {
 // Ref: https://en.wikipedia.org/wiki/Office_Open_XML_file_formats
 // http://officeopenxml.com/anatomyofOOXML.php
 // eslint-disable-next-line import/prefer-default-export
-export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, headerHTMLString) {
+export function addFilesToContainer(
+  zip,
+  htmlString,
+  suppliedDocumentOptions,
+  headerHTMLString,
+  footerHTMLString
+) {
   const normalizedDocumentOptions = normalizeDocumentOptions(suppliedDocumentOptions);
   const documentOptions = mergeOptions(defaultDocumentOptions, normalizedDocumentOptions);
 
@@ -158,7 +166,27 @@ export function addFilesToContainer(zip, htmlString, suppliedDocumentOptions, he
       createFolders: false,
     });
 
-    docxDocument.headerObjects.push({ headerId, relationshipId, type: 'default' });
+    docxDocument.headerObjects.push({ headerId, relationshipId, type: docxDocument.headerType });
+  }
+  if (docxDocument.footer && footerHTMLString) {
+    const vTree = convertHTML(footerHTMLString);
+
+    docxDocument.relationshipFilename = 'footer1';
+    const { footerId, footerXML } = docxDocument.generateFooterXML(vTree);
+    docxDocument.relationshipFilename = 'document';
+
+    const relationshipId = docxDocument.createDocumentRelationships(
+      docxDocument.relationshipFilename,
+      'footer',
+      `footer${footerId}.xml`,
+      'Internal'
+    );
+
+    zip.folder('word').file(`footer${footerId}.xml`, footerXML.toString({ prettyPrint: true }), {
+      createFolders: false,
+    });
+
+    docxDocument.footerObjects.push({ footerId, relationshipId, type: docxDocument.footerType });
   }
 
   zip

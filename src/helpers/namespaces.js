@@ -22,6 +22,7 @@ const namespaces = {
   images: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
   styles: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
   headers: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header',
+  footers: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer',
   coreProperties: 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
   officeDocumentRelation:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',

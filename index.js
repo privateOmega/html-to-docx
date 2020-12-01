@@ -23,19 +23,28 @@ const minifyHTMLString = (htmlString) => {
   }
 };
 
-async function generateContainer(htmlString, headerHTMLString, documentOptions = {}) {
+async function generateContainer(
+  htmlString,
+  headerHTMLString,
+  documentOptions = {},
+  footerHTMLString
+) {
   const zip = new JSZip();
 
   let contentHTML = htmlString;
   let headerHTML = headerHTMLString;
+  let footerHTML = footerHTMLString;
   if (htmlString) {
     contentHTML = minifyHTMLString(contentHTML);
   }
   if (headerHTMLString) {
     headerHTML = minifyHTMLString(headerHTML);
   }
+  if (footerHTMLString) {
+    footerHTML = minifyHTMLString(footerHTML);
+  }
 
-  addFilesToContainer(zip, contentHTML, documentOptions, headerHTML);
+  addFilesToContainer(zip, contentHTML, documentOptions, headerHTML, footerHTML);
 
   const buffer = await zip.generateAsync({ type: 'arraybuffer' });
   if (Object.prototype.hasOwnProperty.call(global, 'Blob')) {
