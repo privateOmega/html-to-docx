@@ -88,11 +88,16 @@ const htmlString = `<!DOCTYPE html>
 </html>`;
 
 (async () => {
-  const fileBuffer = await HTMLtoDOCX(htmlString, null, { table: { row: { cantSplit: true } } });
+  const fileBuffer = await HTMLtoDOCX(htmlString, null, {
+    table: { row: { cantSplit: true } },
+    footer: true,
+    pageNumber: true,
+  });
 
   fs.writeFile(filePath, fileBuffer, (error) => {
     if (error) {
       console.log('Docx file creation failed');
+      return;
     }
     console.log('Docx file created successfully');
   });

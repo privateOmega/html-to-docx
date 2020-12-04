@@ -53,10 +53,13 @@ class DocxDocument {
     modifiedAt,
     headerType,
     header,
+    footerType,
+    footer,
     font,
     fontSize,
     complexScriptFontSize,
     table,
+    pageNumber,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -82,20 +85,25 @@ class DocxDocument {
     this.modifiedAt = modifiedAt || new Date();
     this.headerType = headerType || 'default';
     this.header = header || false;
+    this.footerType = footerType || 'default';
+    this.footer = footer || false;
     this.font = font || 'Times New Roman';
     this.fontSize = fontSize || 22;
     this.complexScriptFontSize = complexScriptFontSize || 22;
     this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
+    this.pageNumber = pageNumber || false;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
     this.lastHeaderId = 0;
+    this.lastFooterId = 0;
     this.stylesObjects = [];
     this.numberingObjects = [];
     this.relationshipFilename = 'document';
     this.relationships = [{ fileName: 'document', lastRelsId: 4, rels: [] }];
     this.mediaFiles = [];
     this.headerObjects = [];
+    this.footerObjects = [];
     this.documentXML = null;
 
     this.generateContentTypesXML = this.generateContentTypesXML.bind(this);
@@ -110,6 +118,7 @@ class DocxDocument {
     this.createMediaFile = this.createMediaFile.bind(this);
     this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
+    this.generateFooterXML = this.generateFooterXML.bind(this);
   }
 
   generateContentTypesXML() {
@@ -129,6 +138,26 @@ class DocxDocument {
             .att(
               'ContentType',
               'application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml'
+            )
+            .up();
+          contentTypesXML.root().import(contentTypesFragment);
+        }
+      );
+    }
+    if (this.footerObjects && Array.isArray(this.footerObjects) && this.footerObjects.length) {
+      this.footerObjects.forEach(
+        // eslint-disable-next-line array-callback-return
+        ({ footerId }) => {
+          const contentTypesFragment = fragment({
+            defaultNamespace: {
+              ele: 'http://schemas.openxmlformats.org/package/2006/content-types',
+            },
+          })
+            .ele('Override')
+            .att('PartName', `/word/footer${footerId}.xml`)
+            .att(
+              'ContentType',
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml'
             )
             .up();
           contentTypesXML.root().import(contentTypesFragment);
@@ -191,6 +220,33 @@ class DocxDocument {
       );
 
       documentXML.root().first().first().import(headerXmlFragment);
+    }
+    if (
+      this.footer &&
+      this.footerObjects &&
+      Array.isArray(this.footerObjects) &&
+      this.footerObjects.length
+    ) {
+      const footerXmlFragment = fragment();
+
+      this.footerObjects.forEach(
+        // eslint-disable-next-line array-callback-return
+        ({ relationshipId, type }) => {
+          const footerFragment = fragment({
+            namespaceAlias: {
+              w: namespaces.w,
+              r: namespaces.r,
+            },
+          })
+            .ele('@w', 'footerReference')
+            .att('@r', 'id', `rId${relationshipId}`)
+            .att('@w', 'type', type)
+            .up();
+          footerXmlFragment.import(footerFragment);
+        }
+      );
+
+      documentXML.root().first().first().import(footerXmlFragment);
     }
 
     return documentXML.toString({ prettyPrint: true });
@@ -414,6 +470,9 @@ class DocxDocument {
       case 'header':
         relationshipType = namespaces.headers;
         break;
+      case 'footer':
+        relationshipType = namespaces.footers;
+        break;
       default:
         break;
     }
@@ -450,6 +509,43 @@ class DocxDocument {
     this.lastHeaderId += 1;
 
     return { headerId: this.lastHeaderId, headerXML };
+  }
+
+  generateFooterXML(vTree) {
+    const footerXML = create({
+      encoding: 'UTF-8',
+      standalone: true,
+      namespaceAlias: {
+        w: namespaces.w,
+        ve: namespaces.ve,
+        o: namespaces.o,
+        r: namespaces.r,
+        v: namespaces.v,
+        wp: namespaces.wp,
+        w10: namespaces.w10,
+      },
+    }).ele('@w', 'ftr');
+
+    const XMLFragment = fragment();
+    convertVTreeToXML(this, vTree, XMLFragment);
+    if (XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
+      const fieldSimpleFragment = fragment({
+        namespaceAlias: {
+          w: namespaces.w,
+        },
+      })
+        .ele('@w', 'fldSimple')
+        .att('@w', 'instr', 'PAGE')
+        .ele('@w', 'r')
+        .up()
+        .up();
+      XMLFragment.first().import(fieldSimpleFragment);
+    }
+    footerXML.root().import(XMLFragment);
+
+    this.lastFooterId += 1;
+
+    return { footerId: this.lastFooterId, footerXML };
   }
 }
 

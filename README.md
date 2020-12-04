@@ -20,7 +20,7 @@ npm install html-to-docx
 ## Usage
 
 ```js
-await HTMLtoDOCX(htmlString, headerHTMLString, documentOptions)
+await HTMLtoDOCX(htmlString, headerHTMLString, documentOptions, footerHTMLString)
 ```
 
 full fledged examples can be found under `example/`
@@ -28,7 +28,7 @@ full fledged examples can be found under `example/`
 ### Parameters
 
 - `htmlString` <[String]> clean html string equivalent of document content.
-- `headerHTMLString` <[String]> clean html string equivalent of header.
+- `headerHTMLString` <[String]> clean html string equivalent of header. Defaults to `<p></p>` if header flag is `true`.
 - `documentOptions` <?[Object]>
   - `orientation` <"portrait"|"landscape"> defines the general orientation of the document. Defaults to portrait.
   - `margins` <?[Object]>
@@ -48,14 +48,18 @@ full fledged examples can be found under `example/`
   - `revision` <?[Number]> revision of the document. Defaults to `1`.
   - `createdAt` <?[Date]> time of creation of the document. Defaults to current time.
   - `modifiedAt` <?[Date]> time of last modification of the document. Defaults to current time.
-  - `headerType` <"default"|"first"|"even"> type of header. Defaults to `default`
+  - `headerType` <"default"|"first"|"even"> type of header. Defaults to `default`.
   - `header` <?[Boolean]> flag to enable header. Defaults to `false`.
+  - `footerType` <"default"|"first"|"even"> type of footer. Defaults to `default`.
+  - `footer` <?[Boolean]> flag to enable footer. Defaults to `false`.
   - `font` <?[String]> font name to be used. Defaults to `Times New Roman`.
   - `fontSize` <?[Number]> size of font in HIP(Half of point). Defaults to 22. Supports equivalent measure in [pt].
   - `complexScriptFontSize` <?[Number]> size of complex script font in HIP(Half of point). Defaults to 22. Supports equivalent measure in [pt].
   - `table` <?[Object]>
     - `row` <?[Object]>
       - `cantSplit` <?[Boolean]> flag to allow table row to split across pages. Defaults to `false`.
+  - `pageNumber` <?[Boolean]> flag to enable page number in footer. Defaults to `false`. Page number works only if footer flag is set as `true`.
+- `footerHTMLString` <[String]> clean html string equivalent of footer. Defaults to `<p></p>` if footer flag is `true`.
 
 ### Returns
 
