@@ -133,6 +133,15 @@ export function addFilesToContainer(
   const normalizedDocumentOptions = normalizeDocumentOptions(suppliedDocumentOptions);
   const documentOptions = mergeOptions(defaultDocumentOptions, normalizedDocumentOptions);
 
+  if (documentOptions.header && !headerHTMLString) {
+    // eslint-disable-next-line no-param-reassign
+    headerHTMLString = '<p></p>';
+  }
+  if (documentOptions.footer && !footerHTMLString) {
+    // eslint-disable-next-line no-param-reassign
+    footerHTMLString = '<p></p>';
+  }
+
   const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
   // Conversion to Word XML happens here
   docxDocument.documentXML = renderDocumentFile(docxDocument);
