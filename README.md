@@ -28,7 +28,7 @@ full fledged examples can be found under `example/`
 ### Parameters
 
 - `htmlString` <[String]> clean html string equivalent of document content.
-- `headerHTMLString` <[String]> clean html string equivalent of header.
+- `headerHTMLString` <[String]> clean html string equivalent of header. Defaults to `<p></p>` if header flag is `true`.
 - `documentOptions` <?[Object]>
   - `orientation` <"portrait"|"landscape"> defines the general orientation of the document. Defaults to portrait.
   - `margins` <?[Object]>
@@ -59,7 +59,7 @@ full fledged examples can be found under `example/`
     - `row` <?[Object]>
       - `cantSplit` <?[Boolean]> flag to allow table row to split across pages. Defaults to `false`.
   - `pageNumber` <?[Boolean]> flag to enable page number in footer. Defaults to `false`. Page number works only if footer flag is set as `true`.
-- `footerHTMLString` <[String]> clean html string equivalent of footer.
+- `footerHTMLString` <[String]> clean html string equivalent of footer. Defaults to `<p></p>` if footer flag is `true`.
 
 ### Returns
 
