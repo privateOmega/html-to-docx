@@ -1222,17 +1222,16 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
 
 const buildRowSpanCell = (rowSpanMap, columnIndex) => {
   const rowSpanCellFragments = [];
-  const spanObject = rowSpanMap.get(columnIndex.index);
-  if (spanObject && spanObject.rowSpan) {
+  let spanObject = rowSpanMap.get(columnIndex.index);
+  while (spanObject && spanObject.rowSpan) {
     const rowSpanCellFragment = fragment({
       namespaceAlias: { w: namespaces.w },
     }).ele('@w', 'tc');
-    const attributes = {
+
+    const tableCellPropertiesFragment = buildTableCellProperties({
       rowSpan: 'continue',
       colSpan: spanObject.colSpan ? spanObject.colSpan : 0,
-    };
-
-    const tableCellPropertiesFragment = buildTableCellProperties(attributes);
+    });
     rowSpanCellFragment.import(tableCellPropertiesFragment);
 
     const paragraphFragment = fragment({
@@ -1241,16 +1240,20 @@ const buildRowSpanCell = (rowSpanMap, columnIndex) => {
       .ele('@w', 'p')
       .up();
     rowSpanCellFragment.import(paragraphFragment);
-
     rowSpanCellFragment.up();
 
     rowSpanCellFragments.push(rowSpanCellFragment);
 
-    rowSpanMap.set(columnIndex.index, {
-      rowSpan: spanObject.rowSpan - 1,
-      colSpan: spanObject.colSpan || 0,
-    });
-    columnIndex.index += spanObject.colSpan || 0;
+    if (spanObject.rowSpan - 1 === 0) {
+      rowSpanMap.delete(columnIndex.index);
+    } else {
+      rowSpanMap.set(columnIndex.index, {
+        rowSpan: spanObject.rowSpan - 1,
+        colSpan: spanObject.colSpan || 0,
+      });
+    }
+    columnIndex.index += spanObject.colSpan || 1;
+    spanObject = rowSpanMap.get(columnIndex.index);
   }
 
   return rowSpanCellFragments;
