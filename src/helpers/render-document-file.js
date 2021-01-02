@@ -198,6 +198,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'mark':
     case 'p':
     case 'a':
+    case 'blockquote':
       const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
       return;

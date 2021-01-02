@@ -352,6 +352,7 @@ const buildRun = (vNode, attributes) => {
       'sub',
       'sup',
       'mark',
+      'blockquote',
     ].includes(vNode.tagName)
   ) {
     const textArray = [];
@@ -566,11 +567,12 @@ const buildSpacing = (lineSpacing, beforeSpacing, afterSpacing) => {
   return spacingFragment;
 };
 
-const buildIndentation = () => {
+const buildIndentation = (left = 720) => {
   const indentationFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'ind')
+    .att('@w', 'left', left)
     .up();
 
   return indentationFragment;
@@ -667,6 +669,13 @@ const buildParagraphProperties = (attributes) => {
             // eslint-disable-next-line no-param-reassign
             delete attributes.backgroundColor;
           }
+          break;
+        case 'indentation':
+          const indentationFragment = buildIndentation(attributes[key].left);
+          paragraphPropertiesFragment.import(indentationFragment);
+          // Delete used property
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.indentation;
           break;
       }
     });
@@ -813,6 +822,10 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
       modifiedAttributes.display = vNode.properties.style.display;
     }
   }
+  if (isVNode(vNode) && vNode.tagName === 'blockquote') {
+    modifiedAttributes.indentation = { left: 284 };
+    modifiedAttributes.textAlign = 'justify';
+  }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
   if (isVNode(vNode) && vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
@@ -852,6 +865,9 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
       } else {
         paragraphFragment.import(runOrHyperlinkFragments);
       }
+    } else if (vNode.tagName === 'blockquote') {
+      const runFragment = buildRun(vNode, attributes);
+      paragraphFragment.import(runFragment);
     } else {
       for (let index = 0; index < vNode.children.length; index++) {
         const childVNode = vNode.children[index];
