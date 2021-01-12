@@ -1220,7 +1220,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
   return tableCellFragment;
 };
 
-const buildRowSpanCell = (rowSpanMap, columnIndex) => {
+const buildRowSpanCell = (rowSpanMap, columnIndex, attributes) => {
   const rowSpanCellFragments = [];
   let spanObject = rowSpanMap.get(columnIndex.index);
   while (spanObject && spanObject.rowSpan) {
@@ -1229,6 +1229,7 @@ const buildRowSpanCell = (rowSpanMap, columnIndex) => {
     }).ele('@w', 'tc');
 
     const tableCellPropertiesFragment = buildTableCellProperties({
+      ...attributes,
       rowSpan: 'continue',
       colSpan: spanObject.colSpan ? spanObject.colSpan : 0,
     });
@@ -1336,7 +1337,7 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (['td', 'th'].includes(childVNode.tagName)) {
-        const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex);
+        const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
         if (Array.isArray(rowSpanCellFragments)) {
           for (
             let iteratorIndex = 0;
@@ -1362,7 +1363,7 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
     }
   }
   if (columnIndex.index < rowSpanMap.size) {
-    const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex);
+    const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
     if (Array.isArray(rowSpanCellFragments)) {
       for (let iteratorIndex = 0; iteratorIndex < rowSpanCellFragments.length; iteratorIndex++) {
         const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
