@@ -54,6 +54,7 @@ const defaultDocumentOptions = {
     },
   },
   pageNumber: false,
+  skipFirstHeaderFooter: false,
 };
 
 const mergeOptions = (options, patch) => ({ ...options, ...patch });
