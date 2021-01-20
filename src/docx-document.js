@@ -60,6 +60,7 @@ class DocxDocument {
     complexScriptFontSize,
     table,
     pageNumber,
+    skipFirstHeaderFooter,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -92,6 +93,7 @@ class DocxDocument {
     this.complexScriptFontSize = complexScriptFontSize || 22;
     this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
     this.pageNumber = pageNumber || false;
+    this.skipFirstHeaderFooter = skipFirstHeaderFooter || false;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
@@ -247,6 +249,15 @@ class DocxDocument {
       );
 
       documentXML.root().first().first().import(footerXmlFragment);
+    }
+    if ((this.header || this.footer) && this.skipFirstHeaderFooter) {
+      const titlePageFragment = fragment({
+        namespaceAlias: {
+          w: namespaces.w,
+        },
+      }).ele('@w', 'titlePg');
+
+      documentXML.root().first().first().import(titlePageFragment);
     }
 
     return documentXML.toString({ prettyPrint: true });
