@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.33](https://github.com/privateOmega/html-to-docx/compare/v1.1.32...v1.1.33) (2021-01-20)
+
+
+### Features
+
+* added indentation support ([9c1c3a4](https://github.com/privateOmega/html-to-docx/commit/9c1c3a4d539f4dfeda2ab6484d69236a91ec5ae1))
+* added row span support ([8f56a4a](https://github.com/privateOmega/html-to-docx/commit/8f56a4aae59b87d1e86e299bd88bb2bf0115d639))
+* added skip first header footer flag ([7710f28](https://github.com/privateOmega/html-to-docx/commit/7710f2803e64eb3645a7e7440a326664159e340a))
+* added table grid fragment from table row generator ([f8c4380](https://github.com/privateOmega/html-to-docx/commit/f8c4380ff5b7ff7b7df40c70f8a05938e4bacddf))
+
+
+### Bug Fixes
+
+* add table cell borders to span cells ([09b65e3](https://github.com/privateOmega/html-to-docx/commit/09b65e316a868a6e2e5032ab1889e817007d2b47))
+* row span cell generation ([d93ad9c](https://github.com/privateOmega/html-to-docx/commit/d93ad9c41225e7b07d9eb0d8c3a55602e65ec30b))
+
 ### 1.1.32 (2020-12-04)
 
 
