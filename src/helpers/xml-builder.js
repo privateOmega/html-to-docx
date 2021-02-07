@@ -169,7 +169,7 @@ const buildHighlight = (color = 'yellow') => {
   return highlightFragment;
 };
 
-const buildVertAlign = (type = 'subscript') => {
+const buildVertAlign = (type = 'baseline') => {
   const vertAlignFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
@@ -334,7 +334,7 @@ const buildTextFormatting = (vNode) => {
       const subscriptFragment = buildVertAlign('subscript');
       return subscriptFragment;
     case 'sup':
-      const superscriptFragment = buildVertAlign('subscript');
+      const superscriptFragment = buildVertAlign('superscript');
       return superscriptFragment;
     case 'mark':
       const highlightFragment = buildHighlight();
