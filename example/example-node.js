@@ -14,11 +14,25 @@ const htmlString = `<!DOCTYPE html>
     </head>
     <body>
         <div>
-            <p>Taken from wikipedia</p>
+				<div>
+            <h1>Taken from wikipedia</h1>
             <img
                 src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
                 alt="Red dot"
             />
+        </div>
+        <div>
+            <h2>This is heading 2</h2>
+				<p>Content</p>
+            <h3>This is heading 3</h3>
+				<p>Content</p>
+            <h4>This is heading 4</h4>
+				<p>Content</p>
+            <h5>This is heading 5</h5>
+				<p>Content</p>
+            <h6>This is heading 6</h6>
+				<p>Content</p>
+        </div>
         </div>
         <p>
             <strong>
