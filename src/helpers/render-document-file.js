@@ -178,7 +178,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
           lineHeight: Math.max(lineHeight, 240),
           strong: 'bold',
           beforeSpacing: 240,
-          heading: `Heading${vNode.tagName[1]}`,
+          paragraphStyle: `Heading${vNode.tagName[1]}`,
         },
         docxDocumentInstance
       );
