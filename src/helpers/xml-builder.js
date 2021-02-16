@@ -590,15 +590,15 @@ const buildIndentation = (left = 720) => {
   return indentationFragment;
 };
 
-const buildHeading = (heading = 'Heading1') => {
-  const headingFragment = fragment({
+const buildPStyle = (heading = 'Heading1') => {
+  const pStyleFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'pStyle')
     .att('@w', 'val', heading)
     .up();
 
-  return headingFragment;
+  return pStyleFragment;
 };
 
 const buildHorizontalAlignment = (horizontalAlignment) => {
@@ -694,8 +694,8 @@ const buildParagraphProperties = (attributes) => {
           }
           break;
         case 'heading':
-          const headingFragment = buildHeading(attributes.heading);
-          paragraphPropertiesFragment.import(headingFragment);
+          const pStyleFragment = buildPStyle(attributes.heading);
+          paragraphPropertiesFragment.import(pStyleFragment);
           delete attributes.heading;
           break;
         case 'indentation':
