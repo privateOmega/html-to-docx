@@ -590,12 +590,12 @@ const buildIndentation = (left = 720) => {
   return indentationFragment;
 };
 
-const buildPStyle = (heading = 'Normal') => {
+const buildPStyle = (style = 'Normal') => {
   const pStyleFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
     .ele('@w', 'pStyle')
-    .att('@w', 'val', heading)
+    .att('@w', 'val', style)
     .up();
 
   return pStyleFragment;
@@ -693,10 +693,10 @@ const buildParagraphProperties = (attributes) => {
             delete attributes.backgroundColor;
           }
           break;
-        case 'heading':
-          const pStyleFragment = buildPStyle(attributes.heading);
+        case 'paragraphStyle':
+          const pStyleFragment = buildPStyle(attributes.paragraphStyle);
           paragraphPropertiesFragment.import(pStyleFragment);
-          delete attributes.heading;
+          delete attributes.paragraphStyle;
           break;
         case 'indentation':
           const indentationFragment = buildIndentation(attributes[key].left);
