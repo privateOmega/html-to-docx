@@ -590,7 +590,7 @@ const buildIndentation = (left = 720) => {
   return indentationFragment;
 };
 
-const buildPStyle = (heading = 'Heading1') => {
+const buildPStyle = (heading = 'Normal') => {
   const pStyleFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
