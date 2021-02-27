@@ -40,7 +40,7 @@ class DocxDocument {
   constructor({
     zip,
     htmlString,
-    orientation,
+    pageSize,
     margins,
     title,
     subject,
@@ -64,14 +64,13 @@ class DocxDocument {
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
-    this.orientation = orientation;
-    this.width = orientation === 'landscape' ? 15840 : 12240;
-    this.height = orientation === 'landscape' ? 12240 : 15840;
+    this.width = pageSize && pageSize.width ? pageSize.width : 12240;
+    this.height = pageSize && pageSize.height ? pageSize.height : 15840;
     this.margins =
       // eslint-disable-next-line no-nested-ternary
       margins && Object.keys(margins).length
         ? margins
-        : orientation === 'landscape'
+        : this.width >= this.height
         ? landscapeMargins
         : portraitMargins;
     this.availableDocumentSpace = this.width - this.margins.left - this.margins.right;

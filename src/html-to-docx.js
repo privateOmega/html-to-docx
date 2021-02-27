@@ -22,7 +22,10 @@ const convertHTML = require('html-to-vdom')({
 });
 
 const defaultDocumentOptions = {
-  orientation: 'portrait',
+  pageSize: {
+    width: 12240,
+    height: 15840,
+  },
   margins: {
     top: 1440,
     right: 1800,
@@ -75,32 +78,32 @@ const fixupFontSize = (fontSize) => {
   return normalizedFontSize;
 };
 
-const fixupMargins = (margins) => {
-  let normalizedMargins = {};
-  if (typeof margins === 'object' && margins !== null) {
-    Object.keys(margins).forEach((key) => {
-      if (pixelRegex.test(margins[key])) {
-        const matchedParts = margins[key].match(pixelRegex);
-        normalizedMargins[key] = pixelToTWIP(matchedParts[1]);
-      } else if (cmRegex.test(margins[key])) {
-        const matchedParts = margins[key].match(cmRegex);
-        normalizedMargins[key] = cmToTWIP(matchedParts[1]);
-      } else if (inchRegex.test(margins[key])) {
-        const matchedParts = margins[key].match(inchRegex);
-        normalizedMargins[key] = inchToTWIP(matchedParts[1]);
-      } else if (margins[key]) {
-        normalizedMargins[key] = margins[key];
+const normalizeUnits = (dimensioningObject, defaultDimensionsProperty) => {
+  let normalizedUnitResult = {};
+  if (typeof dimensioningObject === 'object' && dimensioningObject !== null) {
+    Object.keys(dimensioningObject).forEach((key) => {
+      if (pixelRegex.test(dimensioningObject[key])) {
+        const matchedParts = dimensioningObject[key].match(pixelRegex);
+        normalizedUnitResult[key] = pixelToTWIP(matchedParts[1]);
+      } else if (cmRegex.test(dimensioningObject[key])) {
+        const matchedParts = dimensioningObject[key].match(cmRegex);
+        normalizedUnitResult[key] = cmToTWIP(matchedParts[1]);
+      } else if (inchRegex.test(dimensioningObject[key])) {
+        const matchedParts = dimensioningObject[key].match(inchRegex);
+        normalizedUnitResult[key] = inchToTWIP(matchedParts[1]);
+      } else if (dimensioningObject[key]) {
+        normalizedUnitResult[key] = dimensioningObject[key];
       } else {
         // incase value is something like 0
-        normalizedMargins[key] = defaultDocumentOptions.margins[key];
+        normalizedUnitResult[key] = defaultDimensionsProperty[key];
       }
     });
   } else {
     // eslint-disable-next-line no-param-reassign
-    normalizedMargins = null;
+    normalizedUnitResult = null;
   }
 
-  return normalizedMargins;
+  return normalizedUnitResult;
 };
 
 const normalizeDocumentOptions = (documentOptions) => {
@@ -108,8 +111,12 @@ const normalizeDocumentOptions = (documentOptions) => {
   Object.keys(documentOptions).forEach((key) => {
     // eslint-disable-next-line default-case
     switch (key) {
+      case 'pageSize':
       case 'margins':
-        normalizedDocumentOptions.margins = fixupMargins(documentOptions[key]);
+        normalizedDocumentOptions[key] = normalizeUnits(
+          documentOptions[key],
+          defaultDocumentOptions[key]
+        );
         break;
       case 'fontSize':
       case 'complexScriptFontSize':
