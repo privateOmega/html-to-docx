@@ -30,7 +30,9 @@ full fledged examples can be found under `example/`
 - `htmlString` <[String]> clean html string equivalent of document content.
 - `headerHTMLString` <[String]> clean html string equivalent of header. Defaults to `<p></p>` if header flag is `true`.
 - `documentOptions` <?[Object]>
-  - `orientation` <"portrait"|"landscape"> defines the general orientation of the document. Defaults to portrait.
+  - `pageSize` <?[Object]> Defaults to U.S. letter portrait orientation.
+    - `width` <[Number]> width of the page for all pages in this section in [TWIP]. Defaults to 12240. Maximum 31680. Supports equivalent measurement in [pixel], [cm] or [inch].
+    - `height` <[Number]> height of the page for all pages in this section in [TWIP]. Defaults to 15840. Maximum 31680. Supports equivalent measurement in [pixel], [cm] or [inch].
   - `margins` <?[Object]>
     - `top` <[Number]> distance between the top of the text margins for the main document and the top of the page for all pages in this section in [TWIP]. Defaults to 1440. Supports equivalent measurement in [pixel], [cm] or [inch].
     - `right` <[Number]> distance between the right edge of the page and the right edge of the text extents for this document in [TWIP]. Defaults to 1800. Supports equivalent measurement in [pixel], [cm] or [inch].
