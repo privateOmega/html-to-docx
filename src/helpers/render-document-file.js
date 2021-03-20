@@ -5,7 +5,6 @@ import { fragment } from 'xmlbuilder2';
 // eslint-disable-next-line import/no-cycle
 import * as xmlBuilder from './xml-builder';
 import namespaces from './namespaces';
-import { pixelToHIP, defaultHeadingSizesInPixel } from '../utils/unit-conversion';
 
 const VNode = require('virtual-dom/vnode/vnode');
 const VText = require('virtual-dom/vnode/vtext');
@@ -169,15 +168,9 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'h4':
     case 'h5':
     case 'h6':
-      const fontSize = pixelToHIP(defaultHeadingSizesInPixel[vNode.tagName]);
-      const lineHeight = xmlBuilder.fixupLineHeight(1, fontSize);
       const headingFragment = xmlBuilder.buildParagraph(
         vNode,
         {
-          fontSize,
-          lineHeight: Math.max(lineHeight, 240),
-          strong: 'bold',
-          beforeSpacing: 240,
           paragraphStyle: `Heading${vNode.tagName[1]}`,
         },
         docxDocumentInstance
