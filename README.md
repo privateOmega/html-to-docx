@@ -59,13 +59,18 @@ full fledged examples can be found under `example/`
   - `footerType` <"default"|"first"|"even"> type of footer. Defaults to `default`.
   - `footer` <?[Boolean]> flag to enable footer. Defaults to `false`.
   - `font` <?[String]> font name to be used. Defaults to `Times New Roman`.
-  - `fontSize` <?[Number]> size of font in HIP(Half of point). Defaults to 22. Supports equivalent measure in [pt].
-  - `complexScriptFontSize` <?[Number]> size of complex script font in HIP(Half of point). Defaults to 22. Supports equivalent measure in [pt].
+  - `fontSize` <?[Number]> size of font in HIP(Half of point). Defaults to `22`. Supports equivalent measure in [pt].
+  - `complexScriptFontSize` <?[Number]> size of complex script font in HIP(Half of point). Defaults to `22`. Supports equivalent measure in [pt].
   - `table` <?[Object]>
     - `row` <?[Object]>
       - `cantSplit` <?[Boolean]> flag to allow table row to split across pages. Defaults to `false`.
   - `pageNumber` <?[Boolean]> flag to enable page number in footer. Defaults to `false`. Page number works only if footer flag is set as `true`.
   - `skipFirstHeaderFooter` <?[Boolean]> flag to skip first page header and footer. Defaults to `false`.
+  - `lineNumber` <?[Boolean]> flag to enable line numbering. Defaults to `false`.
+  - `lineNumberOptions` <?[Object]>
+    - `start` <[Number]> start of the numbering - 1. Defaults to `0`.
+    - `countBy` <[Number]> skip numbering in how many lines in between + 1. Defaults to `1`.
+    - `restart` <"continuous"|"newPage"|"newSection"> numbering restart strategy. Defaults to `continuous`.
 - `footerHTMLString` <[String]> clean html string equivalent of footer. Defaults to `<p></p>` if footer flag is `true`.
 
 ### Returns
