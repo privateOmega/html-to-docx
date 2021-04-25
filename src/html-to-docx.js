@@ -58,6 +58,12 @@ const defaultDocumentOptions = {
   },
   pageNumber: false,
   skipFirstHeaderFooter: false,
+  lineNumber: false,
+  lineNumberOptions: {
+    countBy: 1,
+    start: 0,
+    restart: 'continuous',
+  },
 };
 
 const mergeOptions = (options, patch) => ({ ...options, ...patch });

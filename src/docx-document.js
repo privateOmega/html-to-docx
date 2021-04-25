@@ -61,6 +61,8 @@ class DocxDocument {
     table,
     pageNumber,
     skipFirstHeaderFooter,
+    lineNumber,
+    lineNumberOptions,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -94,6 +96,7 @@ class DocxDocument {
     this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
     this.pageNumber = pageNumber || false;
     this.skipFirstHeaderFooter = skipFirstHeaderFooter || false;
+    this.lineNumber = lineNumber ? lineNumberOptions : null;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
@@ -259,6 +262,19 @@ class DocxDocument {
       }).ele('@w', 'titlePg');
 
       documentXML.root().first().first().import(titlePageFragment);
+    }
+    if (this.lineNumber) {
+      const { countBy, start, restart } = this.lineNumber;
+      const lineNumberFragment = fragment({
+        namespaceAlias: {
+          w: namespaces.w,
+        },
+      })
+        .ele('@w', 'lnNumType')
+        .att('@w', 'countBy', countBy)
+        .att('@w', 'start', start)
+        .att('@w', 'restart', restart);
+      documentXML.root().first().first().import(lineNumberFragment);
     }
 
     return documentXML.toString({ prettyPrint: true });
