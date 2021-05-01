@@ -2,7 +2,7 @@
 const fs = require('fs');
 // FIXME: Incase you have the npm package
 // const HTMLtoDOCX = require('html-to-docx');
-const HTMLtoDOCX = require('../dist/html-to-docx.cjs');
+const HTMLtoDOCX = require('../dist/html-to-docx.umd');
 
 const filePath = './example.docx';
 
