@@ -1,18 +1,16 @@
+/* eslint-disable no-useless-escape */
 /* eslint-disable no-param-reassign */
 import JSZip from 'jszip';
 import { addFilesToContainer } from './src/html-to-docx';
 
-const { minify } = require('html-minifier');
-
 const minifyHTMLString = (htmlString) => {
   if (typeof htmlString === 'string' || htmlString instanceof String) {
     try {
-      const minifiedHTMLString = minify(htmlString, {
-        caseSensitive: true,
-        collapseWhitespace: true,
-        html5: false,
-        keepClosingSlash: true,
-      });
+      const minifiedHTMLString = htmlString
+        .replace(/\n/g, '')
+        .replace(/[\t ]+\</g, '<')
+        .replace(/\>[\t ]+\</g, '><')
+        .replace(/\>[\t ]+$/g, '>');
 
       return minifiedHTMLString;
     } catch (error) {

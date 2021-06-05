@@ -2,7 +2,7 @@
 const fs = require('fs');
 // FIXME: Incase you have the npm package
 // const HTMLtoDOCX = require('html-to-docx');
-const HTMLtoDOCX = require('../dist/html-to-docx.cjs');
+const HTMLtoDOCX = require('../dist/html-to-docx.umd');
 
 const filePath = './example.docx';
 
@@ -19,6 +19,20 @@ const htmlString = `<!DOCTYPE html>
                 src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
                 alt="Red dot"
             />
+        </div>
+        <div>
+            <h1>This is heading 1</h1>
+            <p>Content</p>
+            <h2>This is heading 2</h2>
+            <p>Content</p>
+            <h3>This is heading 3</h3>
+            <p>Content</p>
+            <h4>This is heading 4</h4>
+            <p>Content</p>
+            <h5>This is heading 5</h5>
+            <p>Content</p>
+            <h6>This is heading 6</h6>
+            <p>Content</p>
         </div>
         <p>
             <strong>

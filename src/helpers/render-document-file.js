@@ -1,25 +1,25 @@
 /* eslint-disable no-case-declarations */
 import { fragment } from 'xmlbuilder2';
+import VNode from 'virtual-dom/vnode/vnode';
+import VText from 'virtual-dom/vnode/vtext';
+import isVNode from 'virtual-dom/vnode/is-vnode';
+import isVText from 'virtual-dom/vnode/is-vtext';
+import * as HTMLToVDOM_ from 'html-to-vdom';
+import escape from 'escape-html';
+import sizeOf from 'image-size';
 
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import * as xmlBuilder from './xml-builder';
 import namespaces from './namespaces';
-import { pixelToHIP, defaultHeadingSizesInPixel } from '../utils/unit-conversion';
 
-const VNode = require('virtual-dom/vnode/vnode');
-const VText = require('virtual-dom/vnode/vtext');
-const isVNode = require('virtual-dom/vnode/is-vnode');
-const isVText = require('virtual-dom/vnode/is-vtext');
-const escape = require('escape-html');
-const sizeOf = require('image-size');
-
-const convertHTML = require('html-to-vdom')({
+const HTMLToVDOM = HTMLToVDOM_;
+const convertHTML = HTMLToVDOM({
   VNode,
   VText,
 });
 
-// eslint-disable-next-line consistent-return
+// eslint-disable-next-line consistent-return, no-shadow
 export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => {
   let response = null;
   try {
@@ -169,15 +169,10 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'h4':
     case 'h5':
     case 'h6':
-      const fontSize = pixelToHIP(defaultHeadingSizesInPixel[vNode.tagName]);
-      const lineHeight = xmlBuilder.fixupLineHeight(1, fontSize);
       const headingFragment = xmlBuilder.buildParagraph(
         vNode,
         {
-          fontSize,
-          lineHeight: Math.max(lineHeight, 240),
-          strong: 'bold',
-          beforeSpacing: 240,
+          paragraphStyle: `Heading${vNode.tagName[1]}`,
         },
         docxDocumentInstance
       );

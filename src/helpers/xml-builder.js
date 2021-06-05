@@ -4,6 +4,10 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
+import { VText } from 'virtual-dom';
+import isVNode from 'virtual-dom/vnode/is-vnode';
+import isVText from 'virtual-dom/vnode/is-vtext';
+import colorNames from 'color-name';
 
 // eslint-disable-next-line import/no-named-default
 import { default as namespaces } from './namespaces';
@@ -33,11 +37,6 @@ import {
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import { buildImage } from './render-document-file';
-
-const isVNode = require('virtual-dom/vnode/is-vnode');
-const isVText = require('virtual-dom/vnode/is-vtext');
-const colorNames = require('color-name');
-const VText = require('virtual-dom/vnode/vtext');
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
@@ -590,6 +589,17 @@ const buildIndentation = (left = 720) => {
   return indentationFragment;
 };
 
+const buildPStyle = (style = 'Normal') => {
+  const pStyleFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'pStyle')
+    .att('@w', 'val', style)
+    .up();
+
+  return pStyleFragment;
+};
+
 const buildHorizontalAlignment = (horizontalAlignment) => {
   if (horizontalAlignment === 'justify') {
     horizontalAlignment = 'both';
@@ -681,6 +691,11 @@ const buildParagraphProperties = (attributes) => {
             // eslint-disable-next-line no-param-reassign
             delete attributes.backgroundColor;
           }
+          break;
+        case 'paragraphStyle':
+          const pStyleFragment = buildPStyle(attributes.paragraphStyle);
+          paragraphPropertiesFragment.import(pStyleFragment);
+          delete attributes.paragraphStyle;
           break;
         case 'indentation':
           const indentationFragment = buildIndentation(attributes[key].left);

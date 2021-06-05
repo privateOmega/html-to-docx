@@ -10,7 +10,7 @@
     "office",
     "word"
   ],
-  "main": "dist/html-to-docx.cjs.js",
+  "main": "dist/html-to-docx.umd.js",
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
     "test": "npm run build && node example/example-node.js",
@@ -54,16 +54,17 @@
     "prettier": "^2.0.5",
     "rollup": "^2.18.2",
     "rollup-plugin-cleaner": "^1.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-terser": "^6.1.0",
     "standard-version": "^8.0.0"
   },
   "dependencies": {
     "color-name": "^1.1.4",
     "escape-html": "^1.0.3",
-    "html-minifier": "^4.0.0",
     "html-to-vdom": "^0.7.0",
     "image-size": "^0.8.3",
     "jszip": "^3.5.0",
+    "shortid": "^2.2.15",
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "2.1.2"
   },
