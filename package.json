@@ -18,7 +18,7 @@
     "lint": "eslint --fix .",
     "prettier:check": "prettier --check '**/*.{js}'",
     "validate": "run-s lint prettier:check",
-    "build": "rollup -c"
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -35,11 +35,12 @@
   },
   "homepage": "https://github.com/privateOmega/html-to-docx#readme",
   "devDependencies": {
-    "@commitlint/cli": "^8.3.5",
-    "@commitlint/config-conventional": "^8.3.4",
+    "@babel/core": "^7.14.3",
+    "@babel/preset-env": "^7.14.4",
     "@rollup/plugin-commonjs": "^12.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^8.1.0",
+    "babel-loader": "^8.2.2",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-prettier": "^6.11.0",
@@ -55,15 +56,25 @@
     "rollup": "^2.18.2",
     "rollup-plugin-cleaner": "^1.0.0",
     "rollup-plugin-terser": "^6.1.0",
-    "standard-version": "^8.0.0"
+    "standard-version": "^8.0.0",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.2"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
     "color-name": "^1.1.4",
     "escape-html": "^1.0.3",
     "html-minifier": "^4.0.0",
     "html-to-vdom": "^0.7.0",
+    "https-browserify": "^1.0.0",
     "image-size": "^0.8.3",
     "jszip": "^3.5.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.0",
+    "util": "^0.12.4",
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "2.1.2"
   },
@@ -74,7 +85,6 @@
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "pre-commit": "lint-staged"
     }
   },
