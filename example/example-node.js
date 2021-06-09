@@ -20,6 +20,20 @@ const htmlString = `<!DOCTYPE html>
                 alt="Red dot"
             />
         </div>
+        <div>
+            <h1>This is heading 1</h1>
+            <p>Content</p>
+            <h2>This is heading 2</h2>
+            <p>Content</p>
+            <h3>This is heading 3</h3>
+            <p>Content</p>
+            <h4>This is heading 4</h4>
+            <p>Content</p>
+            <h5>This is heading 5</h5>
+            <p>Content</p>
+            <h6>This is heading 6</h6>
+            <p>Content</p>
+        </div>
         <p>
             <strong>
                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make
