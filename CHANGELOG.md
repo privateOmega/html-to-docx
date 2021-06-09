@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/privateOmega/html-to-docx/compare/v1.2.0...v1.2.1) (2021-06-05)
+
+## [1.2.0](https://github.com/privateOmega/html-to-docx/compare/v1.1.34...v1.2.0) (2021-06-05)
+
+
+### Features
+
+* Headings should have headings style ([8a731bb](https://github.com/privateOmega/html-to-docx/commit/8a731bb430c64fd3608e5baac53d4f4074770664))
+
+
+### Bug Fixes
+
+* added browser module building support ([343867a](https://github.com/privateOmega/html-to-docx/commit/343867ab000cb14e813344b3bcb535aa67e00808))
+* changed all imports to esm style ([d02320b](https://github.com/privateOmega/html-to-docx/commit/d02320bf22eefd3cf5fb90966b68e3d004ca9c1e))
+* changed default value to "Normal" ([b0e67d8](https://github.com/privateOmega/html-to-docx/commit/b0e67d8fdef6f339700133095bfd828993e48183))
+* moved to shortid for filename ([81ae184](https://github.com/privateOmega/html-to-docx/commit/81ae1848fa7359f4d7297b87b47fca96017d485d))
+* removed code made redundant with heading styles ([48da1dc](https://github.com/privateOmega/html-to-docx/commit/48da1dc1686a0b45ab56cfaa24db421772c5945e))
+* renamed method to more descriptive name ([b211f20](https://github.com/privateOmega/html-to-docx/commit/b211f205ddf03dab3c647bf0b91439677a33fb61))
+* renamed to paragraphStyle ([a1c4429](https://github.com/privateOmega/html-to-docx/commit/a1c442942de956533fdfda03d4ced748fde06cb1))
+* replaced html-minifier with regex replacement ([d6c9b38](https://github.com/privateOmega/html-to-docx/commit/d6c9b38ed485f73c14b759ad99bf4d3c91d9e07b))
+* updated example to use umd build ([078fa5d](https://github.com/privateOmega/html-to-docx/commit/078fa5dd6174be4fe314b469999f1b1010353c68))
+
 ### [1.1.34](https://github.com/privateOmega/html-to-docx/compare/v1.1.33...v1.1.34) (2021-02-07)
 
 

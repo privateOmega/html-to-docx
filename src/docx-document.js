@@ -1,4 +1,5 @@
 import { create, fragment } from 'xmlbuilder2';
+import * as shortid from 'shortid';
 
 import {
   generateCoreXML,
@@ -13,8 +14,6 @@ import {
 } from './schemas';
 import { convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
-
-const crypto = require('crypto');
 
 const landscapeMargins = {
   top: 1800,
@@ -449,9 +448,8 @@ class DocxDocument {
     // matches array contains file type in base64 format - image/jpeg and base64 stringified data
     const fileExtension =
       matches[1].match(/\/(.*?)$/)[1] === 'octet-stream' ? 'png' : matches[1].match(/\/(.*?)$/)[1];
-    const SHA1String = crypto.createHash('sha1').update(crypto.randomBytes(20)).digest('hex');
 
-    const fileNameWithExtension = `image-${SHA1String}.${fileExtension}`;
+    const fileNameWithExtension = `image-${shortid.generate()}.${fileExtension}`;
 
     this.lastMediaId += 1;
 

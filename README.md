@@ -9,6 +9,12 @@ It was inspired by [html-docx-js] project but mitigates the problem of documents
 
 html-to-docx earlier used to use [libtidy] to clean up the html before parsing, but had to remove it since it was causing so many dependency issues due to node-gyp.
 
+### Disclaimer
+
+Even though there is an instance of html-to-docx running in production, please ensure that it covers all the cases that you might be encountering usually, since this is not a complete solution.
+
+Currently it doesn't work with browser directly, but it was tested against React.
+
 ## Installation
 
 Use the npm to install foobar.
@@ -74,7 +80,7 @@ Currently page break can be implemented by having div with classname "page-break
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-Please make sure to update tests as appropriate.
+Please make sure to branch new branches off of develop for contribution.
 
 ## License
 
