@@ -5,6 +5,7 @@ import {
   generateCoreXML,
   generateStylesXML,
   generateNumberingXMLTemplate,
+  generateThemeXML,
   documentRelsXML as documentRelsXMLString,
   settingsXML as settingsXMLString,
   webSettingsXML as webSettingsXMLString,
@@ -114,6 +115,7 @@ class DocxDocument {
     this.generateWebSettingsXML = this.generateWebSettingsXML.bind(this);
     this.generateStylesXML = this.generateStylesXML.bind(this);
     this.generateFontTableXML = this.generateFontTableXML.bind(this);
+    this.generateThemeXML = this.generateThemeXML.bind(this);
     this.generateNumberingXML = this.generateNumberingXML.bind(this);
     this.generateRelsXML = this.generateRelsXML.bind(this);
     this.createMediaFile = this.createMediaFile.bind(this);
@@ -291,6 +293,13 @@ class DocxDocument {
     const fontTableXML = create({ encoding: 'UTF-8', standalone: true }, fontTableXMLString);
 
     return fontTableXML.toString({ prettyPrint: true });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  generateThemeXML() {
+    const themeXml = create({ encoding: 'UTF-8', standalone: true }, generateThemeXML(this.font));
+
+    return themeXml.toString({ prettyPrint: true });
   }
 
   generateNumberingXML() {
@@ -481,6 +490,9 @@ class DocxDocument {
         break;
       case 'footer':
         relationshipType = namespaces.footers;
+        break;
+      case 'theme':
+        relationshipType = namespaces.themes;
         break;
       default:
         break;
