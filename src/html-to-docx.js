@@ -203,6 +203,16 @@ export function addFilesToContainer(
     docxDocument.footerObjects.push({ footerId, relationshipId, type: docxDocument.footerType });
   }
 
+  docxDocument.createDocumentRelationships(
+    docxDocument.relationshipFilename,
+    'theme',
+    'theme/theme1.xml',
+    'Internal'
+  );
+  zip.folder('word').folder('theme').file('theme1.xml', docxDocument.generateThemeXML(), {
+    createFolders: false,
+  });
+
   zip
     .folder('word')
     .file('document.xml', docxDocument.generateDocumentXML(), {

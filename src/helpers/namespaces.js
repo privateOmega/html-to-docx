@@ -23,6 +23,7 @@ const namespaces = {
   styles: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
   headers: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header',
   footers: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer',
+  themes: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
   coreProperties: 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
   officeDocumentRelation:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
