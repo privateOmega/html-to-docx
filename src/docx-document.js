@@ -5,6 +5,7 @@ import {
   generateCoreXML,
   generateStylesXML,
   generateNumberingXMLTemplate,
+  generateThemeXML,
   documentRelsXML as documentRelsXMLString,
   settingsXML as settingsXMLString,
   webSettingsXML as webSettingsXMLString,
@@ -60,6 +61,8 @@ class DocxDocument {
     table,
     pageNumber,
     skipFirstHeaderFooter,
+    lineNumber,
+    lineNumberOptions,
   }) {
     this.zip = zip;
     this.htmlString = htmlString;
@@ -93,6 +96,7 @@ class DocxDocument {
     this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
     this.pageNumber = pageNumber || false;
     this.skipFirstHeaderFooter = skipFirstHeaderFooter || false;
+    this.lineNumber = lineNumber ? lineNumberOptions : null;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
@@ -114,6 +118,7 @@ class DocxDocument {
     this.generateWebSettingsXML = this.generateWebSettingsXML.bind(this);
     this.generateStylesXML = this.generateStylesXML.bind(this);
     this.generateFontTableXML = this.generateFontTableXML.bind(this);
+    this.generateThemeXML = this.generateThemeXML.bind(this);
     this.generateNumberingXML = this.generateNumberingXML.bind(this);
     this.generateRelsXML = this.generateRelsXML.bind(this);
     this.createMediaFile = this.createMediaFile.bind(this);
@@ -258,6 +263,19 @@ class DocxDocument {
 
       documentXML.root().first().first().import(titlePageFragment);
     }
+    if (this.lineNumber) {
+      const { countBy, start, restart } = this.lineNumber;
+      const lineNumberFragment = fragment({
+        namespaceAlias: {
+          w: namespaces.w,
+        },
+      })
+        .ele('@w', 'lnNumType')
+        .att('@w', 'countBy', countBy)
+        .att('@w', 'start', start)
+        .att('@w', 'restart', restart);
+      documentXML.root().first().first().import(lineNumberFragment);
+    }
 
     return documentXML.toString({ prettyPrint: true });
   }
@@ -291,6 +309,13 @@ class DocxDocument {
     const fontTableXML = create({ encoding: 'UTF-8', standalone: true }, fontTableXMLString);
 
     return fontTableXML.toString({ prettyPrint: true });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  generateThemeXML() {
+    const themeXml = create({ encoding: 'UTF-8', standalone: true }, generateThemeXML(this.font));
+
+    return themeXml.toString({ prettyPrint: true });
   }
 
   generateNumberingXML() {
@@ -481,6 +506,9 @@ class DocxDocument {
         break;
       case 'footer':
         relationshipType = namespaces.footers;
+        break;
+      case 'theme':
+        relationshipType = namespaces.themes;
         break;
       default:
         break;
