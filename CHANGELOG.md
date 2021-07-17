@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/privateOmega/html-to-docx/compare/v1.2.1...v1.2.2) (2021-07-17)
+
+
+### Features
+
+* **schema:** add theme ([d5aef3b](https://github.com/privateOmega/html-to-docx/commit/d5aef3b65376e71b594d494ae8426cab5ad5178c))
+* added line numbers ([f87202c](https://github.com/privateOmega/html-to-docx/commit/f87202c4d4cd534e830d3a59d33b9cc27cf6d654))
+
 ### [1.2.1](https://github.com/privateOmega/html-to-docx/compare/v1.2.0...v1.2.1) (2021-06-05)
 
 ## [1.2.0](https://github.com/privateOmega/html-to-docx/compare/v1.1.34...v1.2.0) (2021-06-05)
