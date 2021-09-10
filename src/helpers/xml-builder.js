@@ -36,7 +36,7 @@ import {
 } from '../utils/unit-conversion';
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
-import { buildImage } from './render-document-file';
+// import { buildImage } from './render-document-file';
 import sizeOf from 'image-size';
 
 // eslint-disable-next-line consistent-return
@@ -799,8 +799,8 @@ const computeImageDimensions = (vNode, attributes) => {
   attributes.height = modifiedHeight;
 };
 
-// --
-export const buildImage2 = (docxDocumentInstance, vNode) => {
+// -----
+export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => {
   let response = null;
   try {
     // libtidy encodes the image src
@@ -829,7 +829,7 @@ export const buildImage2 = (docxDocumentInstance, vNode) => {
       inlineOrAnchored: true,
       relationshipId: documentRelsId,
       ...response,
-      maximumWidth: docxDocumentInstance.availableDocumentSpace,
+      maximumWidth: maximumWidth || docxDocumentInstance.availableDocumentSpace,
       originalWidth: imageProperties.width,
       originalHeight: imageProperties.height,
     }
@@ -969,7 +969,7 @@ const buildNested = (vNode, attributes, docxDocumentInstance) => {
       return runFragment;
     } 
     else if (vNode.tagName === 'img') {
-      const result = buildImage2(docxDocumentInstance, vNode);
+      const result = buildImage(docxDocumentInstance, vNode);
       if(result) {
         modifiedAttributes = {...modifiedAttributes, ...result};
         computeImageDimensions(vNode, modifiedAttributes);
@@ -998,7 +998,7 @@ const buildNested = (vNode, attributes, docxDocumentInstance) => {
   return runFragment;
 }
 
-const buildNestedParagraph = (vNode, attributes, docxDocumentInstance) => {
+const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'p');
@@ -1013,7 +1013,7 @@ const buildNestedParagraph = (vNode, attributes, docxDocumentInstance) => {
 
 // --
 
-const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
+const buildParagraphOld = (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   }).ele('@w', 'p');
@@ -1414,13 +1414,21 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (isVNode(childVNode) && childVNode.tagName === 'img') {
-        const imageFragment = buildImage(
-          docxDocumentInstance,
-          childVNode,
-          modifiedAttributes.maximumWidth
-        );
-        if (imageFragment) {
-          tableCellFragment.import(imageFragment);
+        // const imageFragment = buildImage(
+        //   docxDocumentInstance,
+        //   childVNode,
+        //   modifiedAttributes.maximumWidth
+        // );
+        // if (imageFragment) {
+        //   tableCellFragment.import(imageFragment);
+        // }
+
+        const result = buildImage(docxDocumentInstance, childVNode, modifiedAttributes.maximumWidth);
+        if(result) {
+          modifiedAttributes = {...modifiedAttributes, ...result};
+          computeImageDimensions(childVNode, modifiedAttributes);
+          const { type, inlineOrAnchored, ...otherAttributes } = modifiedAttributes;
+          tableCellFragment.import(buildDrawing(inlineOrAnchored, type, otherAttributes));
         }
       } else if (isVNode(childVNode) && childVNode.tagName === 'figure') {
         if (
@@ -1432,14 +1440,23 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
           for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
             const grandChildVNode = childVNode.children[iteratorIndex];
             if (grandChildVNode.tagName === 'img') {
-              const imageFragment = buildImage(
-                docxDocumentInstance,
-                grandChildVNode,
-                modifiedAttributes.maximumWidth
-              );
-              if (imageFragment) {
-                tableCellFragment.import(imageFragment);
+              // const imageFragment = buildImage(
+              //   docxDocumentInstance,
+              //   grandChildVNode,
+              //   modifiedAttributes.maximumWidth
+              // );
+              // if (imageFragment) {
+              //   tableCellFragment.import(imageFragment);
+              // }
+
+              const result = buildImage(docxDocumentInstance, grandChildVNode, modifiedAttributes.maximumWidth);
+              if(result) {
+                modifiedAttributes = {...modifiedAttributes, ...result};
+                computeImageDimensions(grandChildVNode, modifiedAttributes);
+                const { type, inlineOrAnchored, ...otherAttributes } = modifiedAttributes;
+                tableCellFragment.import(buildDrawing(inlineOrAnchored, type, otherAttributes));
               }
+
             }
           }
         }
@@ -2392,7 +2409,6 @@ const buildDrawing = (inlineOrAnchored = false, graphicType, attributes) => {
 
 export {
   buildParagraph,
-  buildNestedParagraph,
   buildTable,
   buildNumberingInstances,
   buildLineBreak,
