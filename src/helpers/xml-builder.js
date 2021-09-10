@@ -37,6 +37,7 @@ import {
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import { buildImage } from './render-document-file';
+import sizeOf from 'image-size';
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
@@ -797,6 +798,220 @@ const computeImageDimensions = (vNode, attributes) => {
   // eslint-disable-next-line no-param-reassign
   attributes.height = modifiedHeight;
 };
+
+// --
+export const buildImage2 = (docxDocumentInstance, vNode) => {
+  let response = null;
+  try {
+    // libtidy encodes the image src
+    response = docxDocumentInstance.createMediaFile(decodeURIComponent(vNode.properties.src));
+  } catch (error) {
+    // NOOP
+  }
+  if (response) {
+    docxDocumentInstance.zip
+      .folder('word')
+      .folder('media')
+      .file(response.fileNameWithExtension, Buffer.from(response.fileContent, 'base64'), {
+        createFolders: false,
+      });
+
+    const documentRelsId = docxDocumentInstance.createDocumentRelationships(
+      docxDocumentInstance.relationshipFilename,
+      'image',
+      `media/${response.fileNameWithExtension}`,
+      'Internal'
+    );
+    const imageBuffer = Buffer.from(response.fileContent, 'base64');
+    const imageProperties = sizeOf(imageBuffer);
+    return {
+      type: 'picture',
+      inlineOrAnchored: true,
+      relationshipId: documentRelsId,
+      ...response,
+      maximumWidth: docxDocumentInstance.availableDocumentSpace,
+      originalWidth: imageProperties.width,
+      originalHeight: imageProperties.height,
+    }
+  }
+  return null;
+};
+
+const addTo = (fragments, parentFragment) => {
+  if (Array.isArray(fragments)) {
+    for(let item of fragments) {
+      addTo(item, parentFragment);
+    }
+  } else {
+    parentFragment.import(fragments);
+  }
+} 
+
+const getModifiedAttributes = (vNode, attributes) => {
+  const modifiedAttributes = { ...attributes };
+  if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
+    if (
+      vNode.properties.style.color &&
+      !['transparent', 'auto'].includes(vNode.properties.style.color)
+    ) {
+      modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
+    }
+    if (
+      vNode.properties.style['background-color'] &&
+      !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+    ) {
+      modifiedAttributes.backgroundColor = fixupColorCode(
+        vNode.properties.style['background-color']
+      );
+    }
+    if (
+      vNode.properties.style['vertical-align'] &&
+      ['top', 'middle', 'bottom'].includes(vNode.properties.style['vertical-align'])
+    ) {
+      modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
+    }
+    if (
+      vNode.properties.style['text-align'] &&
+      ['left', 'right', 'center', 'justify'].includes(vNode.properties.style['text-align'])
+    ) {
+      modifiedAttributes.textAlign = vNode.properties.style['text-align'];
+    }
+    // FIXME: remove bold check when other font weights are handled.
+    if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
+      modifiedAttributes.strong = vNode.properties.style['font-weight'];
+    }
+    if (vNode.properties.style['font-size']) {
+      modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
+    }
+    if (vNode.properties.style['line-height']) {
+      modifiedAttributes.lineHeight = fixupLineHeight(
+        vNode.properties.style['line-height'],
+        vNode.properties.style['font-size']
+          ? fixupFontSize(vNode.properties.style['font-size'])
+          : null
+      );
+    }
+    if (vNode.properties.style.display) {
+      modifiedAttributes.display = vNode.properties.style.display;
+    }
+  }
+  if (isVNode(vNode) && vNode.tagName === 'blockquote') {
+    modifiedAttributes.indentation = { left: 284 };
+    modifiedAttributes.textAlign = 'justify';
+  }
+  return modifiedAttributes;
+}
+
+const getRunFragment = (vNode, attributes, withProp) => {
+  const runFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  }).ele('@w', 'r');
+  if(withProp) {
+    const runPropertiesFragment = buildRunProperties(getModifiedAttributes(vNode, attributes));
+    runFragment.import(runPropertiesFragment);
+  }
+  return runFragment;
+}
+
+const buildNested = (vNode, attributes, docxDocumentInstance) => {
+  const textEls = ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup', 'mark'];
+  let modifiedAttributes = getModifiedAttributes(vNode, attributes);
+  let runFragment = null;
+  
+  if(isVText(vNode)) {
+    runFragment = getRunFragment(vNode, modifiedAttributes, true);
+    runFragment.import(buildTextElement(vNode.text));
+  } else if(isVNode(vNode)) {
+    if(vNode.tagName === 'a') {
+      const relationshipId = docxDocumentInstance.createDocumentRelationships(
+        docxDocumentInstance.relationshipFilename,
+        'hyperlink',
+        vNode.properties && vNode.properties.href ? vNode.properties.href : ''
+      );
+      runFragment = fragment({
+        namespaceAlias: { w: namespaces.w, r: namespaces.r },
+      })
+        .ele('@w', 'hyperlink')
+        .att('@r', 'id', `rId${relationshipId}`);
+      modifiedAttributes.hyperlink = true;
+    } else if (vNode.tagName === 'br') {
+      runFragment = getRunFragment(vNode, modifiedAttributes, false)
+      runFragment.import(buildLineBreak());
+    } else if(textEls.includes(vNode.tagName)) {
+      runFragment = getRunFragment(vNode, modifiedAttributes, false);
+      const textArray = [];
+      let vNodes = [vNode];
+
+      const formats = [];
+      while (vNodes.length) {
+        const tempVNode = vNodes.shift();
+        modifiedAttributes = getModifiedAttributes(tempVNode, modifiedAttributes);
+        if(isVText(tempVNode)) {
+          textArray.push(tempVNode.text);
+        }
+        if(isVNode(tempVNode) && textEls.includes(tempVNode.tagName)) {
+          const formattingFragment = buildTextFormatting(tempVNode);
+          formats.push(formattingFragment);
+        }
+
+        if(tempVNode.children && tempVNode.children.length) {
+          vNodes = tempVNode.children.slice().concat(vNodes);
+        }
+      }
+      const runPropertiesFragment = buildRunProperties(modifiedAttributes);
+      formats.forEach(format=>runPropertiesFragment.import(format))
+      runFragment.import(runPropertiesFragment);
+      if(textArray.length) {
+        const combinedString = textArray.join('');
+        runFragment.import(buildTextElement(combinedString))
+      }
+      runFragment.up()
+      return runFragment;
+    } 
+    else if (vNode.tagName === 'img') {
+      const result = buildImage2(docxDocumentInstance, vNode);
+      if(result) {
+        modifiedAttributes = {...modifiedAttributes, ...result};
+        computeImageDimensions(vNode, modifiedAttributes);
+        const { type, inlineOrAnchored, ...otherAttributes } = modifiedAttributes;
+        runFragment = getRunFragment(vNode, modifiedAttributes, true);
+        runFragment.import(buildDrawing(inlineOrAnchored, type, otherAttributes));
+      }
+    }
+
+    if(runFragment) {
+      for(const childVNode of vNode.children) {
+        addTo(buildNested(childVNode, modifiedAttributes, docxDocumentInstance), runFragment);
+      }
+    } else {
+      const runFragments = [];
+      for(const childVNode of vNode.children) {
+        runFragments.push(buildNested(childVNode, modifiedAttributes, docxDocumentInstance));
+      }
+      return runFragments;
+    }
+  } else {
+    return [];
+  }
+
+  runFragment.up();
+  return runFragment;
+}
+
+const buildNestedParagraph = (vNode, attributes, docxDocumentInstance) => {
+  const paragraphFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  }).ele('@w', 'p');
+  const modifiedAttributes = getModifiedAttributes(vNode, attributes);
+  const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
+  paragraphFragment.import(paragraphPropertiesFragment);
+  addTo(buildNested(vNode, attributes, docxDocumentInstance), paragraphFragment);
+  paragraphFragment.up();
+  return paragraphFragment;
+
+}
+
+// --
 
 const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({
@@ -2177,6 +2392,7 @@ const buildDrawing = (inlineOrAnchored = false, graphicType, attributes) => {
 
 export {
   buildParagraph,
+  buildNestedParagraph,
   buildTable,
   buildNumberingInstances,
   buildLineBreak,
