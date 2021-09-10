@@ -195,7 +195,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'a':
     case 'blockquote':
     case 'img':
-      const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
+      const paragraphFragment = xmlBuilder.buildNestedParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
       return;
     case 'figure':
