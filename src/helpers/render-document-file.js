@@ -194,6 +194,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'p':
     case 'a':
     case 'blockquote':
+    case 'img':
       const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
       return;
@@ -256,12 +257,12 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         xmlFragment.import(paragraphFragment);
       }
       return;
-    case 'img':
-      const imageFragment = buildImage(docxDocumentInstance, vNode);
-      if (imageFragment) {
-        xmlFragment.import(imageFragment);
-      }
-      return;
+    // case 'img':
+    //   const imageFragment = buildImage(docxDocumentInstance, vNode);
+    //   if (imageFragment) {
+    //     xmlFragment.import(imageFragment);
+    //   }
+    //   return;
     case 'br':
       const linebreakFragment = xmlBuilder.buildParagraph(null, {});
       xmlFragment.import(linebreakFragment);
