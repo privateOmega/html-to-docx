@@ -74,6 +74,18 @@ const fixupColorCode = (colorCodeString) => {
   }
 };
 
+const buildRunFontFragment = (fontName = 'Times New Roman') => {
+  const runFontFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'rFonts')
+    .att('@w', 'ascii', fontName)
+    .att('@w', 'hAnsi', fontName)
+    .up();
+
+  return runFontFragment;
+};
+
 const buildRunStyleFragment = (type = 'Hyperlink') => {
   const runStyleFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -300,6 +312,14 @@ const buildRunProperties = (attributes) => {
           const hyperlinkStyleFragment = buildRunStyleFragment('Hyperlink');
           runPropertiesFragment.import(hyperlinkStyleFragment);
           break;
+        case 'highlightColor':
+          const highlightFragment = buildHighlight(attributes[key]);
+          runPropertiesFragment.import(highlightFragment);
+          break;
+        case 'font':
+          const runFontFragment = buildRunFontFragment('Courier');
+          runPropertiesFragment.import(runFontFragment);
+          break;
       }
     });
   }
@@ -313,31 +333,46 @@ const buildTextFormatting = (vNode) => {
   // eslint-disable-next-line default-case
   switch (vNode.tagName) {
     case 'strong':
-    case 'b':
+    case 'b': {
       const boldFragment = buildBold();
       return boldFragment;
+    }
     case 'em':
-    case 'i':
+    case 'i': {
       const italicsFragment = buildItalics();
       return italicsFragment;
+    }
     case 'ins':
-    case 'u':
+    case 'u': {
       const underlineFragment = buildUnderline();
       return underlineFragment;
+    }
     case 'strike':
     case 'del':
-    case 's':
+    case 's': {
       const strikeFragment = buildStrike();
       return strikeFragment;
-    case 'sub':
+    }
+    case 'sub': {
       const subscriptFragment = buildVertAlign('subscript');
       return subscriptFragment;
-    case 'sup':
+    }
+    case 'sup': {
       const superscriptFragment = buildVertAlign('superscript');
       return superscriptFragment;
-    case 'mark':
+    }
+    case 'mark': {
       const highlightFragment = buildHighlight();
       return highlightFragment;
+    }
+    case 'code': {
+      const highlightFragment = buildHighlight('lightGray');
+      return highlightFragment;
+    }
+    case 'pre': {
+      const runFontFragment = buildRunFontFragment('Courier');
+      return runFontFragment;
+    }
   }
 };
 
@@ -364,6 +399,8 @@ const buildRun = (vNode, attributes) => {
       'sup',
       'mark',
       'blockquote',
+      'code',
+      'pre',
     ].includes(vNode.tagName)
   ) {
     const textArray = [];
@@ -376,9 +413,22 @@ const buildRun = (vNode, attributes) => {
       }
       if (
         isVNode(tempVNode) &&
-        ['strong', 'b', 'em', 'i', 'u', 'ins', 'strike', 'del', 's', 'sub', 'sup', 'mark'].includes(
-          tempVNode.tagName
-        )
+        [
+          'strong',
+          'b',
+          'em',
+          'i',
+          'u',
+          'ins',
+          'strike',
+          'del',
+          's',
+          'sub',
+          'sup',
+          'mark',
+          'code',
+          'pre',
+        ].includes(tempVNode.tagName)
       ) {
         const formattingFragment = buildTextFormatting(tempVNode);
         runPropertiesFragment.import(formattingFragment);
@@ -852,6 +902,10 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'blockquote') {
     modifiedAttributes.indentation = { left: 284 };
     modifiedAttributes.textAlign = 'justify';
+  } else if (isVNode(vNode) && vNode.tagName === 'code') {
+    modifiedAttributes.highlightColor = 'lightGray';
+  } else if (isVNode(vNode) && vNode.tagName === 'pre') {
+    modifiedAttributes.font = 'Courier';
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
@@ -872,6 +926,8 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
         'sup',
         'mark',
         'a',
+        'code',
+        'pre',
       ].includes(vNode.tagName)
     ) {
       const runOrHyperlinkFragments = buildRunOrHyperLink(
