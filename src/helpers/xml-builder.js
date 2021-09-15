@@ -312,6 +312,10 @@ const buildRunProperties = (attributes) => {
           const hyperlinkStyleFragment = buildRunStyleFragment('Hyperlink');
           runPropertiesFragment.import(hyperlinkStyleFragment);
           break;
+        case 'highlightColor':
+          const highlightFragment = buildHighlight('lightGray');
+          runPropertiesFragment.import(highlightFragment);
+          break;
         case 'font':
           const runFontFragment = buildRunFontFragment('Courier');
           runPropertiesFragment.import(runFontFragment);
@@ -868,6 +872,8 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'blockquote') {
     modifiedAttributes.indentation = { left: 284 };
     modifiedAttributes.textAlign = 'justify';
+  } else if (isVNode(vNode) && vNode.tagName === 'code') {
+    modifiedAttributes.highlightColor = true;
   } else if (isVNode(vNode) && vNode.tagName === 'pre') {
     modifiedAttributes.font = 'Courier';
   }
