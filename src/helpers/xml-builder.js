@@ -74,6 +74,18 @@ const fixupColorCode = (colorCodeString) => {
   }
 };
 
+const buildRunFontFragment = (fontName = 'Times New Roman') => {
+  const runFontFragment = fragment({
+    namespaceAlias: { w: namespaces.w },
+  })
+    .ele('@w', 'rFonts')
+    .att('@w', 'ascii', fontName)
+    .att('@w', 'hAnsi', fontName)
+    .up();
+
+  return runFontFragment;
+};
+
 const buildRunStyleFragment = (type = 'Hyperlink') => {
   const runStyleFragment = fragment({
     namespaceAlias: { w: namespaces.w },
@@ -299,6 +311,10 @@ const buildRunProperties = (attributes) => {
         case 'hyperlink':
           const hyperlinkStyleFragment = buildRunStyleFragment('Hyperlink');
           runPropertiesFragment.import(hyperlinkStyleFragment);
+          break;
+        case 'font':
+          const runFontFragment = buildRunFontFragment('Courier');
+          runPropertiesFragment.import(runFontFragment);
           break;
       }
     });
@@ -852,6 +868,8 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'blockquote') {
     modifiedAttributes.indentation = { left: 284 };
     modifiedAttributes.textAlign = 'justify';
+  } else if (isVNode(vNode) && vNode.tagName === 'pre') {
+    modifiedAttributes.font = 'Courier';
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
