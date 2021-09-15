@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.3](https://github.com/privateOmega/html-to-docx/compare/v1.2.2...v1.2.3) (2021-09-15)
+
+
+### Features
+
+* add support for code tag ([70a9485](https://github.com/privateOmega/html-to-docx/commit/70a948503d6b8c11b3f46141578047361c0bba87))
+* add support for pre tag ([c43ed9e](https://github.com/privateOmega/html-to-docx/commit/c43ed9e3bef91d1c95eddb8779df8e2d2e7f151b))
+
+
+### Bug Fixes
+
+* add support for nested code and pre tags ([7a504e1](https://github.com/privateOmega/html-to-docx/commit/7a504e10af3819829a7cfc0d6fd2ef86e1dc289b))
+
 ### [1.2.2](https://github.com/privateOmega/html-to-docx/compare/v1.2.1...v1.2.2) (2021-07-17)
 
 
