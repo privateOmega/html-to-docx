@@ -63,7 +63,7 @@
     "jszip": "^3.7.1",
     "nanoid": "^3.1.25",
     "virtual-dom": "^2.1.1",
-    "xmlbuilder2": "2.1.2"
+    "xmlbuilder2": "^3.0.2"
   },
   "config": {
     "commitizen": {
