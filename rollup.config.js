@@ -1,4 +1,4 @@
-import resolve from '@rollup/plugin-node-resolve';
+import { nodeResolve as resolve } from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
@@ -11,7 +11,7 @@ export default {
   input: 'index.js',
   external: ['color-name', 'escape-html', 'html-to-vdom', 'jszip', 'virtual-dom', 'xmlbuilder2'],
   plugins: [
-    resolve({ browser: true }),
+    resolve(),
     json({ include: 'package.json', preferConst: true }),
     commonjs(),
     builtins(),
