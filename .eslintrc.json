@@ -1,4 +1,7 @@
 {
+  "parserOptions": {
+    "ecmaVersion": 2021
+  },
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
   "rules": {
