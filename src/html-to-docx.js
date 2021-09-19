@@ -1,7 +1,8 @@
 import { create } from 'xmlbuilder2';
 import VNode from 'virtual-dom/vnode/vnode';
 import VText from 'virtual-dom/vnode/vtext';
-import * as HTMLToVDOM_ from 'html-to-vdom';
+// eslint-disable-next-line import/no-named-default
+import { default as HTMLToVDOM } from 'html-to-vdom';
 
 import { relsXML } from './schemas';
 import DocxDocument from './docx-document';
@@ -16,8 +17,6 @@ import {
   pointRegex,
   pointToHIP,
 } from './utils/unit-conversion';
-
-const HTMLToVDOM = HTMLToVDOM_;
 
 const convertHTML = HTMLToVDOM({
   VNode,
