@@ -4,7 +4,8 @@ import VNode from 'virtual-dom/vnode/vnode';
 import VText from 'virtual-dom/vnode/vtext';
 import isVNode from 'virtual-dom/vnode/is-vnode';
 import isVText from 'virtual-dom/vnode/is-vtext';
-import * as HTMLToVDOM_ from 'html-to-vdom';
+// eslint-disable-next-line import/no-named-default
+import { default as HTMLToVDOM } from 'html-to-vdom';
 import escape from 'escape-html';
 import sizeOf from 'image-size';
 
@@ -13,7 +14,6 @@ import sizeOf from 'image-size';
 import * as xmlBuilder from './xml-builder';
 import namespaces from './namespaces';
 
-const HTMLToVDOM = HTMLToVDOM_;
 const convertHTML = HTMLToVDOM({
   VNode,
   VText,
