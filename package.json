@@ -65,11 +65,6 @@
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "^3.0.2"
   },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
   "lint-staged": {
     "src/**/*.js": [
       "prettier --write",
