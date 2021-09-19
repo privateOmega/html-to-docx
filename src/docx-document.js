@@ -1,5 +1,5 @@
 import { create, fragment } from 'xmlbuilder2';
-import * as shortid from 'shortid';
+import { nanoid } from 'nanoid';
 
 import {
   generateCoreXML,
@@ -340,9 +340,7 @@ class DocxDocument {
           .up();
 
         listElements
-          .filter((value, index, self) => {
-            return self.findIndex((v) => v.level === value.level) === index;
-          })
+          .filter((value, index, self) => self.findIndex((v) => v.level === value.level) === index)
           .forEach(({ level, type }) => {
             const levelFragment = fragment({
               namespaceAlias: { w: namespaces.w },
@@ -474,7 +472,7 @@ class DocxDocument {
     const fileExtension =
       matches[1].match(/\/(.*?)$/)[1] === 'octet-stream' ? 'png' : matches[1].match(/\/(.*?)$/)[1];
 
-    const fileNameWithExtension = `image-${shortid.generate()}.${fileExtension}`;
+    const fileNameWithExtension = `image-${nanoid.generate()}.${fileExtension}`;
 
     this.lastMediaId += 1;
 
