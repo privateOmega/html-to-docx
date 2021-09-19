@@ -49,7 +49,7 @@
     "husky": "^7.0.0",
     "lint-staged": "^11.1.2",
     "prettier": "^2.4.1",
-    "rollup": "^2.18.2",
+    "rollup": "^2.56.3",
     "rollup-plugin-cleaner": "^1.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-terser": "^6.1.0",
