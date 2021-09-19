@@ -62,6 +62,7 @@
     "html-to-vdom": "^0.7.0",
     "image-size": "^1.0.0",
     "jszip": "^3.7.1",
+    "lodash": "^4.17.21",
     "nanoid": "^3.1.25",
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "^3.0.2"
