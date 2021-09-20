@@ -7,8 +7,10 @@ const minifyHTMLString = (htmlString) => {
   if (typeof htmlString === 'string' || htmlString instanceof String) {
     try {
       const minifiedHTMLString = htmlString
-        .replace(/\n/g, '')
-        .replace(/[\t ]+\</g, '<')
+        .replace(/\n/g, ' ')
+        .replace(/\r/g, ' ')
+        .replace(/\r\n/g, ' ')
+        .replace(/[\t]+\</g, '<')
         .replace(/\>[\t ]+\</g, '><')
         .replace(/\>[\t ]+$/g, '>');
 
