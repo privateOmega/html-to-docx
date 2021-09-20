@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.4](https://github.com/privateOmega/html-to-docx/compare/v1.2.3...v1.2.4) (2021-09-20)
+
+
+### Bug Fixes
+
+* spacing issue in between tags and text on multiple lines ([98e1a8d](https://github.com/privateOmega/html-to-docx/commit/98e1a8d710a92e894513fdef120417849e932de6))
+
 ### [1.2.3](https://github.com/privateOmega/html-to-docx/compare/v1.2.2...v1.2.3) (2021-09-15)
 
 
