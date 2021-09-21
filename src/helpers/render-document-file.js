@@ -148,9 +148,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     (vNode.properties.attributes.class === 'page-break' ||
       (vNode.properties.style && vNode.properties.style['page-break-after']))
   ) {
-    const paragraphFragment = fragment({
-      namespaceAlias: { w: namespaces.w },
-    })
+    const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
       .ele('@w', 'p')
       .ele('@w', 'r')
       .ele('@w', 'br')
@@ -303,9 +301,7 @@ export function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
 function renderDocumentFile(docxDocumentInstance) {
   const vTree = convertHTML(docxDocumentInstance.htmlString);
 
-  const xmlFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  });
+  const xmlFragment = fragment({ namespaceAlias: { w: namespaces.w } });
 
   const populatedXmlFragment = convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
 

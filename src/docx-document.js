@@ -262,11 +262,7 @@ class DocxDocument {
     }
     if (this.lineNumber) {
       const { countBy, start, restart } = this.lineNumber;
-      const lineNumberFragment = fragment({
-        namespaceAlias: {
-          w: namespaces.w,
-        },
-      })
+      const lineNumberFragment = fragment({ namespaceAlias: { w: namespaces.w } })
         .ele('@w', 'lnNumType')
         .att('@w', 'countBy', countBy)
         .att('@w', 'start', start)
@@ -324,86 +320,75 @@ class DocxDocument {
     const abstractNumberingFragments = fragment();
     const numberingFragments = fragment();
 
-    this.numberingObjects.forEach(
-      // eslint-disable-next-line array-callback-return
-      ({ numberingId, listElements }) => {
-        const abstractNumberingFragment = fragment({
-          namespaceAlias: { w: namespaces.w },
-        })
-          .ele('@w', 'abstractNum')
-          .att('@w', 'abstractNumId', String(numberingId))
-          .ele('@w', 'multiLevelType')
-          .att('@w', 'val', 'hybridMultilevel')
-          .up();
+    this.numberingObjects.forEach(({ numberingId, listElements }) => {
+      const abstractNumberingFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+        .ele('@w', 'abstractNum')
+        .att('@w', 'abstractNumId', String(numberingId))
+        .ele('@w', 'multiLevelType')
+        .att('@w', 'val', 'hybridMultilevel')
+        .up();
 
-        listElements
-          .filter((value, index, self) => self.findIndex((v) => v.level === value.level) === index)
-          .forEach(({ level, type }) => {
-            const levelFragment = fragment({
-              namespaceAlias: { w: namespaces.w },
-            })
-              .ele('@w', 'lvl')
-              .att('@w', 'ilvl', level)
-              .ele('@w', 'start')
-              .att('@w', 'val', '1')
-              .up()
-              .ele('@w', 'numFmt')
-              .att('@w', 'val', type === 'ol' ? 'decimal' : 'bullet')
-              .up()
-              .ele('@w', 'lvlText')
-              .att('@w', 'val', type === 'ol' ? `%${level + 1}` : '')
-              .up()
-              .ele('@w', 'lvlJc')
-              .att('@w', 'val', 'left')
-              .up()
-              .ele('@w', 'pPr')
-              .ele('@w', 'tabs')
-              .ele('@w', 'tab')
-              .att('@w', 'val', 'num')
-              .att('@w', 'pos', (level + 1) * 720)
-              .up()
-              .up()
-              .ele('@w', 'ind')
-              .att('@w', 'left', (level + 1) * 720)
-              .att('@w', 'hanging', 360)
-              .up()
+      listElements
+        .filter((value, index, self) => self.findIndex((v) => v.level === value.level) === index)
+        .forEach(({ level, type }) => {
+          const levelFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+            .ele('@w', 'lvl')
+            .att('@w', 'ilvl', level)
+            .ele('@w', 'start')
+            .att('@w', 'val', '1')
+            .up()
+            .ele('@w', 'numFmt')
+            .att('@w', 'val', type === 'ol' ? 'decimal' : 'bullet')
+            .up()
+            .ele('@w', 'lvlText')
+            .att('@w', 'val', type === 'ol' ? `%${level + 1}` : '')
+            .up()
+            .ele('@w', 'lvlJc')
+            .att('@w', 'val', 'left')
+            .up()
+            .ele('@w', 'pPr')
+            .ele('@w', 'tabs')
+            .ele('@w', 'tab')
+            .att('@w', 'val', 'num')
+            .att('@w', 'pos', (level + 1) * 720)
+            .up()
+            .up()
+            .ele('@w', 'ind')
+            .att('@w', 'left', (level + 1) * 720)
+            .att('@w', 'hanging', 360)
+            .up()
+            .up()
+            .up();
+
+          if (type === 'ul') {
+            const runPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+              .ele('@w', 'rPr')
+              .ele('@w', 'rFonts')
+              .att('@w', 'ascii', 'Wingdings')
+              .att('@w', 'hAnsi', 'Wingdings')
+              .att('@w', 'hint', 'default')
               .up()
               .up();
 
-            if (type === 'ul') {
-              const runPropertiesFragment = fragment({
-                namespaceAlias: { w: namespaces.w },
-              })
-                .ele('@w', 'rPr')
-                .ele('@w', 'rFonts')
-                .att('@w', 'ascii', 'Wingdings')
-                .att('@w', 'hAnsi', 'Wingdings')
-                .att('@w', 'hint', 'default')
-                .up()
-                .up();
+            levelFragment.last().import(runPropertiesFragment);
+          }
 
-              levelFragment.last().import(runPropertiesFragment);
-            }
+          abstractNumberingFragment.import(levelFragment);
+        });
 
-            abstractNumberingFragment.import(levelFragment);
-          });
+      abstractNumberingFragment.up();
 
-        abstractNumberingFragment.up();
+      const numberingFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+        .ele('@w', 'num')
+        .att('@w', 'numId', String(numberingId))
+        .ele('@w', 'abstractNumId')
+        .att('@w', 'val', String(numberingId))
+        .up()
+        .up();
 
-        const numberingFragment = fragment({
-          namespaceAlias: { w: namespaces.w },
-        })
-          .ele('@w', 'num')
-          .att('@w', 'numId', String(numberingId))
-          .ele('@w', 'abstractNumId')
-          .att('@w', 'val', String(numberingId))
-          .up()
-          .up();
-
-        abstractNumberingFragments.import(abstractNumberingFragment);
-        numberingFragments.import(numberingFragment);
-      }
-    );
+      abstractNumberingFragments.import(abstractNumberingFragment);
+      numberingFragments.import(numberingFragment);
+    });
 
     numberingXML.root().import(abstractNumberingFragments);
     numberingXML.root().import(numberingFragments);
@@ -413,22 +398,17 @@ class DocxDocument {
 
   // eslint-disable-next-line class-methods-use-this
   appendRelationships(xmlFragment, relationships) {
-    relationships.forEach(
-      // eslint-disable-next-line array-callback-return
-      ({ relationshipId, type, target, targetMode }) => {
-        const relationshipFragment = fragment({
-          defaultNamespace: { ele: namespaces.relationship },
-        })
-          .ele('Relationship')
-          .att('Id', `rId${relationshipId}`)
-          .att('Type', type)
-          .att('Target', target)
-          .att('TargetMode', targetMode)
-          .up();
+    relationships.forEach(({ relationshipId, type, target, targetMode }) => {
+      const relationshipFragment = fragment({ defaultNamespace: { ele: namespaces.relationship } })
+        .ele('Relationship')
+        .att('Id', `rId${relationshipId}`)
+        .att('Type', type)
+        .att('Target', target)
+        .att('TargetMode', targetMode)
+        .up();
 
-        xmlFragment.import(relationshipFragment);
-      }
-    );
+      xmlFragment.import(relationshipFragment);
+    });
   }
 
   generateRelsXML() {
@@ -441,10 +421,7 @@ class DocxDocument {
       }
       this.appendRelationships(xmlFragment.root(), rels);
 
-      return {
-        fileName,
-        xmlString: xmlFragment.toString({ prettyPrint: true }),
-      };
+      return { fileName, xmlString: xmlFragment.toString({ prettyPrint: true }) };
     });
 
     return relationshipXMLStrings;
@@ -559,11 +536,7 @@ class DocxDocument {
     const XMLFragment = fragment();
     convertVTreeToXML(this, vTree, XMLFragment);
     if (XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
-      const fieldSimpleFragment = fragment({
-        namespaceAlias: {
-          w: namespaces.w,
-        },
-      })
+      const fieldSimpleFragment = fragment({ namespaceAlias: { w: namespaces.w } })
         .ele('@w', 'fldSimple')
         .att('@w', 'instr', 'PAGE')
         .ele('@w', 'r')
