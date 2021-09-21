@@ -15,26 +15,22 @@ import {
 } from './schemas';
 import { convertVTreeToXML, namespaces } from './helpers';
 import generateDocumentTemplate from '../template/document.template';
-
-const landscapeMargins = {
-  top: 1800,
-  right: 1440,
-  bottom: 1800,
-  left: 1440,
-  header: 720,
-  footer: 720,
-  gutter: 0,
-};
-
-const portraitMargins = {
-  top: 1440,
-  right: 1800,
-  bottom: 1440,
-  left: 1800,
-  header: 720,
-  footer: 720,
-  gutter: 0,
-};
+import {
+  footerType as footerFileType,
+  headerType as headerFileType,
+  themeType as themeFileType,
+  landscapeMargins,
+  portraitMargins,
+  defaultOrientation,
+  landscapeWidth,
+  landscapeHeight,
+  applicationName,
+  defaultFont,
+  defaultFontSize,
+  hyperlinkType,
+  documentFileName,
+  imageType,
+} from './constants';
 
 class DocxDocument {
   constructor({
@@ -67,22 +63,22 @@ class DocxDocument {
     this.zip = zip;
     this.htmlString = htmlString;
     this.orientation = orientation;
-    this.width = orientation === 'landscape' ? 15840 : 12240;
-    this.height = orientation === 'landscape' ? 12240 : 15840;
+    this.width = orientation === defaultOrientation ? landscapeHeight : landscapeWidth;
+    this.height = orientation === defaultOrientation ? landscapeWidth : landscapeHeight;
     this.margins =
       // eslint-disable-next-line no-nested-ternary
       margins && Object.keys(margins).length
         ? margins
-        : orientation === 'landscape'
-        ? landscapeMargins
-        : portraitMargins;
+        : orientation === defaultOrientation
+        ? portraitMargins
+        : landscapeMargins;
     this.availableDocumentSpace = this.width - this.margins.left - this.margins.right;
     this.title = title || '';
     this.subject = subject || '';
-    this.creator = creator || 'html-to-docx';
-    this.keywords = keywords || ['html-to-docx'];
+    this.creator = creator || applicationName;
+    this.keywords = keywords || [applicationName];
     this.description = description || '';
-    this.lastModifiedBy = lastModifiedBy || 'html-to-docx';
+    this.lastModifiedBy = lastModifiedBy || applicationName;
     this.revision = revision || 1;
     this.createdAt = createdAt || new Date();
     this.modifiedAt = modifiedAt || new Date();
@@ -90,9 +86,9 @@ class DocxDocument {
     this.header = header || false;
     this.footerType = footerType || 'default';
     this.footer = footer || false;
-    this.font = font || 'Times New Roman';
-    this.fontSize = fontSize || 22;
-    this.complexScriptFontSize = complexScriptFontSize || 22;
+    this.font = font || defaultFont;
+    this.fontSize = fontSize || defaultFontSize;
+    this.complexScriptFontSize = complexScriptFontSize || defaultFontSize;
     this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
     this.pageNumber = pageNumber || false;
     this.skipFirstHeaderFooter = skipFirstHeaderFooter || false;
@@ -104,8 +100,8 @@ class DocxDocument {
     this.lastFooterId = 0;
     this.stylesObjects = [];
     this.numberingObjects = [];
-    this.relationshipFilename = 'document';
-    this.relationships = [{ fileName: 'document', lastRelsId: 4, rels: [] }];
+    this.relationshipFilename = documentFileName;
+    this.relationships = [{ fileName: documentFileName, lastRelsId: 4, rels: [] }];
     this.mediaFiles = [];
     this.headerObjects = [];
     this.footerObjects = [];
@@ -136,7 +132,7 @@ class DocxDocument {
         ({ headerId }) => {
           const contentTypesFragment = fragment({
             defaultNamespace: {
-              ele: 'http://schemas.openxmlformats.org/package/2006/content-types',
+              ele: namespaces.contentTypes,
             },
           })
             .ele('Override')
@@ -156,7 +152,7 @@ class DocxDocument {
         ({ footerId }) => {
           const contentTypesFragment = fragment({
             defaultNamespace: {
-              ele: 'http://schemas.openxmlformats.org/package/2006/content-types',
+              ele: namespaces.contentTypes,
             },
           })
             .ele('Override')
@@ -420,7 +416,7 @@ class DocxDocument {
       // eslint-disable-next-line array-callback-return
       ({ relationshipId, type, target, targetMode }) => {
         const relationshipFragment = fragment({
-          defaultNamespace: { ele: 'http://schemas.openxmlformats.org/package/2006/relationships' },
+          defaultNamespace: { ele: namespaces.relationship },
         })
           .ele('Relationship')
           .att('Id', `rId${relationshipId}`)
@@ -437,7 +433,7 @@ class DocxDocument {
   generateRelsXML() {
     const relationshipXMLStrings = this.relationships.map(({ fileName, rels }) => {
       let xmlFragment;
-      if (fileName === 'document') {
+      if (fileName === documentFileName) {
         xmlFragment = create({ encoding: 'UTF-8', standalone: true }, documentRelsXMLString);
       } else {
         xmlFragment = create({ encoding: 'UTF-8', standalone: true }, genericRelsXMLString);
@@ -493,19 +489,19 @@ class DocxDocument {
     }
     let relationshipType;
     switch (type) {
-      case 'hyperlink':
+      case hyperlinkType:
         relationshipType = namespaces.hyperlinks;
         break;
-      case 'image':
+      case imageType:
         relationshipType = namespaces.images;
         break;
-      case 'header':
+      case headerFileType:
         relationshipType = namespaces.headers;
         break;
-      case 'footer':
+      case footerFileType:
         relationshipType = namespaces.footers;
         break;
-      case 'theme':
+      case themeFileType:
         relationshipType = namespaces.themes;
         break;
       default:

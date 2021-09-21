@@ -1,17 +1,17 @@
 import { namespaces } from '../helpers';
+import { applicationName } from '../constants';
 
 const generateCoreXML = (
   title = '',
   subject = '',
-  creator = 'html-to-docx',
-  keywords = ['html-to-docx'],
+  creator = applicationName,
+  keywords = [applicationName],
   description = '',
-  lastModifiedBy = 'html-to-docx',
+  lastModifiedBy = applicationName,
   revision = 1,
   createdAt = new Date(),
   modifiedAt = new Date()
-) => {
-  return `
+) => `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
         <cp:coreProperties
@@ -40,6 +40,5 @@ const generateCoreXML = (
             }</dcterms:modified>
         </cp:coreProperties>
     `;
-};
 
 export default generateCoreXML;
