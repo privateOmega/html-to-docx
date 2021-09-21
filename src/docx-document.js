@@ -271,60 +271,55 @@ class DocxDocument {
     const abstractNumberingFragments = fragment();
     const numberingFragments = fragment();
 
-    this.numberingObjects.forEach(({ numberingId, listElements }) => {
+    this.numberingObjects.forEach(({ numberingId, type }) => {
       const abstractNumberingFragment = fragment({ namespaceAlias: { w: namespaces.w } })
         .ele('@w', 'abstractNum')
-        .att('@w', 'abstractNumId', String(numberingId))
-        .ele('@w', 'multiLevelType')
-        .att('@w', 'val', 'hybridMultilevel')
-        .up();
+        .att('@w', 'abstractNumId', String(numberingId));
 
-      listElements
-        .filter((value, index, self) => self.findIndex((v) => v.level === value.level) === index)
-        .forEach(({ level, type }) => {
-          const levelFragment = fragment({ namespaceAlias: { w: namespaces.w } })
-            .ele('@w', 'lvl')
-            .att('@w', 'ilvl', level)
-            .ele('@w', 'start')
-            .att('@w', 'val', '1')
-            .up()
-            .ele('@w', 'numFmt')
-            .att('@w', 'val', type === 'ol' ? 'decimal' : 'bullet')
-            .up()
-            .ele('@w', 'lvlText')
-            .att('@w', 'val', type === 'ol' ? `%${level + 1}` : '')
-            .up()
-            .ele('@w', 'lvlJc')
-            .att('@w', 'val', 'left')
-            .up()
-            .ele('@w', 'pPr')
-            .ele('@w', 'tabs')
-            .ele('@w', 'tab')
-            .att('@w', 'val', 'num')
-            .att('@w', 'pos', (level + 1) * 720)
-            .up()
-            .up()
-            .ele('@w', 'ind')
-            .att('@w', 'left', (level + 1) * 720)
-            .att('@w', 'hanging', 360)
-            .up()
-            .up()
-            .up();
+      [...Array(8).keys()].forEach((level) => {
+        const levelFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+          .ele('@w', 'lvl')
+          .att('@w', 'ilvl', level)
+          .ele('@w', 'start')
+          .att('@w', 'val', '1')
+          .up()
+          .ele('@w', 'numFmt')
+          .att('@w', 'val', type === 'ol' ? 'decimal' : 'bullet')
+          .up()
+          .ele('@w', 'lvlText')
+          .att('@w', 'val', type === 'ol' ? `%${level + 1}` : '')
+          .up()
+          .ele('@w', 'lvlJc')
+          .att('@w', 'val', 'left')
+          .up()
+          .ele('@w', 'pPr')
+          .ele('@w', 'tabs')
+          .ele('@w', 'tab')
+          .att('@w', 'val', 'num')
+          .att('@w', 'pos', (level + 1) * 720)
+          .up()
+          .up()
+          .ele('@w', 'ind')
+          .att('@w', 'left', (level + 1) * 720)
+          .att('@w', 'hanging', 360)
+          .up()
+          .up()
+          .up();
 
-          if (type === 'ul') {
-            levelFragment.last().import(
-              fragment({ namespaceAlias: { w: namespaces.w } })
-                .ele('@w', 'rPr')
-                .ele('@w', 'rFonts')
-                .att('@w', 'ascii', 'Wingdings')
-                .att('@w', 'hAnsi', 'Wingdings')
-                .att('@w', 'hint', 'default')
-                .up()
-                .up()
-            );
-          }
-          abstractNumberingFragment.import(levelFragment);
-        });
+        if (type === 'ul') {
+          levelFragment.last().import(
+            fragment({ namespaceAlias: { w: namespaces.w } })
+              .ele('@w', 'rPr')
+              .ele('@w', 'rFonts')
+              .att('@w', 'ascii', 'Wingdings')
+              .att('@w', 'hAnsi', 'Wingdings')
+              .att('@w', 'hint', 'default')
+              .up()
+              .up()
+          );
+        }
+        abstractNumberingFragment.import(levelFragment);
+      });
       abstractNumberingFragment.up();
       abstractNumberingFragments.import(abstractNumberingFragment);
 
@@ -374,9 +369,9 @@ class DocxDocument {
     return relationshipXMLStrings;
   }
 
-  createNumbering(listElements) {
+  createNumbering(type) {
     this.lastNumberingId += 1;
-    this.numberingObjects.push({ numberingId: this.lastNumberingId, listElements });
+    this.numberingObjects.push({ numberingId: this.lastNumberingId, type });
 
     return this.lastNumberingId;
   }
