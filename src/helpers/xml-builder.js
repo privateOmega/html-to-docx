@@ -37,6 +37,7 @@ import {
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import { buildImage } from './render-document-file';
+import { defaultFont, hyperlinkType } from '../constants';
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
@@ -74,7 +75,7 @@ const fixupColorCode = (colorCodeString) => {
   }
 };
 
-const buildRunFontFragment = (fontName = 'Times New Roman') => {
+const buildRunFontFragment = (fontName = defaultFont) => {
   const runFontFragment = fragment({
     namespaceAlias: { w: namespaces.w },
   })
@@ -308,7 +309,7 @@ const buildRunProperties = (attributes) => {
           const fontSizeFragment = buildFontSize(attributes[key]);
           runPropertiesFragment.import(fontSizeFragment);
           break;
-        case 'hyperlink':
+        case hyperlinkType:
           const hyperlinkStyleFragment = buildRunStyleFragment('Hyperlink');
           runPropertiesFragment.import(hyperlinkStyleFragment);
           break;
@@ -549,7 +550,7 @@ const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'a') {
     const relationshipId = docxDocumentInstance.createDocumentRelationships(
       docxDocumentInstance.relationshipFilename,
-      'hyperlink',
+      hyperlinkType,
       vNode.properties && vNode.properties.href ? vNode.properties.href : ''
     );
     const hyperlinkFragment = fragment({

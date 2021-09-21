@@ -13,6 +13,7 @@ import sizeOf from 'image-size';
 // eslint-disable-next-line import/no-cycle
 import * as xmlBuilder from './xml-builder';
 import namespaces from './namespaces';
+import { imageType, internalRelationship } from '../constants';
 
 const convertHTML = HTMLToVDOM({
   VNode,
@@ -38,9 +39,9 @@ export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => 
 
     const documentRelsId = docxDocumentInstance.createDocumentRelationships(
       docxDocumentInstance.relationshipFilename,
-      'image',
+      imageType,
       `media/${response.fileNameWithExtension}`,
-      'Internal'
+      internalRelationship
     );
 
     const imageBuffer = Buffer.from(response.fileContent, 'base64');
