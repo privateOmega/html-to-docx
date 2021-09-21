@@ -9,8 +9,7 @@ import isVNode from 'virtual-dom/vnode/is-vnode';
 import isVText from 'virtual-dom/vnode/is-vtext';
 import colorNames from 'color-name';
 
-// eslint-disable-next-line import/no-named-default
-import { default as namespaces } from './namespaces';
+import namespaces from '../namespaces';
 import {
   rgbToHex,
   hslToHex,

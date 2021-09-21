@@ -1,4 +1,4 @@
-import { namespaces } from '../src/helpers';
+import namespaces from '../src/namespaces';
 
 const generateDocumentTemplate = (width, height, orientation, margins) => {
   return `

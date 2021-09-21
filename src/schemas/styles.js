@@ -1,5 +1,5 @@
 import { defaultFont, defaultFontSize } from '../constants';
-import { namespaces } from '../helpers';
+import namespaces from '../namespaces';
 
 const generateStylesXML = (
   font = defaultFont,

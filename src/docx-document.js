@@ -13,7 +13,8 @@ import {
   fontTableXML as fontTableXMLString,
   genericRelsXML as genericRelsXMLString,
 } from './schemas';
-import { convertVTreeToXML, namespaces } from './helpers';
+import { convertVTreeToXML } from './helpers';
+import namespaces from './namespaces';
 import generateDocumentTemplate from '../template/document.template';
 import {
   footerType as footerFileType,

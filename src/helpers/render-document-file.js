@@ -12,7 +12,7 @@ import sizeOf from 'image-size';
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import * as xmlBuilder from './xml-builder';
-import namespaces from './namespaces';
+import namespaces from '../namespaces';
 import { imageType, internalRelationship } from '../constants';
 
 const convertHTML = HTMLToVDOM({

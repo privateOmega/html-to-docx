@@ -1,4 +1,4 @@
-import { namespaces } from '../helpers';
+import namespaces from '../namespaces';
 import { applicationName } from '../constants';
 
 const generateCoreXML = (
