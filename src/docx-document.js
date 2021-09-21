@@ -472,7 +472,7 @@ class DocxDocument {
     const fileExtension =
       matches[1].match(/\/(.*?)$/)[1] === 'octet-stream' ? 'png' : matches[1].match(/\/(.*?)$/)[1];
 
-    const fileNameWithExtension = `image-${nanoid.generate()}.${fileExtension}`;
+    const fileNameWithExtension = `image-${nanoid()}.${fileExtension}`;
 
     this.lastMediaId += 1;
 
