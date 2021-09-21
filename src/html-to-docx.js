@@ -103,8 +103,7 @@ const normalizeDocumentOptions = (documentOptions) => {
 
 // Ref: https://en.wikipedia.org/wiki/Office_Open_XML_file_formats
 // http://officeopenxml.com/anatomyofOOXML.php
-// eslint-disable-next-line import/prefer-default-export
-export function addFilesToContainer(
+function addFilesToContainer(
   zip,
   htmlString,
   suppliedDocumentOptions,
@@ -229,3 +228,5 @@ export function addFilesToContainer(
 
   return zip;
 }
+
+export default addFilesToContainer;
