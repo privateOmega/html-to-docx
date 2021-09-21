@@ -282,7 +282,6 @@ const buildRunProperties = (attributes) => {
   }).ele('@w', 'rPr');
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'strong':
           const boldFragment = buildBold();
@@ -330,7 +329,6 @@ const buildRunProperties = (attributes) => {
 
 // eslint-disable-next-line consistent-return
 const buildTextFormatting = (vNode) => {
-  // eslint-disable-next-line default-case
   switch (vNode.tagName) {
     case 'strong':
     case 'b': {
@@ -711,7 +709,6 @@ const buildParagraphProperties = (attributes) => {
   }).ele('@w', 'pPr');
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'numbering':
           const { levelId, numberingId } = attributes[key];
@@ -1043,7 +1040,6 @@ const buildTableCellProperties = (attributes) => {
   }).ele('@w', 'tcPr');
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'backgroundColor':
           const shadingFragment = buildShading(attributes[key]);
@@ -1353,7 +1349,6 @@ const buildTableRowProperties = (attributes) => {
   }).ele('@w', 'trPr');
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'tableRowHeight':
           const tableRowHeightFragment = buildTableRowHeight(attributes[key]);
@@ -1583,7 +1578,6 @@ const buildTableProperties = (attributes) => {
 
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'tableBorder':
           const tableBordersFragment = buildTableBorders(attributes[key]);

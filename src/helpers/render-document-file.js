@@ -269,8 +269,6 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       const linebreakFragment = xmlBuilder.buildParagraph(null, {});
       xmlFragment.import(linebreakFragment);
       return;
-    default:
-      break;
   }
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     // eslint-disable-next-line no-plusplus
