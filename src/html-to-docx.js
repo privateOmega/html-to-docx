@@ -87,7 +87,6 @@ const fixupMargins = (margins) => {
 const normalizeDocumentOptions = (documentOptions) => {
   const normalizedDocumentOptions = { ...documentOptions };
   Object.keys(documentOptions).forEach((key) => {
-    // eslint-disable-next-line default-case
     switch (key) {
       case 'margins':
         normalizedDocumentOptions.margins = fixupMargins(documentOptions[key]);

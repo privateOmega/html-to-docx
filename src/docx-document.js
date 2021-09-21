@@ -505,8 +505,6 @@ class DocxDocument {
       case themeFileType:
         relationshipType = namespaces.themes;
         break;
-      default:
-        break;
     }
 
     relationshipObject.rels.push({
