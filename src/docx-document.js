@@ -12,10 +12,10 @@ import {
   contentTypesXML as contentTypesXMLString,
   fontTableXML as fontTableXMLString,
   genericRelsXML as genericRelsXMLString,
+  generateDocumentTemplate,
 } from './schemas';
 import { convertVTreeToXML } from './helpers';
 import namespaces from './namespaces';
-import generateDocumentTemplate from '../template/document.template';
 import {
   footerType as footerFileType,
   headerType as headerFileType,
