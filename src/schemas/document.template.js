@@ -1,7 +1,6 @@
-import namespaces from '../src/namespaces';
+import namespaces from '../namespaces';
 
-const generateDocumentTemplate = (width, height, orientation, margins) => {
-  return `
+const generateDocumentTemplate = (width, height, orientation, margins) => `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
     <w:document
@@ -32,6 +31,5 @@ const generateDocumentTemplate = (width, height, orientation, margins) => {
         </w:body>
     </w:document>
   `;
-};
 
 export default generateDocumentTemplate;
