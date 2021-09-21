@@ -66,21 +66,33 @@ export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => 
   }
 };
 
-export const buildList = (vNode) => {
+export const buildList = (vNode, docxDocumentInstance, xmlFragment) => {
   const listElements = [];
 
-  let vNodeObjects = [{ node: vNode, level: 0, type: vNode.tagName }];
+  let vNodeObjects = [
+    {
+      node: vNode,
+      level: 0,
+      type: vNode.tagName,
+      numberingId: docxDocumentInstance.createNumbering(vNode.tagName),
+    },
+  ];
   while (vNodeObjects.length) {
     const tempVNodeObject = vNodeObjects.shift();
+
     if (
       isVText(tempVNodeObject.node) ||
       (isVNode(tempVNodeObject.node) && !['ul', 'ol', 'li'].includes(tempVNodeObject.node.tagName))
     ) {
-      listElements.push({
-        node: tempVNodeObject.node,
-        level: tempVNodeObject.level,
-        type: tempVNodeObject.type,
-      });
+      const paragraphFragment = xmlBuilder.buildParagraph(
+        tempVNodeObject.node,
+        {
+          numbering: { levelId: tempVNodeObject.level, numberingId: tempVNodeObject.numberingId },
+        },
+        docxDocumentInstance
+      );
+
+      xmlFragment.import(paragraphFragment);
     }
 
     if (
@@ -94,6 +106,7 @@ export const buildList = (vNode) => {
             node: childVNode,
             level: tempVNodeObject.level + 1,
             type: childVNode.tagName,
+            numberingId: docxDocumentInstance.createNumbering(childVNode.tagName),
           });
         } else {
           // eslint-disable-next-line no-lonely-if
@@ -130,6 +143,7 @@ export const buildList = (vNode) => {
                   paragraphVNode,
               level: tempVNodeObject.level,
               type: tempVNodeObject.type,
+              numberingId: tempVNodeObject.numberingId,
             });
           }
         }
@@ -242,21 +256,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       return;
     case 'ol':
     case 'ul':
-      const listElements = buildList(vNode);
-      const numberingId = docxDocumentInstance.createNumbering(listElements);
-      // eslint-disable-next-line no-plusplus
-      for (let index = 0; index < listElements.length; index++) {
-        const listElement = listElements[index];
-        // eslint-disable-next-line no-shadow
-        const paragraphFragment = xmlBuilder.buildParagraph(
-          listElement.node,
-          {
-            numbering: { levelId: listElement.level, numberingId },
-          },
-          docxDocumentInstance
-        );
-        xmlFragment.import(paragraphFragment);
-      }
+      buildList(vNode, docxDocumentInstance, xmlFragment);
       return;
     case 'img':
       const imageFragment = buildImage(docxDocumentInstance, vNode);
