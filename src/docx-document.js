@@ -71,6 +71,41 @@ function generateXMLString(xmlString) {
   return xmlDocumentString.toString({ prettyPrint: true });
 }
 
+function generateSectionXML(vTree, type = 'header') {
+  const sectionXML = create({
+    encoding: 'UTF-8',
+    standalone: true,
+    namespaceAlias: {
+      w: namespaces.w,
+      ve: namespaces.ve,
+      o: namespaces.o,
+      r: namespaces.r,
+      v: namespaces.v,
+      wp: namespaces.wp,
+      w10: namespaces.w10,
+    },
+  }).ele('@w', type === 'header' ? 'hdr' : 'ftr');
+
+  const XMLFragment = fragment();
+  convertVTreeToXML(this, vTree, XMLFragment);
+  if (type === 'footer' && XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
+    XMLFragment.first().import(
+      fragment({ namespaceAlias: { w: namespaces.w } })
+        .ele('@w', 'fldSimple')
+        .att('@w', 'instr', 'PAGE')
+        .ele('@w', 'r')
+        .up()
+        .up()
+    );
+  }
+  sectionXML.root().import(XMLFragment);
+
+  const referenceName = type === 'header' ? 'Header' : 'Footer';
+  this[`last${referenceName}Id`] += 1;
+
+  return { [`${type}Id`]: this[`last${referenceName}Id`], [`${type}XML`]: sectionXML };
+}
+
 class DocxDocument {
   constructor({
     zip,
@@ -160,6 +195,7 @@ class DocxDocument {
     this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
     this.generateFooterXML = this.generateFooterXML.bind(this);
+    this.generateSectionXML = generateSectionXML.bind(this);
   }
 
   generateContentTypesXML() {
@@ -427,60 +463,11 @@ class DocxDocument {
   }
 
   generateHeaderXML(vTree) {
-    const headerXML = create({
-      encoding: 'UTF-8',
-      standalone: true,
-      namespaceAlias: {
-        w: namespaces.w,
-        ve: namespaces.ve,
-        o: namespaces.o,
-        r: namespaces.r,
-        v: namespaces.v,
-        wp: namespaces.wp,
-        w10: namespaces.w10,
-      },
-    }).ele('@w', 'hdr');
-
-    const XMLFragment = fragment();
-    convertVTreeToXML(this, vTree, XMLFragment);
-    headerXML.root().import(XMLFragment);
-
-    this.lastHeaderId += 1;
-
-    return { headerId: this.lastHeaderId, headerXML };
+    return this.generateSectionXML(vTree, 'header');
   }
 
   generateFooterXML(vTree) {
-    const footerXML = create({
-      encoding: 'UTF-8',
-      standalone: true,
-      namespaceAlias: {
-        w: namespaces.w,
-        ve: namespaces.ve,
-        o: namespaces.o,
-        r: namespaces.r,
-        v: namespaces.v,
-        wp: namespaces.wp,
-        w10: namespaces.w10,
-      },
-    }).ele('@w', 'ftr');
-
-    const XMLFragment = fragment();
-    convertVTreeToXML(this, vTree, XMLFragment);
-    if (XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
-      const fieldSimpleFragment = fragment({ namespaceAlias: { w: namespaces.w } })
-        .ele('@w', 'fldSimple')
-        .att('@w', 'instr', 'PAGE')
-        .ele('@w', 'r')
-        .up()
-        .up();
-      XMLFragment.first().import(fieldSimpleFragment);
-    }
-    footerXML.root().import(XMLFragment);
-
-    this.lastFooterId += 1;
-
-    return { footerId: this.lastFooterId, footerXML };
+    return this.generateSectionXML(vTree, 'footer');
   }
 }
 
