@@ -107,66 +107,45 @@ function generateSectionXML(vTree, type = 'header') {
 }
 
 class DocxDocument {
-  constructor({
-    zip,
-    htmlString,
-    orientation,
-    margins,
-    title,
-    subject,
-    creator,
-    keywords,
-    description,
-    lastModifiedBy,
-    revision,
-    createdAt,
-    modifiedAt,
-    headerType,
-    header,
-    footerType,
-    footer,
-    font,
-    fontSize,
-    complexScriptFontSize,
-    table,
-    pageNumber,
-    skipFirstHeaderFooter,
-    lineNumber,
-    lineNumberOptions,
-  }) {
-    this.zip = zip;
-    this.htmlString = htmlString;
-    this.orientation = orientation;
-    this.width = orientation === defaultOrientation ? landscapeHeight : landscapeWidth;
-    this.height = orientation === defaultOrientation ? landscapeWidth : landscapeHeight;
+  constructor(properties) {
+    this.zip = properties.zip;
+    this.htmlString = properties.htmlString;
+    this.orientation = properties.orientation;
+
+    const isPortraitOrientation = this.orientation === defaultOrientation;
+    this.width = isPortraitOrientation ? landscapeHeight : landscapeWidth;
+    this.height = isPortraitOrientation ? landscapeWidth : landscapeHeight;
+
+    const marginsObject = properties.margins;
     this.margins =
       // eslint-disable-next-line no-nested-ternary
-      margins && Object.keys(margins).length
-        ? margins
-        : orientation === defaultOrientation
+      marginsObject && Object.keys(marginsObject).length
+        ? marginsObject
+        : isPortraitOrientation
         ? portraitMargins
         : landscapeMargins;
+
     this.availableDocumentSpace = this.width - this.margins.left - this.margins.right;
-    this.title = title || '';
-    this.subject = subject || '';
-    this.creator = creator || applicationName;
-    this.keywords = keywords || [applicationName];
-    this.description = description || '';
-    this.lastModifiedBy = lastModifiedBy || applicationName;
-    this.revision = revision || 1;
-    this.createdAt = createdAt || new Date();
-    this.modifiedAt = modifiedAt || new Date();
-    this.headerType = headerType || 'default';
-    this.header = header || false;
-    this.footerType = footerType || 'default';
-    this.footer = footer || false;
-    this.font = font || defaultFont;
-    this.fontSize = fontSize || defaultFontSize;
-    this.complexScriptFontSize = complexScriptFontSize || defaultFontSize;
-    this.tableRowCantSplit = table?.row?.cantSplit || false;
-    this.pageNumber = pageNumber || false;
-    this.skipFirstHeaderFooter = skipFirstHeaderFooter || false;
-    this.lineNumber = lineNumber ? lineNumberOptions : null;
+    this.title = properties.title || '';
+    this.subject = properties.subject || '';
+    this.creator = properties.creator || applicationName;
+    this.keywords = properties.keywords || [applicationName];
+    this.description = properties.description || '';
+    this.lastModifiedBy = properties.lastModifiedBy || applicationName;
+    this.revision = properties.revision || 1;
+    this.createdAt = properties.createdAt || new Date();
+    this.modifiedAt = properties.modifiedAt || new Date();
+    this.headerType = properties.headerType || 'default';
+    this.header = properties.header || false;
+    this.footerType = properties.footerType || 'default';
+    this.footer = properties.footer || false;
+    this.font = properties.font || defaultFont;
+    this.fontSize = properties.fontSize || defaultFontSize;
+    this.complexScriptFontSize = properties.complexScriptFontSize || defaultFontSize;
+    this.tableRowCantSplit = properties.table?.row?.cantSplit || false;
+    this.pageNumber = properties.pageNumber || false;
+    this.skipFirstHeaderFooter = properties.skipFirstHeaderFooter || false;
+    this.lineNumber = properties.lineNumber ? properties.lineNumberOptions : null;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
@@ -333,15 +312,16 @@ class DocxDocument {
             .up();
 
           if (type === 'ul') {
-            const runPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } })
-              .ele('@w', 'rPr')
-              .ele('@w', 'rFonts')
-              .att('@w', 'ascii', 'Wingdings')
-              .att('@w', 'hAnsi', 'Wingdings')
-              .att('@w', 'hint', 'default')
-              .up()
-              .up();
-            levelFragment.last().import(runPropertiesFragment);
+            levelFragment.last().import(
+              fragment({ namespaceAlias: { w: namespaces.w } })
+                .ele('@w', 'rPr')
+                .ele('@w', 'rFonts')
+                .att('@w', 'ascii', 'Wingdings')
+                .att('@w', 'hAnsi', 'Wingdings')
+                .att('@w', 'hint', 'default')
+                .up()
+                .up()
+            );
           }
           abstractNumberingFragment.import(levelFragment);
         });
@@ -358,6 +338,7 @@ class DocxDocument {
           .up()
       );
     });
+
     numberingXML.root().import(abstractNumberingFragments);
     numberingXML.root().import(numberingFragments);
 
@@ -381,12 +362,10 @@ class DocxDocument {
 
   generateRelsXML() {
     const relationshipXMLStrings = this.relationships.map(({ fileName, rels }) => {
-      let xmlFragment;
-      if (fileName === documentFileName) {
-        xmlFragment = create({ encoding: 'UTF-8', standalone: true }, documentRelsXMLString);
-      } else {
-        xmlFragment = create({ encoding: 'UTF-8', standalone: true }, genericRelsXMLString);
-      }
+      const xmlFragment = create(
+        { encoding: 'UTF-8', standalone: true },
+        fileName === documentFileName ? documentRelsXMLString : genericRelsXMLString
+      );
       this.appendRelationships(xmlFragment.root(), rels);
 
       return { fileName, xmlString: xmlFragment.toString({ prettyPrint: true }) };
