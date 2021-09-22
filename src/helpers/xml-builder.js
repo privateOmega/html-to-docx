@@ -37,6 +37,7 @@ import {
 // eslint-disable-next-line import/no-cycle
 import { buildImage } from './render-document-file';
 import { defaultFont, hyperlinkType } from '../constants';
+import { vNodeHasChildren } from '../utils/vnode';
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
@@ -758,7 +759,7 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
-  if (isVNode(vNode) && vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (isVNode(vNode) && vNodeHasChildren(vNode)) {
     if (
       [
         'span',
@@ -1080,7 +1081,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
   }
   const tableCellPropertiesFragment = buildTableCellProperties(modifiedAttributes);
   tableCellFragment.import(tableCellPropertiesFragment);
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (isVNode(childVNode) && childVNode.tagName === 'img') {
@@ -1093,11 +1094,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
           tableCellFragment.import(imageFragment);
         }
       } else if (isVNode(childVNode) && childVNode.tagName === 'figure') {
-        if (
-          childVNode.children &&
-          Array.isArray(childVNode.children) &&
-          childVNode.children.length
-        ) {
+        if (vNodeHasChildren(childVNode)) {
           // eslint-disable-next-line no-plusplus
           for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
             const grandChildVNode = childVNode.children[iteratorIndex];
@@ -1232,7 +1229,7 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
 
   const columnIndex = { index: 0 };
 
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     const tableColumns = vNode.children.filter((childVNode) =>
       ['td', 'th'].includes(childVNode.tagName)
     );
@@ -1288,7 +1285,7 @@ const buildTableGridCol = (gridWidth) =>
 
 const buildTableGrid = (vNode, attributes) => {
   const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     const gridColumns = vNode.children.filter((childVNode) => childVNode.tagName === 'col');
     const gridWidth = attributes.maximumWidth / gridColumns.length;
 
@@ -1304,7 +1301,7 @@ const buildTableGrid = (vNode, attributes) => {
 
 const buildTableGridFromTableRow = (vNode, attributes) => {
   const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     const numberOfGridColumns = vNode.children.reduce((accumulator, childVNode) => {
       const colSpan = childVNode.properties.colSpan || childVNode.properties.style?.['column-span'];
 
@@ -1538,7 +1535,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
 
   const rowSpanMap = new Map();
 
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'colgroup') {
