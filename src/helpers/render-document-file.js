@@ -14,6 +14,7 @@ import sizeOf from 'image-size';
 import * as xmlBuilder from './xml-builder';
 import namespaces from '../namespaces';
 import { imageType, internalRelationship } from '../constants';
+import { vNodeHasChildren } from '../utils/vnode';
 
 const convertHTML = HTMLToVDOM({
   VNode,
@@ -199,7 +200,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       xmlFragment.import(paragraphFragment);
       return;
     case 'figure':
-      if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+      if (vNodeHasChildren(vNode)) {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < vNode.children.length; index++) {
           const childVNode = vNode.children[index];
@@ -268,7 +269,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       xmlFragment.import(linebreakFragment);
       return;
   }
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
