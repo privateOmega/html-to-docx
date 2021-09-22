@@ -196,24 +196,12 @@ function addFilesToContainer(
 
   zip
     .folder(wordFolder)
-    .file('document.xml', docxDocument.generateDocumentXML(), {
-      createFolders: false,
-    })
-    .file('fontTable.xml', docxDocument.generateFontTableXML(), {
-      createFolders: false,
-    })
-    .file('styles.xml', docxDocument.generateStylesXML(), {
-      createFolders: false,
-    })
-    .file('numbering.xml', docxDocument.generateNumberingXML(), {
-      createFolders: false,
-    })
-    .file('settings.xml', docxDocument.generateSettingsXML(), {
-      createFolders: false,
-    })
-    .file('webSettings.xml', docxDocument.generateWebSettingsXML(), {
-      createFolders: false,
-    });
+    .file('document.xml', docxDocument.generateDocumentXML(), { createFolders: false })
+    .file('fontTable.xml', docxDocument.generateFontTableXML(), { createFolders: false })
+    .file('styles.xml', docxDocument.generateStylesXML(), { createFolders: false })
+    .file('numbering.xml', docxDocument.generateNumberingXML(), { createFolders: false })
+    .file('settings.xml', docxDocument.generateSettingsXML(), { createFolders: false })
+    .file('webSettings.xml', docxDocument.generateWebSettingsXML(), { createFolders: false });
 
   const relationshipXMLs = docxDocument.generateRelsXML();
   if (relationshipXMLs && Array.isArray(relationshipXMLs)) {
