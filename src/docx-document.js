@@ -51,7 +51,7 @@ function generateContentTypesFragments(contentTypesXML, type, objects) {
   }
 }
 
-function generateDocumentSectionTypeXML(documentXML, documentSectionType, objects, isEnabled) {
+function generateSectionReferenceXML(documentXML, documentSectionType, objects, isEnabled) {
   if (isEnabled && objects && Array.isArray(objects) && objects.length) {
     const xmlFragment = fragment();
     objects.forEach(({ relationshipId, type }) => {
@@ -179,8 +179,8 @@ class DocxDocument {
     );
     documentXML.root().first().import(this.documentXML);
 
-    generateDocumentSectionTypeXML(documentXML, 'header', this.headerObjects, this.header);
-    generateDocumentSectionTypeXML(documentXML, 'footer', this.footerObjects, this.footer);
+    generateSectionReferenceXML(documentXML, 'header', this.headerObjects, this.header);
+    generateSectionReferenceXML(documentXML, 'footer', this.footerObjects, this.footer);
 
     if ((this.header || this.footer) && this.skipFirstHeaderFooter) {
       documentXML
