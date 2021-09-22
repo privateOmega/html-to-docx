@@ -36,9 +36,7 @@ import {
 function generateContentTypesFragments(contentTypesXML, type, objects) {
   if (objects && Array.isArray(objects)) {
     objects.forEach((object) => {
-      const contentTypesFragment = fragment({
-        defaultNamespace: { ele: namespaces.contentTypes },
-      })
+      const contentTypesFragment = fragment({ defaultNamespace: { ele: namespaces.contentTypes } })
         .ele('Override')
         .att('PartName', `/word/${type}${object[`${type}Id`]}.xml`)
         .att(
@@ -46,6 +44,7 @@ function generateContentTypesFragments(contentTypesXML, type, objects) {
           `application/vnd.openxmlformats-officedocument.wordprocessingml.${type}+xml`
         )
         .up();
+
       contentTypesXML.root().import(contentTypesFragment);
     });
   }
@@ -129,7 +128,7 @@ class DocxDocument {
     this.font = font || defaultFont;
     this.fontSize = fontSize || defaultFontSize;
     this.complexScriptFontSize = complexScriptFontSize || defaultFontSize;
-    this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
+    this.tableRowCantSplit = table?.row?.cantSplit || false;
     this.pageNumber = pageNumber || false;
     this.skipFirstHeaderFooter = skipFirstHeaderFooter || false;
     this.lineNumber = lineNumber ? lineNumberOptions : null;
@@ -311,34 +310,36 @@ class DocxDocument {
           abstractNumberingFragment.import(levelFragment);
         });
       abstractNumberingFragment.up();
-
-      const numberingFragment = fragment({ namespaceAlias: { w: namespaces.w } })
-        .ele('@w', 'num')
-        .att('@w', 'numId', String(numberingId))
-        .ele('@w', 'abstractNumId')
-        .att('@w', 'val', String(numberingId))
-        .up()
-        .up();
       abstractNumberingFragments.import(abstractNumberingFragment);
-      numberingFragments.import(numberingFragment);
+
+      numberingFragments.import(
+        fragment({ namespaceAlias: { w: namespaces.w } })
+          .ele('@w', 'num')
+          .att('@w', 'numId', String(numberingId))
+          .ele('@w', 'abstractNumId')
+          .att('@w', 'val', String(numberingId))
+          .up()
+          .up()
+      );
     });
     numberingXML.root().import(abstractNumberingFragments);
     numberingXML.root().import(numberingFragments);
+
     return numberingXML.toString({ prettyPrint: true });
   }
 
   // eslint-disable-next-line class-methods-use-this
   appendRelationships(xmlFragment, relationships) {
     relationships.forEach(({ relationshipId, type, target, targetMode }) => {
-      const relationshipFragment = fragment({ defaultNamespace: { ele: namespaces.relationship } })
-        .ele('Relationship')
-        .att('Id', `rId${relationshipId}`)
-        .att('Type', type)
-        .att('Target', target)
-        .att('TargetMode', targetMode)
-        .up();
-
-      xmlFragment.import(relationshipFragment);
+      xmlFragment.import(
+        fragment({ defaultNamespace: { ele: namespaces.relationship } })
+          .ele('Relationship')
+          .att('Id', `rId${relationshipId}`)
+          .att('Type', type)
+          .att('Target', target)
+          .att('TargetMode', targetMode)
+          .up()
+      );
     });
   }
 
