@@ -8,6 +8,7 @@ import { VText } from 'virtual-dom';
 import isVNode from 'virtual-dom/vnode/is-vnode';
 import isVText from 'virtual-dom/vnode/is-vtext';
 import colorNames from 'color-name';
+import { cloneDeep } from 'lodash';
 
 import namespaces from '../namespaces';
 import {
@@ -36,7 +37,13 @@ import {
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import { buildImage } from './render-document-file';
-import { defaultFont, hyperlinkType } from '../constants';
+import {
+  defaultFont,
+  hyperlinkType,
+  paragraphBordersObject,
+  colorlessColors,
+  verticalAlignValues,
+} from '../constants';
 import { vNodeHasChildren } from '../utils/vnode';
 
 // eslint-disable-next-line consistent-return
@@ -402,13 +409,13 @@ const buildRunOrRuns = (vNode, attributes) => {
       if (isVNode(vNode) && vNode.properties?.style) {
         if (
           vNode.properties.style.color &&
-          !['transparent', 'auto'].includes(vNode.properties.style.color)
+          !colorlessColors.includes(vNode.properties.style.color)
         ) {
           modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
         }
         if (
           vNode.properties.style['background-color'] &&
-          !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+          !colorlessColors.includes(vNode.properties.style['background-color'])
         ) {
           modifiedAttributes.backgroundColor = fixupColorCode(
             vNode.properties.style['background-color']
@@ -525,28 +532,7 @@ const buildParagraphBorder = () => {
     '@w',
     'pBdr'
   );
-  const bordersObject = {
-    top: {
-      size: 0,
-      spacing: 3,
-      color: 'FFFFFF',
-    },
-    left: {
-      size: 0,
-      spacing: 3,
-      color: 'FFFFFF',
-    },
-    bottom: {
-      size: 0,
-      spacing: 3,
-      color: 'FFFFFF',
-    },
-    right: {
-      size: 0,
-      spacing: 3,
-      color: 'FFFFFF',
-    },
-  };
+  const bordersObject = cloneDeep(paragraphBordersObject);
 
   Object.keys(bordersObject).forEach((borderName) => {
     if (bordersObject[borderName]) {
@@ -704,15 +690,12 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties?.style) {
-    if (
-      vNode.properties.style.color &&
-      !['transparent', 'auto'].includes(vNode.properties.style.color)
-    ) {
+    if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
       modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
     }
     if (
       vNode.properties.style['background-color'] &&
-      !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+      !colorlessColors.includes(vNode.properties.style['background-color'])
     ) {
       modifiedAttributes.backgroundColor = fixupColorCode(
         vNode.properties.style['background-color']
@@ -720,7 +703,7 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
     }
     if (
       vNode.properties.style['vertical-align'] &&
-      ['top', 'middle', 'bottom'].includes(vNode.properties.style['vertical-align'])
+      verticalAlignValues.includes(vNode.properties.style['vertical-align'])
     ) {
       modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
     }
@@ -1056,15 +1039,12 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
       columnIndex.index += parseInt(modifiedAttributes.colSpan) - 1;
     }
     if (vNode.properties.style) {
-      if (
-        vNode.properties.style.color &&
-        !['transparent', 'auto'].includes(vNode.properties.style.color)
-      ) {
+      if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
         modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
       }
       if (
         vNode.properties.style['background-color'] &&
-        !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+        !colorlessColors.includes(vNode.properties.style['background-color'])
       ) {
         modifiedAttributes.backgroundColor = fixupColorCode(
           vNode.properties.style['background-color']
@@ -1072,7 +1052,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
       }
       if (
         vNode.properties.style['vertical-align'] &&
-        ['top', 'middle', 'bottom'].includes(vNode.properties.style['vertical-align'])
+        verticalAlignValues.includes(vNode.properties.style['vertical-align'])
       ) {
         modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
       }
@@ -1702,9 +1682,7 @@ const buildBinaryLargeImageOrPictureFill = (relationshipId) => {
 };
 
 const buildNonVisualPictureDrawingProperties = () =>
-  fragment({
-    namespaceAlias: { pic: namespaces.pic },
-  })
+  fragment({ namespaceAlias: { pic: namespaces.pic } })
     .ele('@pic', 'cNvPicPr')
     .up();
 
@@ -1790,9 +1768,7 @@ const buildGraphic = (graphicType, attributes) => {
 };
 
 const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) =>
-  fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'docPr')
     .att('id', pictureId)
     .att('name', pictureName)

@@ -71,6 +71,30 @@ const imageType = 'image';
 const internalRelationship = 'Internal';
 const wordFolder = 'word';
 const themeFolder = 'theme';
+const paragraphBordersObject = {
+  top: {
+    size: 0,
+    spacing: 3,
+    color: 'FFFFFF',
+  },
+  left: {
+    size: 0,
+    spacing: 3,
+    color: 'FFFFFF',
+  },
+  bottom: {
+    size: 0,
+    spacing: 3,
+    color: 'FFFFFF',
+  },
+  right: {
+    size: 0,
+    spacing: 3,
+    color: 'FFFFFF',
+  },
+};
+const colorlessColors = ['transparent', 'auto'];
+const verticalAlignValues = ['top', 'middle', 'bottom'];
 
 export {
   defaultDocumentOptions,
@@ -96,4 +120,7 @@ export {
   defaultFontSize,
   hyperlinkType,
   imageType,
+  paragraphBordersObject,
+  colorlessColors,
+  verticalAlignValues,
 };
