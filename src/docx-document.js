@@ -32,6 +32,7 @@ import {
   documentFileName,
   imageType,
 } from './constants';
+import { getListStyleType, getListPrefixSuffix } from './utils/list';
 
 function generateContentTypesFragments(contentTypesXML, type, objects) {
   if (objects && Array.isArray(objects)) {
@@ -271,7 +272,7 @@ class DocxDocument {
     const abstractNumberingFragments = fragment();
     const numberingFragments = fragment();
 
-    this.numberingObjects.forEach(({ numberingId, type }) => {
+    this.numberingObjects.forEach(({ numberingId, type, properties }) => {
       const abstractNumberingFragment = fragment({ namespaceAlias: { w: namespaces.w } })
         .ele('@w', 'abstractNum')
         .att('@w', 'abstractNumId', String(numberingId));
@@ -281,13 +282,17 @@ class DocxDocument {
           .ele('@w', 'lvl')
           .att('@w', 'ilvl', level)
           .ele('@w', 'start')
-          .att('@w', 'val', '1')
+          .att('@w', 'val', type === 'ol' ? properties.attributes?.['data-start'] || 1 : '1')
           .up()
           .ele('@w', 'numFmt')
-          .att('@w', 'val', type === 'ol' ? 'decimal' : 'bullet')
+          .att(
+            '@w',
+            'val',
+            type === 'ol' ? getListStyleType(properties.style?.['list-style-type']) : 'bullet'
+          )
           .up()
           .ele('@w', 'lvlText')
-          .att('@w', 'val', type === 'ol' ? `%${level + 1}` : '')
+          .att('@w', 'val', type === 'ol' ? getListPrefixSuffix(properties.style, level) : '')
           .up()
           .ele('@w', 'lvlJc')
           .att('@w', 'val', 'left')
@@ -369,9 +374,9 @@ class DocxDocument {
     return relationshipXMLStrings;
   }
 
-  createNumbering(type) {
+  createNumbering(type, properties) {
     this.lastNumberingId += 1;
-    this.numberingObjects.push({ numberingId: this.lastNumberingId, type });
+    this.numberingObjects.push({ numberingId: this.lastNumberingId, type, properties });
 
     return this.lastNumberingId;
   }
