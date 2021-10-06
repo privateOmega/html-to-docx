@@ -36,7 +36,7 @@ import {
 } from '../utils/unit-conversion';
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
-import { buildImage } from './render-document-file';
+import { buildImage, buildList } from './render-document-file';
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
@@ -1193,7 +1193,10 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
       fixupTableCellBorder(vNode, modifiedAttributes);
     }
   }
-  const tableCellPropertiesFragment = buildTableCellProperties(modifiedAttributes);
+  const tableCellPropertiesFragment = buildTableCellProperties({
+    ...modifiedAttributes,
+    ...vNode.properties.attributes,
+  });
   tableCellFragment.import(tableCellPropertiesFragment);
   if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
     for (let index = 0; index < vNode.children.length; index++) {
@@ -1226,6 +1229,29 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
                 tableCellFragment.import(imageFragment);
               }
             }
+          }
+        }
+      } else if (isVNode(childVNode) && ['ul', 'ol'].includes(childVNode.tagName)) {
+        // render list in table
+        if (
+          childVNode.children &&
+          Array.isArray(childVNode.children) &&
+          childVNode.children.length
+        ) {
+          const listElements = buildList(childVNode);
+          const numberingId = docxDocumentInstance.createNumbering(listElements);
+          // eslint-disable-next-line no-plusplus
+          for (let i = 0; i < listElements.length; i++) {
+            const listElement = listElements[i];
+            // eslint-disable-next-line no-shadow
+            const paragraphFragment = buildParagraph(
+              listElement.node,
+              {
+                numbering: { levelId: listElement.level, numberingId },
+              },
+              docxDocumentInstance
+            );
+            tableCellFragment.import(paragraphFragment);
           }
         }
       } else {
@@ -1368,7 +1394,10 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (['td', 'th'].includes(childVNode.tagName)) {
-        const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
+        const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, {
+          ...modifiedAttributes,
+          ...childVNode.properties.attributes,
+        });
         if (Array.isArray(rowSpanCellFragments)) {
           for (
             let iteratorIndex = 0;
@@ -1394,7 +1423,9 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
     }
   }
   if (columnIndex.index < rowSpanMap.size) {
-    const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
+    const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, {
+      ...modifiedAttributes,
+    });
     if (Array.isArray(rowSpanCellFragments)) {
       for (let iteratorIndex = 0; iteratorIndex < rowSpanCellFragments.length; iteratorIndex++) {
         const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];

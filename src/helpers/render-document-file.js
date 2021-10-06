@@ -67,7 +67,7 @@ export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => 
 export const buildList = (vNode) => {
   const listElements = [];
 
-  let vNodeObjects = [{ node: vNode, level: 0, type: vNode.tagName }];
+  let vNodeObjects = [{ node: vNode, level: 0, type: vNode.tagName, properties: vNode.properties }];
   while (vNodeObjects.length) {
     const tempVNodeObject = vNodeObjects.shift();
     if (
@@ -78,6 +78,7 @@ export const buildList = (vNode) => {
         node: tempVNodeObject.node,
         level: tempVNodeObject.level,
         type: tempVNodeObject.type,
+        properties: tempVNodeObject.properties,
       });
     }
 
@@ -92,6 +93,7 @@ export const buildList = (vNode) => {
             node: childVNode,
             level: tempVNodeObject.level + 1,
             type: childVNode.tagName,
+            properties: childVNode.properties,
           });
         } else {
           // eslint-disable-next-line no-lonely-if
@@ -128,6 +130,7 @@ export const buildList = (vNode) => {
                   paragraphVNode,
               level: tempVNodeObject.level,
               type: tempVNodeObject.type,
+              properties: tempVNodeObject.properties,
             });
           }
         }
