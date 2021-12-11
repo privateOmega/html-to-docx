@@ -932,7 +932,10 @@ const fixupTableCellBorder = (vNode, attributes) => {
       ...attributes.tableCellBorder,
       top: 0,
     };
-  } else if (vNode.properties.style?.['border-top'] !== '0') {
+  } else if (
+    vNode.properties.style?.['border-top'] &&
+    vNode.properties.style['border-top'] !== '0'
+  ) {
     // eslint-disable-next-line no-use-before-define
     const [borderSize, borderStroke, borderColor] = cssBorderParser(
       vNode.properties.style['border-top']
