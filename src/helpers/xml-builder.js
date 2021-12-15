@@ -508,6 +508,19 @@ const fixupRowHeight = (rowHeightString) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
+const fixupMargin = (marginString) => {
+  if (pointRegex.test(marginString)) {
+    const matchedParts = marginString.match(pointRegex);
+    // convert point to half point
+    return pointToTWIP(matchedParts[1]);
+  } else if (pixelRegex.test(marginString)) {
+    const matchedParts = marginString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelToTWIP(matchedParts[1]);
+  }
+};
+
 const buildRunOrRuns = (vNode, attributes) => {
   if (isVNode(vNode) && vNode.tagName === 'span') {
     const runFragments = [];
@@ -628,13 +641,19 @@ const buildSpacing = (lineSpacing, beforeSpacing, afterSpacing) => {
   return spacingFragment;
 };
 
-const buildIndentation = (left = 720) => {
+const buildIndentation = ({ left, right }) => {
   const indentationFragment = fragment({
     namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'ind')
-    .att('@w', 'left', left)
-    .up();
+  }).ele('@w', 'ind');
+
+  if (left) {
+    indentationFragment.att('@w', 'left', left);
+  }
+  if (right) {
+    indentationFragment.att('@w', 'right', right);
+  }
+
+  indentationFragment.up();
 
   return indentationFragment;
 };
@@ -748,7 +767,7 @@ const buildParagraphProperties = (attributes) => {
           delete attributes.paragraphStyle;
           break;
         case 'indentation':
-          const indentationFragment = buildIndentation(attributes[key].left);
+          const indentationFragment = buildIndentation(attributes[key]);
           paragraphPropertiesFragment.import(indentationFragment);
           // Delete used property
           // eslint-disable-next-line no-param-reassign
@@ -894,6 +913,20 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
           ? fixupFontSize(vNode.properties.style['font-size'])
           : null
       );
+    }
+    if (vNode.properties.style['margin-left'] || vNode.properties.style['margin-right']) {
+      const leftMargin = fixupMargin(vNode.properties.style['margin-left']);
+      const rightMargin = fixupMargin(vNode.properties.style['margin-right']);
+      const indentation = {};
+      if (leftMargin) {
+        indentation.left = leftMargin;
+      }
+      if (rightMargin) {
+        indentation.right = rightMargin;
+      }
+      if (leftMargin || rightMargin) {
+        modifiedAttributes.indentation = indentation;
+      }
     }
     if (vNode.properties.style.display) {
       modifiedAttributes.display = vNode.properties.style.display;
