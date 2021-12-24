@@ -41,6 +41,7 @@ import {
   inchRegex,
   inchToTWIP,
 } from '../utils/unit-conversion';
+import { fontFamilyToFontName } from '../utils/font-family-conversion';
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import { buildImage, buildList } from './render-document-file';
@@ -327,6 +328,9 @@ const modifiedStyleAttributesBuilder = (vNode, attributes, options) => {
     if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
       modifiedAttributes.strong = vNode.properties.style['font-weight'];
     }
+    if (vNode.properties.style['font-family']) {
+      modifiedAttributes.font = fontFamilyToFontName(vNode.properties.style['font-family']);
+    }
     if (vNode.properties.style['font-size']) {
       modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
     }
@@ -404,6 +408,7 @@ const buildFormatting = (htmlTag, options) => {
     case 'highlightColor':
       return buildHighlight(options && options.color ? options.color : 'lightGray');
     case 'font':
+      return buildRunFontFragment(options.font);
     case 'pre':
       return buildRunFontFragment('Courier');
     case 'color':
@@ -429,8 +434,8 @@ const buildRunProperties = (attributes) => {
         options.color = attributes[key];
       }
 
-      if (key === 'fontSize') {
-        options.fontSize = attributes[key];
+      if (key === 'fontSize' || key === 'font') {
+        options[key] = attributes[key];
       }
 
       const formattingFragment = buildFormatting(key, options);

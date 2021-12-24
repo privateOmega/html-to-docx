@@ -47,8 +47,10 @@ const htmlString =  `<!DOCTYPE html>
             <u>It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,</u>and more recently with desktop publishing software
             <span style="color: hsl(0, 75%, 60%);"> like Aldus PageMaker </span>including versions of Lorem Ipsum.
             <span style="background-color: hsl(0, 75%, 60%);">Where does it come from? Contrary to popular belief, Lorem Ipsum is not simply random text.</span>
+            <span style="font-family:'Courier New', Courier, monospace;">Look at me, i'm a run in Courier New !</span>
             It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.
         </p>
+        <p style="font-family:'Courier New', Courier, monospace;">Look at me, i'm a paragraph in Courier New !</p>
         <blockquote>
             For 50 years, WWF has been protecting the future of nature. The world's leading conservation organization, WWF works in 100 countries and is supported by 1.2 million members in the United States and close to 5 million globally.
         </blockquote>
