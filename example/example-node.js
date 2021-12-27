@@ -118,6 +118,15 @@ const htmlString = `<!DOCTYPE html>
                 <td>United States of America</td>
                 <td>Washington DC</td>
             </tr>
+            <tr>
+                <td>Bolivia</td>
+                <td>
+                    <ol>
+                        <li>Sucre</li>
+                        <li>La Paz</li>
+                    </ol>
+                </td>
+            </tr>
         </table>
     </body>
 </html>`;
