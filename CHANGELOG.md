@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/privateOmega/html-to-docx/compare/v1.2.4...v1.3.0) (2021-12-27)
+
+
+### Features
+
+* **indentation:** html margins to indentation [#106](https://github.com/privateOmega/html-to-docx/issues/106) ([0a8d6e6](https://github.com/privateOmega/html-to-docx/commit/0a8d6e6a8cfeffd9543e17e7d4bc729dfde88ed4))
+
+
+### Bug Fixes
+
+* generate numbering for independent list types ([67151ce](https://github.com/privateOmega/html-to-docx/commit/67151ce957b01d4563b95def543f0bc004036153))
+* generating numbering xml based on type instead of type elements ([56c165e](https://github.com/privateOmega/html-to-docx/commit/56c165e6d5f9b3f26adc6508137022dbb69dae52))
+* nanoid api usage ([4aa4edc](https://github.com/privateOmega/html-to-docx/commit/4aa4edc088dcf4e031b850754a9f7b2d6740a6c3))
+* revert optional chaining on border check ([9ae5982](https://github.com/privateOmega/html-to-docx/commit/9ae59826b9885e867bfde26900e76fe34c1413b5))
+* update @rollup/plugin-node-resolve usage ([c359d92](https://github.com/privateOmega/html-to-docx/commit/c359d92afc7373fc5f236b61e8176c6bda3b7310))
+* update html-to-vdom import ([fbca2d3](https://github.com/privateOmega/html-to-docx/commit/fbca2d3b38edf6c14f883bf3f6f4eda1d8b55a8f))
+
 ### [1.2.4](https://github.com/privateOmega/html-to-docx/compare/v1.2.3...v1.2.4) (2021-09-20)
 
 
