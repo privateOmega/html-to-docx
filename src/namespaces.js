@@ -18,6 +18,7 @@ const namespaces = {
   xsd: 'http://www.w3.org/2001/XMLSchema',
   xsi: 'http://www.w3.org/2001/XMLSchema-instance',
   numbering: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
+  fontTable: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
   hyperlinks: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
   images: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
   styles: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
