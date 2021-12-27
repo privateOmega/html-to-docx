@@ -41,7 +41,6 @@ import {
   inchRegex,
   inchToTWIP,
 } from '../utils/unit-conversion';
-import { fontFamilyToFontName } from '../utils/font-family-conversion';
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import { buildImage, buildList } from './render-document-file';
@@ -292,7 +291,7 @@ const fixupMargin = (marginString) => {
   }
 };
 
-const modifiedStyleAttributesBuilder = (vNode, attributes, options) => {
+const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes, options) => {
   const modifiedAttributes = { ...attributes };
 
   // styles
@@ -329,7 +328,9 @@ const modifiedStyleAttributesBuilder = (vNode, attributes, options) => {
       modifiedAttributes.strong = vNode.properties.style['font-weight'];
     }
     if (vNode.properties.style['font-family']) {
-      modifiedAttributes.font = fontFamilyToFontName(vNode.properties.style['font-family']);
+      modifiedAttributes.font = docxDocumentInstance.createFont(
+        vNode.properties.style['font-family']
+      );
     }
     if (vNode.properties.style['font-size']) {
       modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
@@ -629,7 +630,11 @@ const buildRunOrRuns = async (vNode, attributes, docxDocumentInstance) => {
 
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      const modifiedAttributes = modifiedStyleAttributesBuilder(vNode, attributes);
+      const modifiedAttributes = modifiedStyleAttributesBuilder(
+        docxDocumentInstance,
+        vNode,
+        attributes
+      );
       const tempRunFragments = await buildRun(childVNode, modifiedAttributes, docxDocumentInstance);
       runFragments = runFragments.concat(
         Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments]
@@ -911,9 +916,14 @@ const computeImageDimensions = (vNode, attributes) => {
 
 const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
-  const modifiedAttributes = modifiedStyleAttributesBuilder(vNode, attributes, {
-    isParagraph: true,
-  });
+  const modifiedAttributes = modifiedStyleAttributesBuilder(
+    docxDocumentInstance,
+    vNode,
+    attributes,
+    {
+      isParagraph: true,
+    }
+  );
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
   if (isVNode(vNode) && vNodeHasChildren(vNode)) {
@@ -1297,7 +1307,7 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
     if (vNode.properties.style) {
       modifiedAttributes = {
         ...modifiedAttributes,
-        ...modifiedStyleAttributesBuilder(vNode, attributes),
+        ...modifiedStyleAttributesBuilder(docxDocumentInstance, vNode, attributes),
       };
 
       fixupTableCellBorder(vNode, modifiedAttributes);
