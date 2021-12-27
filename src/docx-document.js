@@ -1,5 +1,5 @@
 import { create, fragment } from 'xmlbuilder2';
-import * as shortid from 'shortid';
+import { nanoid } from 'nanoid';
 
 import {
   generateCoreXML,
@@ -12,91 +12,140 @@ import {
   contentTypesXML as contentTypesXMLString,
   fontTableXML as fontTableXMLString,
   genericRelsXML as genericRelsXMLString,
+  generateDocumentTemplate,
 } from './schemas';
-import { convertVTreeToXML, namespaces } from './helpers';
-import generateDocumentTemplate from '../template/document.template';
+import { convertVTreeToXML } from './helpers';
+import namespaces from './namespaces';
+import {
+  footerType as footerFileType,
+  headerType as headerFileType,
+  themeType as themeFileType,
+  landscapeMargins,
+  portraitMargins,
+  defaultOrientation,
+  landscapeWidth,
+  landscapeHeight,
+  applicationName,
+  defaultFont,
+  defaultFontSize,
+  hyperlinkType,
+  documentFileName,
+  imageType,
+} from './constants';
 
-const landscapeMargins = {
-  top: 1800,
-  right: 1440,
-  bottom: 1800,
-  left: 1440,
-  header: 720,
-  footer: 720,
-  gutter: 0,
-};
+function generateContentTypesFragments(contentTypesXML, type, objects) {
+  if (objects && Array.isArray(objects)) {
+    objects.forEach((object) => {
+      const contentTypesFragment = fragment({ defaultNamespace: { ele: namespaces.contentTypes } })
+        .ele('Override')
+        .att('PartName', `/word/${type}${object[`${type}Id`]}.xml`)
+        .att(
+          'ContentType',
+          `application/vnd.openxmlformats-officedocument.wordprocessingml.${type}+xml`
+        )
+        .up();
 
-const portraitMargins = {
-  top: 1440,
-  right: 1800,
-  bottom: 1440,
-  left: 1800,
-  header: 720,
-  footer: 720,
-  gutter: 0,
-};
+      contentTypesXML.root().import(contentTypesFragment);
+    });
+  }
+}
+
+function generateSectionReferenceXML(documentXML, documentSectionType, objects, isEnabled) {
+  if (isEnabled && objects && Array.isArray(objects) && objects.length) {
+    const xmlFragment = fragment();
+    objects.forEach(({ relationshipId, type }) => {
+      const objectFragment = fragment({ namespaceAlias: { w: namespaces.w, r: namespaces.r } })
+        .ele('@w', `${documentSectionType}Reference`)
+        .att('@r', 'id', `rId${relationshipId}`)
+        .att('@w', 'type', type)
+        .up();
+      xmlFragment.import(objectFragment);
+    });
+
+    documentXML.root().first().first().import(xmlFragment);
+  }
+}
+
+function generateXMLString(xmlString) {
+  const xmlDocumentString = create({ encoding: 'UTF-8', standalone: true }, xmlString);
+  return xmlDocumentString.toString({ prettyPrint: true });
+}
+
+function generateSectionXML(vTree, type = 'header') {
+  const sectionXML = create({
+    encoding: 'UTF-8',
+    standalone: true,
+    namespaceAlias: {
+      w: namespaces.w,
+      ve: namespaces.ve,
+      o: namespaces.o,
+      r: namespaces.r,
+      v: namespaces.v,
+      wp: namespaces.wp,
+      w10: namespaces.w10,
+    },
+  }).ele('@w', type === 'header' ? 'hdr' : 'ftr');
+
+  const XMLFragment = fragment();
+  convertVTreeToXML(this, vTree, XMLFragment);
+  if (type === 'footer' && XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
+    XMLFragment.first().import(
+      fragment({ namespaceAlias: { w: namespaces.w } })
+        .ele('@w', 'fldSimple')
+        .att('@w', 'instr', 'PAGE')
+        .ele('@w', 'r')
+        .up()
+        .up()
+    );
+  }
+  sectionXML.root().import(XMLFragment);
+
+  const referenceName = type === 'header' ? 'Header' : 'Footer';
+  this[`last${referenceName}Id`] += 1;
+
+  return { [`${type}Id`]: this[`last${referenceName}Id`], [`${type}XML`]: sectionXML };
+}
 
 class DocxDocument {
-  constructor({
-    zip,
-    htmlString,
-    orientation,
-    margins,
-    title,
-    subject,
-    creator,
-    keywords,
-    description,
-    lastModifiedBy,
-    revision,
-    createdAt,
-    modifiedAt,
-    headerType,
-    header,
-    footerType,
-    footer,
-    font,
-    fontSize,
-    complexScriptFontSize,
-    table,
-    pageNumber,
-    skipFirstHeaderFooter,
-    lineNumber,
-    lineNumberOptions,
-  }) {
-    this.zip = zip;
-    this.htmlString = htmlString;
-    this.orientation = orientation;
-    this.width = orientation === 'landscape' ? 15840 : 12240;
-    this.height = orientation === 'landscape' ? 12240 : 15840;
+  constructor(properties) {
+    this.zip = properties.zip;
+    this.htmlString = properties.htmlString;
+    this.orientation = properties.orientation;
+
+    const isPortraitOrientation = this.orientation === defaultOrientation;
+    this.width = isPortraitOrientation ? landscapeHeight : landscapeWidth;
+    this.height = isPortraitOrientation ? landscapeWidth : landscapeHeight;
+
+    const marginsObject = properties.margins;
     this.margins =
       // eslint-disable-next-line no-nested-ternary
-      margins && Object.keys(margins).length
-        ? margins
-        : orientation === 'landscape'
-        ? landscapeMargins
-        : portraitMargins;
+      marginsObject && Object.keys(marginsObject).length
+        ? marginsObject
+        : isPortraitOrientation
+        ? portraitMargins
+        : landscapeMargins;
+
     this.availableDocumentSpace = this.width - this.margins.left - this.margins.right;
-    this.title = title || '';
-    this.subject = subject || '';
-    this.creator = creator || 'html-to-docx';
-    this.keywords = keywords || ['html-to-docx'];
-    this.description = description || '';
-    this.lastModifiedBy = lastModifiedBy || 'html-to-docx';
-    this.revision = revision || 1;
-    this.createdAt = createdAt || new Date();
-    this.modifiedAt = modifiedAt || new Date();
-    this.headerType = headerType || 'default';
-    this.header = header || false;
-    this.footerType = footerType || 'default';
-    this.footer = footer || false;
-    this.font = font || 'Times New Roman';
-    this.fontSize = fontSize || 22;
-    this.complexScriptFontSize = complexScriptFontSize || 22;
-    this.tableRowCantSplit = (table && table.row && table.row.cantSplit) || false;
-    this.pageNumber = pageNumber || false;
-    this.skipFirstHeaderFooter = skipFirstHeaderFooter || false;
-    this.lineNumber = lineNumber ? lineNumberOptions : null;
+    this.title = properties.title || '';
+    this.subject = properties.subject || '';
+    this.creator = properties.creator || applicationName;
+    this.keywords = properties.keywords || [applicationName];
+    this.description = properties.description || '';
+    this.lastModifiedBy = properties.lastModifiedBy || applicationName;
+    this.revision = properties.revision || 1;
+    this.createdAt = properties.createdAt || new Date();
+    this.modifiedAt = properties.modifiedAt || new Date();
+    this.headerType = properties.headerType || 'default';
+    this.header = properties.header || false;
+    this.footerType = properties.footerType || 'default';
+    this.footer = properties.footer || false;
+    this.font = properties.font || defaultFont;
+    this.fontSize = properties.fontSize || defaultFontSize;
+    this.complexScriptFontSize = properties.complexScriptFontSize || defaultFontSize;
+    this.tableRowCantSplit = properties.table?.row?.cantSplit || false;
+    this.pageNumber = properties.pageNumber || false;
+    this.skipFirstHeaderFooter = properties.skipFirstHeaderFooter || false;
+    this.lineNumber = properties.lineNumber ? properties.lineNumberOptions : null;
 
     this.lastNumberingId = 0;
     this.lastMediaId = 0;
@@ -104,16 +153,16 @@ class DocxDocument {
     this.lastFooterId = 0;
     this.stylesObjects = [];
     this.numberingObjects = [];
-    this.relationshipFilename = 'document';
-    this.relationships = [{ fileName: 'document', lastRelsId: 4, rels: [] }];
+    this.relationshipFilename = documentFileName;
+    this.relationships = [{ fileName: documentFileName, lastRelsId: 4, rels: [] }];
     this.mediaFiles = [];
     this.headerObjects = [];
     this.footerObjects = [];
     this.documentXML = null;
 
     this.generateContentTypesXML = this.generateContentTypesXML.bind(this);
-    this.generateCoreXML = this.generateCoreXML.bind(this);
     this.generateDocumentXML = this.generateDocumentXML.bind(this);
+    this.generateCoreXML = this.generateCoreXML.bind(this);
     this.generateSettingsXML = this.generateSettingsXML.bind(this);
     this.generateWebSettingsXML = this.generateWebSettingsXML.bind(this);
     this.generateStylesXML = this.generateStylesXML.bind(this);
@@ -125,58 +174,55 @@ class DocxDocument {
     this.createDocumentRelationships = this.createDocumentRelationships.bind(this);
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
     this.generateFooterXML = this.generateFooterXML.bind(this);
+    this.generateSectionXML = generateSectionXML.bind(this);
   }
 
   generateContentTypesXML() {
     const contentTypesXML = create({ encoding: 'UTF-8', standalone: true }, contentTypesXMLString);
 
-    if (this.headerObjects && Array.isArray(this.headerObjects) && this.headerObjects.length) {
-      this.headerObjects.forEach(
-        // eslint-disable-next-line array-callback-return
-        ({ headerId }) => {
-          const contentTypesFragment = fragment({
-            defaultNamespace: {
-              ele: 'http://schemas.openxmlformats.org/package/2006/content-types',
-            },
-          })
-            .ele('Override')
-            .att('PartName', `/word/header${headerId}.xml`)
-            .att(
-              'ContentType',
-              'application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml'
-            )
-            .up();
-          contentTypesXML.root().import(contentTypesFragment);
-        }
-      );
-    }
-    if (this.footerObjects && Array.isArray(this.footerObjects) && this.footerObjects.length) {
-      this.footerObjects.forEach(
-        // eslint-disable-next-line array-callback-return
-        ({ footerId }) => {
-          const contentTypesFragment = fragment({
-            defaultNamespace: {
-              ele: 'http://schemas.openxmlformats.org/package/2006/content-types',
-            },
-          })
-            .ele('Override')
-            .att('PartName', `/word/footer${footerId}.xml`)
-            .att(
-              'ContentType',
-              'application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml'
-            )
-            .up();
-          contentTypesXML.root().import(contentTypesFragment);
-        }
-      );
-    }
+    generateContentTypesFragments(contentTypesXML, 'header', this.headerObjects);
+    generateContentTypesFragments(contentTypesXML, 'footer', this.footerObjects);
 
     return contentTypesXML.toString({ prettyPrint: true });
   }
 
-  generateCoreXML() {
-    const coreXML = create(
+  generateDocumentXML() {
+    const documentXML = create(
       { encoding: 'UTF-8', standalone: true },
+      generateDocumentTemplate(this.width, this.height, this.orientation, this.margins)
+    );
+    documentXML.root().first().import(this.documentXML);
+
+    generateSectionReferenceXML(documentXML, 'header', this.headerObjects, this.header);
+    generateSectionReferenceXML(documentXML, 'footer', this.footerObjects, this.footer);
+
+    if ((this.header || this.footer) && this.skipFirstHeaderFooter) {
+      documentXML
+        .root()
+        .first()
+        .first()
+        .import(fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'titlePg'));
+    }
+    if (this.lineNumber) {
+      const { countBy, start, restart } = this.lineNumber;
+      documentXML
+        .root()
+        .first()
+        .first()
+        .import(
+          fragment({ namespaceAlias: { w: namespaces.w } })
+            .ele('@w', 'lnNumType')
+            .att('@w', 'countBy', countBy)
+            .att('@w', 'start', start)
+            .att('@w', 'restart', restart)
+        );
+    }
+
+    return documentXML.toString({ prettyPrint: true });
+  }
+
+  generateCoreXML() {
+    return generateXMLString(
       generateCoreXML(
         this.title,
         this.subject,
@@ -189,133 +235,31 @@ class DocxDocument {
         this.modifiedAt
       )
     );
-
-    return coreXML.toString({ prettyPrint: true });
-  }
-
-  generateDocumentXML() {
-    const documentXML = create(
-      { encoding: 'UTF-8', standalone: true },
-      generateDocumentTemplate(this.width, this.height, this.orientation, this.margins)
-    );
-    documentXML.root().first().import(this.documentXML);
-
-    if (
-      this.header &&
-      this.headerObjects &&
-      Array.isArray(this.headerObjects) &&
-      this.headerObjects.length
-    ) {
-      const headerXmlFragment = fragment();
-
-      this.headerObjects.forEach(
-        // eslint-disable-next-line array-callback-return
-        ({ relationshipId, type }) => {
-          const headerFragment = fragment({
-            namespaceAlias: {
-              w: namespaces.w,
-              r: namespaces.r,
-            },
-          })
-            .ele('@w', 'headerReference')
-            .att('@r', 'id', `rId${relationshipId}`)
-            .att('@w', 'type', type)
-            .up();
-          headerXmlFragment.import(headerFragment);
-        }
-      );
-
-      documentXML.root().first().first().import(headerXmlFragment);
-    }
-    if (
-      this.footer &&
-      this.footerObjects &&
-      Array.isArray(this.footerObjects) &&
-      this.footerObjects.length
-    ) {
-      const footerXmlFragment = fragment();
-
-      this.footerObjects.forEach(
-        // eslint-disable-next-line array-callback-return
-        ({ relationshipId, type }) => {
-          const footerFragment = fragment({
-            namespaceAlias: {
-              w: namespaces.w,
-              r: namespaces.r,
-            },
-          })
-            .ele('@w', 'footerReference')
-            .att('@r', 'id', `rId${relationshipId}`)
-            .att('@w', 'type', type)
-            .up();
-          footerXmlFragment.import(footerFragment);
-        }
-      );
-
-      documentXML.root().first().first().import(footerXmlFragment);
-    }
-    if ((this.header || this.footer) && this.skipFirstHeaderFooter) {
-      const titlePageFragment = fragment({
-        namespaceAlias: {
-          w: namespaces.w,
-        },
-      }).ele('@w', 'titlePg');
-
-      documentXML.root().first().first().import(titlePageFragment);
-    }
-    if (this.lineNumber) {
-      const { countBy, start, restart } = this.lineNumber;
-      const lineNumberFragment = fragment({
-        namespaceAlias: {
-          w: namespaces.w,
-        },
-      })
-        .ele('@w', 'lnNumType')
-        .att('@w', 'countBy', countBy)
-        .att('@w', 'start', start)
-        .att('@w', 'restart', restart);
-      documentXML.root().first().first().import(lineNumberFragment);
-    }
-
-    return documentXML.toString({ prettyPrint: true });
   }
 
   // eslint-disable-next-line class-methods-use-this
   generateSettingsXML() {
-    const settingsXML = create({ encoding: 'UTF-8', standalone: true }, settingsXMLString);
-
-    return settingsXML.toString({ prettyPrint: true });
+    return generateXMLString(settingsXMLString);
   }
 
   // eslint-disable-next-line class-methods-use-this
   generateWebSettingsXML() {
-    const webSettingsXML = create({ encoding: 'UTF-8', standalone: true }, webSettingsXMLString);
-
-    return webSettingsXML.toString({ prettyPrint: true });
+    return generateXMLString(webSettingsXMLString);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   generateStylesXML() {
-    const stylesXML = create(
-      { encoding: 'UTF-8', standalone: true },
+    return generateXMLString(
       generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize)
     );
-
-    return stylesXML.toString({ prettyPrint: true });
   }
 
   // eslint-disable-next-line class-methods-use-this
   generateFontTableXML() {
-    const fontTableXML = create({ encoding: 'UTF-8', standalone: true }, fontTableXMLString);
-
-    return fontTableXML.toString({ prettyPrint: true });
+    return generateXMLString(fontTableXMLString);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   generateThemeXML() {
-    const themeXml = create({ encoding: 'UTF-8', standalone: true }, generateThemeXML(this.font));
-
-    return themeXml.toString({ prettyPrint: true });
+    return generateXMLString(generateThemeXML(this.font));
   }
 
   generateNumberingXML() {
@@ -327,88 +271,68 @@ class DocxDocument {
     const abstractNumberingFragments = fragment();
     const numberingFragments = fragment();
 
-    this.numberingObjects.forEach(
-      // eslint-disable-next-line array-callback-return
-      ({ numberingId, listElements }) => {
-        const abstractNumberingFragment = fragment({
-          namespaceAlias: { w: namespaces.w },
-        })
-          .ele('@w', 'abstractNum')
-          .att('@w', 'abstractNumId', String(numberingId))
-          .ele('@w', 'multiLevelType')
-          .att('@w', 'val', 'hybridMultilevel')
+    this.numberingObjects.forEach(({ numberingId, type }) => {
+      const abstractNumberingFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+        .ele('@w', 'abstractNum')
+        .att('@w', 'abstractNumId', String(numberingId));
+
+      [...Array(8).keys()].forEach((level) => {
+        const levelFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+          .ele('@w', 'lvl')
+          .att('@w', 'ilvl', level)
+          .ele('@w', 'start')
+          .att('@w', 'val', '1')
+          .up()
+          .ele('@w', 'numFmt')
+          .att('@w', 'val', type === 'ol' ? 'decimal' : 'bullet')
+          .up()
+          .ele('@w', 'lvlText')
+          .att('@w', 'val', type === 'ol' ? `%${level + 1}` : '')
+          .up()
+          .ele('@w', 'lvlJc')
+          .att('@w', 'val', 'left')
+          .up()
+          .ele('@w', 'pPr')
+          .ele('@w', 'tabs')
+          .ele('@w', 'tab')
+          .att('@w', 'val', 'num')
+          .att('@w', 'pos', (level + 1) * 720)
+          .up()
+          .up()
+          .ele('@w', 'ind')
+          .att('@w', 'left', (level + 1) * 720)
+          .att('@w', 'hanging', 360)
+          .up()
+          .up()
           .up();
 
-        listElements
-          .filter((value, index, self) => {
-            return self.findIndex((v) => v.level === value.level) === index;
-          })
-          .forEach(({ level, type }) => {
-            const levelFragment = fragment({
-              namespaceAlias: { w: namespaces.w },
-            })
-              .ele('@w', 'lvl')
-              .att('@w', 'ilvl', level)
-              .ele('@w', 'start')
-              .att('@w', 'val', '1')
-              .up()
-              .ele('@w', 'numFmt')
-              .att('@w', 'val', type === 'ol' ? 'decimal' : 'bullet')
-              .up()
-              .ele('@w', 'lvlText')
-              .att('@w', 'val', type === 'ol' ? `%${level + 1}` : '')
-              .up()
-              .ele('@w', 'lvlJc')
-              .att('@w', 'val', 'left')
-              .up()
-              .ele('@w', 'pPr')
-              .ele('@w', 'tabs')
-              .ele('@w', 'tab')
-              .att('@w', 'val', 'num')
-              .att('@w', 'pos', (level + 1) * 720)
+        if (type === 'ul') {
+          levelFragment.last().import(
+            fragment({ namespaceAlias: { w: namespaces.w } })
+              .ele('@w', 'rPr')
+              .ele('@w', 'rFonts')
+              .att('@w', 'ascii', 'Wingdings')
+              .att('@w', 'hAnsi', 'Wingdings')
+              .att('@w', 'hint', 'default')
               .up()
               .up()
-              .ele('@w', 'ind')
-              .att('@w', 'left', (level + 1) * 720)
-              .att('@w', 'hanging', 360)
-              .up()
-              .up()
-              .up();
+          );
+        }
+        abstractNumberingFragment.import(levelFragment);
+      });
+      abstractNumberingFragment.up();
+      abstractNumberingFragments.import(abstractNumberingFragment);
 
-            if (type === 'ul') {
-              const runPropertiesFragment = fragment({
-                namespaceAlias: { w: namespaces.w },
-              })
-                .ele('@w', 'rPr')
-                .ele('@w', 'rFonts')
-                .att('@w', 'ascii', 'Wingdings')
-                .att('@w', 'hAnsi', 'Wingdings')
-                .att('@w', 'hint', 'default')
-                .up()
-                .up();
-
-              levelFragment.last().import(runPropertiesFragment);
-            }
-
-            abstractNumberingFragment.import(levelFragment);
-          });
-
-        abstractNumberingFragment.up();
-
-        const numberingFragment = fragment({
-          namespaceAlias: { w: namespaces.w },
-        })
+      numberingFragments.import(
+        fragment({ namespaceAlias: { w: namespaces.w } })
           .ele('@w', 'num')
           .att('@w', 'numId', String(numberingId))
           .ele('@w', 'abstractNumId')
           .att('@w', 'val', String(numberingId))
           .up()
-          .up();
-
-        abstractNumberingFragments.import(abstractNumberingFragment);
-        numberingFragments.import(numberingFragment);
-      }
-    );
+          .up()
+      );
+    });
 
     numberingXML.root().import(abstractNumberingFragments);
     numberingXML.root().import(numberingFragments);
@@ -418,46 +342,36 @@ class DocxDocument {
 
   // eslint-disable-next-line class-methods-use-this
   appendRelationships(xmlFragment, relationships) {
-    relationships.forEach(
-      // eslint-disable-next-line array-callback-return
-      ({ relationshipId, type, target, targetMode }) => {
-        const relationshipFragment = fragment({
-          defaultNamespace: { ele: 'http://schemas.openxmlformats.org/package/2006/relationships' },
-        })
+    relationships.forEach(({ relationshipId, type, target, targetMode }) => {
+      xmlFragment.import(
+        fragment({ defaultNamespace: { ele: namespaces.relationship } })
           .ele('Relationship')
           .att('Id', `rId${relationshipId}`)
           .att('Type', type)
           .att('Target', target)
           .att('TargetMode', targetMode)
-          .up();
-
-        xmlFragment.import(relationshipFragment);
-      }
-    );
+          .up()
+      );
+    });
   }
 
   generateRelsXML() {
     const relationshipXMLStrings = this.relationships.map(({ fileName, rels }) => {
-      let xmlFragment;
-      if (fileName === 'document') {
-        xmlFragment = create({ encoding: 'UTF-8', standalone: true }, documentRelsXMLString);
-      } else {
-        xmlFragment = create({ encoding: 'UTF-8', standalone: true }, genericRelsXMLString);
-      }
+      const xmlFragment = create(
+        { encoding: 'UTF-8', standalone: true },
+        fileName === documentFileName ? documentRelsXMLString : genericRelsXMLString
+      );
       this.appendRelationships(xmlFragment.root(), rels);
 
-      return {
-        fileName,
-        xmlString: xmlFragment.toString({ prettyPrint: true }),
-      };
+      return { fileName, xmlString: xmlFragment.toString({ prettyPrint: true }) };
     });
 
     return relationshipXMLStrings;
   }
 
-  createNumbering(listElements) {
+  createNumbering(type) {
     this.lastNumberingId += 1;
-    this.numberingObjects.push({ numberingId: this.lastNumberingId, listElements });
+    this.numberingObjects.push({ numberingId: this.lastNumberingId, type });
 
     return this.lastNumberingId;
   }
@@ -474,7 +388,7 @@ class DocxDocument {
     const fileExtension =
       matches[1].match(/\/(.*?)$/)[1] === 'octet-stream' ? 'png' : matches[1].match(/\/(.*?)$/)[1];
 
-    const fileNameWithExtension = `image-${shortid.generate()}.${fileExtension}`;
+    const fileNameWithExtension = `image-${nanoid()}.${fileExtension}`;
 
     this.lastMediaId += 1;
 
@@ -495,22 +409,20 @@ class DocxDocument {
     }
     let relationshipType;
     switch (type) {
-      case 'hyperlink':
+      case hyperlinkType:
         relationshipType = namespaces.hyperlinks;
         break;
-      case 'image':
+      case imageType:
         relationshipType = namespaces.images;
         break;
-      case 'header':
+      case headerFileType:
         relationshipType = namespaces.headers;
         break;
-      case 'footer':
+      case footerFileType:
         relationshipType = namespaces.footers;
         break;
-      case 'theme':
+      case themeFileType:
         relationshipType = namespaces.themes;
-        break;
-      default:
         break;
     }
 
@@ -525,64 +437,11 @@ class DocxDocument {
   }
 
   generateHeaderXML(vTree) {
-    const headerXML = create({
-      encoding: 'UTF-8',
-      standalone: true,
-      namespaceAlias: {
-        w: namespaces.w,
-        ve: namespaces.ve,
-        o: namespaces.o,
-        r: namespaces.r,
-        v: namespaces.v,
-        wp: namespaces.wp,
-        w10: namespaces.w10,
-      },
-    }).ele('@w', 'hdr');
-
-    const XMLFragment = fragment();
-    convertVTreeToXML(this, vTree, XMLFragment);
-    headerXML.root().import(XMLFragment);
-
-    this.lastHeaderId += 1;
-
-    return { headerId: this.lastHeaderId, headerXML };
+    return this.generateSectionXML(vTree, 'header');
   }
 
   generateFooterXML(vTree) {
-    const footerXML = create({
-      encoding: 'UTF-8',
-      standalone: true,
-      namespaceAlias: {
-        w: namespaces.w,
-        ve: namespaces.ve,
-        o: namespaces.o,
-        r: namespaces.r,
-        v: namespaces.v,
-        wp: namespaces.wp,
-        w10: namespaces.w10,
-      },
-    }).ele('@w', 'ftr');
-
-    const XMLFragment = fragment();
-    convertVTreeToXML(this, vTree, XMLFragment);
-    if (XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
-      const fieldSimpleFragment = fragment({
-        namespaceAlias: {
-          w: namespaces.w,
-        },
-      })
-        .ele('@w', 'fldSimple')
-        .att('@w', 'instr', 'PAGE')
-        .ele('@w', 'r')
-        .up()
-        .up();
-      XMLFragment.first().import(fieldSimpleFragment);
-    }
-    footerXML.root().import(XMLFragment);
-
-    this.lastFooterId += 1;
-
-    return { footerId: this.lastFooterId, footerXML };
+    return this.generateSectionXML(vTree, 'footer');
   }
 }
 

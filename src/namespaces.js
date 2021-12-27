@@ -33,6 +33,8 @@ const namespaces = {
   webSettingsRelation:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings',
   sl: 'http://schemas.openxmlformats.org/schemaLibrary/2006/main',
+  contentTypes: 'http://schemas.openxmlformats.org/package/2006/content-types',
+  relationship: 'http://schemas.openxmlformats.org/package/2006/relationships',
 };
 
 export default namespaces;

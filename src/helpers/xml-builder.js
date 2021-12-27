@@ -8,9 +8,9 @@ import { VText } from 'virtual-dom';
 import isVNode from 'virtual-dom/vnode/is-vnode';
 import isVText from 'virtual-dom/vnode/is-vtext';
 import colorNames from 'color-name';
+import { cloneDeep } from 'lodash';
 
-// eslint-disable-next-line import/no-named-default
-import { default as namespaces } from './namespaces';
+import namespaces from '../namespaces';
 import {
   rgbToHex,
   hslToHex,
@@ -37,6 +37,14 @@ import {
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import { buildImage } from './render-document-file';
+import {
+  defaultFont,
+  hyperlinkType,
+  paragraphBordersObject,
+  colorlessColors,
+  verticalAlignValues,
+} from '../constants';
+import { vNodeHasChildren } from '../utils/vnode';
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
@@ -74,175 +82,101 @@ const fixupColorCode = (colorCodeString) => {
   }
 };
 
-const buildRunFontFragment = (fontName = 'Times New Roman') => {
-  const runFontFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildRunFontFragment = (fontName = defaultFont) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'rFonts')
     .att('@w', 'ascii', fontName)
     .att('@w', 'hAnsi', fontName)
     .up();
 
-  return runFontFragment;
-};
-
-const buildRunStyleFragment = (type = 'Hyperlink') => {
-  const runStyleFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildRunStyleFragment = (type = 'Hyperlink') =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'rStyle')
     .att('@w', 'val', type)
     .up();
 
-  return runStyleFragment;
-};
-
-const buildTableRowHeight = (tableRowHeight) => {
-  const tableRowHeightFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildTableRowHeight = (tableRowHeight) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'trHeight')
     .att('@w', 'val', tableRowHeight)
     .att('@w', 'hRule', 'atLeast')
     .up();
-
-  return tableRowHeightFragment;
-};
 
 const buildVerticalAlignment = (verticalAlignment) => {
   if (verticalAlignment.toLowerCase() === 'middle') {
     verticalAlignment = 'center';
   }
 
-  const verticalAlignmentFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+  return fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'vAlign')
     .att('@w', 'val', verticalAlignment)
     .up();
-
-  return verticalAlignmentFragment;
 };
 
-const buildVerticalMerge = (verticalMerge = 'continue') => {
-  const verticalMergeFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildVerticalMerge = (verticalMerge = 'continue') =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'vMerge')
     .att('@w', 'val', verticalMerge)
     .up();
 
-  return verticalMergeFragment;
-};
-
-const buildColor = (colorCode) => {
-  const colorFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildColor = (colorCode) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'color')
     .att('@w', 'val', colorCode)
     .up();
 
-  return colorFragment;
-};
-
-const buildFontSize = (fontSize) => {
-  const fontSizeFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildFontSize = (fontSize) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'sz')
     .att('@w', 'val', fontSize)
     .up();
 
-  return fontSizeFragment;
-};
-
-const buildShading = (colorCode) => {
-  const shadingFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildShading = (colorCode) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'shd')
     .att('@w', 'val', 'clear')
     .att('@w', 'fill', colorCode)
     .up();
 
-  return shadingFragment;
-};
-
-const buildHighlight = (color = 'yellow') => {
-  const highlightFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildHighlight = (color = 'yellow') =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'highlight')
     .att('@w', 'val', color)
     .up();
 
-  return highlightFragment;
-};
-
-const buildVertAlign = (type = 'baseline') => {
-  const vertAlignFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildVertAlign = (type = 'baseline') =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'vertAlign')
     .att('@w', 'val', type)
     .up();
 
-  return vertAlignFragment;
-};
-
-const buildStrike = () => {
-  const strikeFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildStrike = () =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'strike')
     .att('@w', 'val', true)
     .up();
 
-  return strikeFragment;
-};
-
-const buildBold = () => {
-  const boldFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildBold = () =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'b')
     .up();
 
-  return boldFragment;
-};
-
-const buildItalics = () => {
-  const italicsFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildItalics = () =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'i')
     .up();
 
-  return italicsFragment;
-};
-
-const buildUnderline = (type = 'single') => {
-  const underlineFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildUnderline = (type = 'single') =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'u')
     .att('@w', 'val', type)
     .up();
 
-  return underlineFragment;
-};
-
-const buildLineBreak = (type = 'textWrapping') => {
-  const lineBreakFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildLineBreak = (type = 'textWrapping') =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'br')
     .att('@w', 'type', type)
     .up();
-
-  return lineBreakFragment;
-};
 
 const buildBorder = (
   borderSide = 'top',
@@ -250,10 +184,8 @@ const buildBorder = (
   borderSpacing = 0,
   borderColor = fixupColorCode('black'),
   borderStroke = 'single'
-) => {
-  const borderFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', borderSide)
     .att('@w', 'val', borderStroke)
     .att('@w', 'sz', borderSize)
@@ -261,64 +193,44 @@ const buildBorder = (
     .att('@w', 'color', borderColor)
     .up();
 
-  return borderFragment;
-};
-
-const buildTextElement = (text) => {
-  const textFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildTextElement = (text) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 't')
     .att('@xml', 'space', 'preserve')
     .txt(text)
     .up();
 
-  return textFragment;
-};
-
 const buildRunProperties = (attributes) => {
-  const runPropertiesFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'rPr');
-  if (attributes && attributes.constructor === Object) {
+  const runPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'rPr');
+  if (attributes?.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'strong':
-          const boldFragment = buildBold();
-          runPropertiesFragment.import(boldFragment);
+          runPropertiesFragment.import(buildBold());
           break;
         case 'i':
-          const italicsFragment = buildItalics();
-          runPropertiesFragment.import(italicsFragment);
+          runPropertiesFragment.import(buildItalics());
           break;
         case 'u':
-          const underlineFragment = buildUnderline();
-          runPropertiesFragment.import(underlineFragment);
+          runPropertiesFragment.import(buildUnderline());
           break;
         case 'color':
-          const colorFragment = buildColor(attributes[key]);
-          runPropertiesFragment.import(colorFragment);
+          runPropertiesFragment.import(buildColor(attributes[key]));
           break;
         case 'backgroundColor':
-          const shadingFragment = buildShading(attributes[key]);
-          runPropertiesFragment.import(shadingFragment);
+          runPropertiesFragment.import(buildShading(attributes[key]));
           break;
         case 'fontSize':
-          const fontSizeFragment = buildFontSize(attributes[key]);
-          runPropertiesFragment.import(fontSizeFragment);
+          runPropertiesFragment.import(buildFontSize(attributes[key]));
           break;
         case 'hyperlink':
-          const hyperlinkStyleFragment = buildRunStyleFragment('Hyperlink');
-          runPropertiesFragment.import(hyperlinkStyleFragment);
+          runPropertiesFragment.import(buildRunStyleFragment('Hyperlink'));
           break;
         case 'highlightColor':
-          const highlightFragment = buildHighlight(attributes[key]);
-          runPropertiesFragment.import(highlightFragment);
+          runPropertiesFragment.import(buildHighlight(attributes[key]));
           break;
         case 'font':
-          const runFontFragment = buildRunFontFragment('Courier');
-          runPropertiesFragment.import(runFontFragment);
+          runPropertiesFragment.import(buildRunFontFragment('Courier'));
           break;
       }
     });
@@ -330,56 +242,35 @@ const buildRunProperties = (attributes) => {
 
 // eslint-disable-next-line consistent-return
 const buildTextFormatting = (vNode) => {
-  // eslint-disable-next-line default-case
   switch (vNode.tagName) {
     case 'strong':
-    case 'b': {
-      const boldFragment = buildBold();
-      return boldFragment;
-    }
+    case 'b':
+      return buildBold();
     case 'em':
-    case 'i': {
-      const italicsFragment = buildItalics();
-      return italicsFragment;
-    }
+    case 'i':
+      return buildItalics();
     case 'ins':
-    case 'u': {
-      const underlineFragment = buildUnderline();
-      return underlineFragment;
-    }
+    case 'u':
+      return buildUnderline();
     case 'strike':
     case 'del':
-    case 's': {
-      const strikeFragment = buildStrike();
-      return strikeFragment;
-    }
-    case 'sub': {
-      const subscriptFragment = buildVertAlign('subscript');
-      return subscriptFragment;
-    }
-    case 'sup': {
-      const superscriptFragment = buildVertAlign('superscript');
-      return superscriptFragment;
-    }
-    case 'mark': {
-      const highlightFragment = buildHighlight();
-      return highlightFragment;
-    }
-    case 'code': {
-      const highlightFragment = buildHighlight('lightGray');
-      return highlightFragment;
-    }
-    case 'pre': {
-      const runFontFragment = buildRunFontFragment('Courier');
-      return runFontFragment;
-    }
+    case 's':
+      return buildStrike();
+    case 'sub':
+      return buildVertAlign('subscript');
+    case 'sup':
+      return buildVertAlign('superscript');
+    case 'mark':
+      return buildHighlight();
+    case 'code':
+      return buildHighlight('lightGray');
+    case 'pre':
+      return buildRunFontFragment('Courier');
   }
 };
 
 const buildRun = (vNode, attributes) => {
-  const runFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'r');
+  const runFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(attributes);
 
   if (
@@ -434,7 +325,7 @@ const buildRun = (vNode, attributes) => {
         runPropertiesFragment.import(formattingFragment);
       }
 
-      if (tempVNode.children && tempVNode.children.length) {
+      if (tempVNode?.children?.length) {
         vNodes = tempVNode.children.slice().concat(vNodes);
       }
     }
@@ -508,6 +399,19 @@ const fixupRowHeight = (rowHeightString) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
+const fixupMargin = (marginString) => {
+  if (pointRegex.test(marginString)) {
+    const matchedParts = marginString.match(pointRegex);
+    // convert point to half point
+    return pointToTWIP(matchedParts[1]);
+  } else if (pixelRegex.test(marginString)) {
+    const matchedParts = marginString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelToTWIP(matchedParts[1]);
+  }
+};
+
 const buildRunOrRuns = (vNode, attributes) => {
   if (isVNode(vNode) && vNode.tagName === 'span') {
     const runFragments = [];
@@ -515,16 +419,16 @@ const buildRunOrRuns = (vNode, attributes) => {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       const modifiedAttributes = { ...attributes };
-      if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
+      if (isVNode(vNode) && vNode.properties?.style) {
         if (
           vNode.properties.style.color &&
-          !['transparent', 'auto'].includes(vNode.properties.style.color)
+          !colorlessColors.includes(vNode.properties.style.color)
         ) {
           modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
         }
         if (
           vNode.properties.style['background-color'] &&
-          !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+          !colorlessColors.includes(vNode.properties.style['background-color'])
         ) {
           modifiedAttributes.backgroundColor = fixupColorCode(
             vNode.properties.style['background-color']
@@ -549,12 +453,10 @@ const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'a') {
     const relationshipId = docxDocumentInstance.createDocumentRelationships(
       docxDocumentInstance.relationshipFilename,
-      'hyperlink',
-      vNode.properties && vNode.properties.href ? vNode.properties.href : ''
+      hyperlinkType,
+      vNode.properties?.href ?? ''
     );
-    const hyperlinkFragment = fragment({
-      namespaceAlias: { w: namespaces.w, r: namespaces.r },
-    })
+    const hyperlinkFragment = fragment({ namespaceAlias: { w: namespaces.w, r: namespaces.r } })
       .ele('@w', 'hyperlink')
       .att('@r', 'id', `rId${relationshipId}`);
 
@@ -580,10 +482,8 @@ const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
   return runFragments;
 };
 
-const buildNumberingProperties = (levelId, numberingId) => {
-  const numberingPropertiesFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildNumberingProperties = (levelId, numberingId) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'numPr')
     .ele('@w', 'ilvl')
     .att('@w', 'val', String(levelId))
@@ -593,25 +493,15 @@ const buildNumberingProperties = (levelId, numberingId) => {
     .up()
     .up();
 
-  return numberingPropertiesFragment;
-};
-
-const buildNumberingInstances = () => {
-  const numberingInstancesFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildNumberingInstances = () =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'num')
     .ele('@w', 'abstractNumId')
     .up()
     .up();
 
-  return numberingInstancesFragment;
-};
-
 const buildSpacing = (lineSpacing, beforeSpacing, afterSpacing) => {
-  const spacingFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'spacing');
+  const spacingFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'spacing');
 
   if (lineSpacing) {
     spacingFragment.att('@w', 'line', lineSpacing);
@@ -628,68 +518,45 @@ const buildSpacing = (lineSpacing, beforeSpacing, afterSpacing) => {
   return spacingFragment;
 };
 
-const buildIndentation = (left = 720) => {
+const buildIndentation = ({ left, right }) => {
   const indentationFragment = fragment({
     namespaceAlias: { w: namespaces.w },
-  })
-    .ele('@w', 'ind')
-    .att('@w', 'left', left)
-    .up();
+  }).ele('@w', 'ind');
+
+  if (left) {
+    indentationFragment.att('@w', 'left', left);
+  }
+  if (right) {
+    indentationFragment.att('@w', 'right', right);
+  }
+
+  indentationFragment.up();
 
   return indentationFragment;
 };
 
-const buildPStyle = (style = 'Normal') => {
-  const pStyleFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildPStyle = (style = 'Normal') =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'pStyle')
     .att('@w', 'val', style)
     .up();
-
-  return pStyleFragment;
-};
 
 const buildHorizontalAlignment = (horizontalAlignment) => {
   if (horizontalAlignment === 'justify') {
     horizontalAlignment = 'both';
   }
-  const horizontalAlignmentFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+  return fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'jc')
     .att('@w', 'val', horizontalAlignment)
     .up();
-
-  return horizontalAlignmentFragment;
 };
 
 const buildParagraphBorder = () => {
-  const paragraphBorderFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'pBdr');
-  const bordersObject = {
-    top: {
-      size: 0,
-      spacing: 3,
-      color: 'FFFFFF',
-    },
-    left: {
-      size: 0,
-      spacing: 3,
-      color: 'FFFFFF',
-    },
-    bottom: {
-      size: 0,
-      spacing: 3,
-      color: 'FFFFFF',
-    },
-    right: {
-      size: 0,
-      spacing: 3,
-      color: 'FFFFFF',
-    },
-  };
+  const paragraphBorderFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'pBdr'
+  );
+  const bordersObject = cloneDeep(paragraphBordersObject);
 
   Object.keys(bordersObject).forEach((borderName) => {
     if (bordersObject[borderName]) {
@@ -706,25 +573,23 @@ const buildParagraphBorder = () => {
 };
 
 const buildParagraphProperties = (attributes) => {
-  const paragraphPropertiesFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'pPr');
-  if (attributes && attributes.constructor === Object) {
+  const paragraphPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'pPr'
+  );
+  if (attributes?.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'numbering':
           const { levelId, numberingId } = attributes[key];
           const numberingPropertiesFragment = buildNumberingProperties(levelId, numberingId);
           paragraphPropertiesFragment.import(numberingPropertiesFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.numbering;
           break;
         case 'textAlign':
           const horizontalAlignmentFragment = buildHorizontalAlignment(attributes[key]);
           paragraphPropertiesFragment.import(horizontalAlignmentFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.textAlign;
           break;
@@ -737,7 +602,6 @@ const buildParagraphProperties = (attributes) => {
             // FIXME: Inner padding in case of shaded paragraphs.
             const paragraphBorderFragment = buildParagraphBorder();
             paragraphPropertiesFragment.import(paragraphBorderFragment);
-            // Delete used property
             // eslint-disable-next-line no-param-reassign
             delete attributes.backgroundColor;
           }
@@ -748,9 +612,8 @@ const buildParagraphProperties = (attributes) => {
           delete attributes.paragraphStyle;
           break;
         case 'indentation':
-          const indentationFragment = buildIndentation(attributes[key].left);
+          const indentationFragment = buildIndentation(attributes[key]);
           paragraphPropertiesFragment.import(indentationFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.indentation;
           break;
@@ -762,7 +625,6 @@ const buildParagraphProperties = (attributes) => {
       attributes.beforeSpacing,
       attributes.afterSpacing
     );
-    // Delete used properties
     // eslint-disable-next-line no-param-reassign
     delete attributes.lineHeight;
     // eslint-disable-next-line no-param-reassign
@@ -790,7 +652,7 @@ const computeImageDimensions = (vNode, attributes) => {
   let modifiedHeight;
   let modifiedWidth;
 
-  if (vNode.properties && vNode.properties.style) {
+  if (vNode.properties?.style) {
     if (vNode.properties.style.width) {
       if (vNode.properties.style.width !== 'auto') {
         if (pixelRegex.test(vNode.properties.style.width)) {
@@ -802,7 +664,7 @@ const computeImageDimensions = (vNode, attributes) => {
         }
       } else {
         // eslint-disable-next-line no-lonely-if
-        if (vNode.properties.style.height && vNode.properties.style.height === 'auto') {
+        if (vNode.properties?.style?.height === 'auto') {
           modifiedWidth = originalWidthInEMU;
           modifiedHeight = originalHeightInEMU;
         }
@@ -849,20 +711,15 @@ const computeImageDimensions = (vNode, attributes) => {
 };
 
 const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
-  const paragraphFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'p');
+  const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
   const modifiedAttributes = { ...attributes };
-  if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
-    if (
-      vNode.properties.style.color &&
-      !['transparent', 'auto'].includes(vNode.properties.style.color)
-    ) {
+  if (isVNode(vNode) && vNode.properties?.style) {
+    if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
       modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
     }
     if (
       vNode.properties.style['background-color'] &&
-      !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+      !colorlessColors.includes(vNode.properties.style['background-color'])
     ) {
       modifiedAttributes.backgroundColor = fixupColorCode(
         vNode.properties.style['background-color']
@@ -870,7 +727,7 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
     }
     if (
       vNode.properties.style['vertical-align'] &&
-      ['top', 'middle', 'bottom'].includes(vNode.properties.style['vertical-align'])
+      verticalAlignValues.includes(vNode.properties.style['vertical-align'])
     ) {
       modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
     }
@@ -881,7 +738,7 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
       modifiedAttributes.textAlign = vNode.properties.style['text-align'];
     }
     // FIXME: remove bold check when other font weights are handled.
-    if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
+    if (vNode.properties.style?.['font-weight'] === 'bold') {
       modifiedAttributes.strong = vNode.properties.style['font-weight'];
     }
     if (vNode.properties.style['font-size']) {
@@ -894,6 +751,20 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
           ? fixupFontSize(vNode.properties.style['font-size'])
           : null
       );
+    }
+    if (vNode.properties.style['margin-left'] || vNode.properties.style['margin-right']) {
+      const leftMargin = fixupMargin(vNode.properties.style['margin-left']);
+      const rightMargin = fixupMargin(vNode.properties.style['margin-right']);
+      const indentation = {};
+      if (leftMargin) {
+        indentation.left = leftMargin;
+      }
+      if (rightMargin) {
+        indentation.right = rightMargin;
+      }
+      if (leftMargin || rightMargin) {
+        modifiedAttributes.indentation = indentation;
+      }
     }
     if (vNode.properties.style.display) {
       modifiedAttributes.display = vNode.properties.style.display;
@@ -909,7 +780,7 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   }
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
-  if (isVNode(vNode) && vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (isVNode(vNode) && vNodeHasChildren(vNode)) {
     if (
       [
         'span',
@@ -996,33 +867,24 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   return paragraphFragment;
 };
 
-const buildGridSpanFragment = (spanValue) => {
-  const gridSpanFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildGridSpanFragment = (spanValue) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'gridSpan')
     .att('@w', 'val', spanValue)
     .up();
 
-  return gridSpanFragment;
-};
-
-const buildTableCellSpacing = (cellSpacing = 0) => {
-  const tableCellSpacingFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildTableCellSpacing = (cellSpacing = 0) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'tblCellSpacing')
     .att('@w', 'w', cellSpacing)
     .att('@w', 'type', 'dxa')
     .up();
 
-  return tableCellSpacingFragment;
-};
-
 const buildTableCellBorders = (tableCellBorder) => {
-  const tableCellBordersFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tcBorders');
+  const tableCellBordersFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tcBorders'
+  );
 
   const { color, stroke, ...borders } = tableCellBorder;
   Object.keys(borders).forEach((border) => {
@@ -1038,39 +900,34 @@ const buildTableCellBorders = (tableCellBorder) => {
 };
 
 const buildTableCellProperties = (attributes) => {
-  const tableCellPropertiesFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tcPr');
-  if (attributes && attributes.constructor === Object) {
+  const tableCellPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tcPr'
+  );
+  if (attributes?.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'backgroundColor':
           const shadingFragment = buildShading(attributes[key]);
           tableCellPropertiesFragment.import(shadingFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.backgroundColor;
           break;
         case 'verticalAlign':
           const verticalAlignmentFragment = buildVerticalAlignment(attributes[key]);
           tableCellPropertiesFragment.import(verticalAlignmentFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.verticalAlign;
           break;
         case 'colSpan':
           const gridSpanFragment = buildGridSpanFragment(attributes[key]);
           tableCellPropertiesFragment.import(gridSpanFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.colSpan;
           break;
         case 'tableCellBorder':
           const tableCellBorderFragment = buildTableCellBorders(attributes[key]);
           tableCellPropertiesFragment.import(tableCellBorderFragment);
-
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellBorder;
           break;
@@ -1108,12 +965,15 @@ const fixupTableCellBorder = (vNode, attributes) => {
       };
     }
   }
-  if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] === '0') {
+  if (vNode.properties.style?.['border-top'] === '0') {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       top: 0,
     };
-  } else if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] !== '0') {
+  } else if (
+    vNode.properties.style?.['border-top'] &&
+    vNode.properties.style['border-top'] !== '0'
+  ) {
     // eslint-disable-next-line no-use-before-define
     const [borderSize, borderStroke, borderColor] = cssBorderParser(
       vNode.properties.style['border-top']
@@ -1125,7 +985,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
       stroke: borderStroke,
     };
   }
-  if (vNode.properties.style['border-left'] && vNode.properties.style['border-left'] === '0') {
+  if (vNode.properties.style?.['border-left'] === '0') {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       left: 0,
@@ -1145,7 +1005,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
       stroke: borderStroke,
     };
   }
-  if (vNode.properties.style['border-bottom'] && vNode.properties.style['border-bottom'] === '0') {
+  if (vNode.properties.style?.['border-bottom'] === '0') {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       bottom: 0,
@@ -1165,7 +1025,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
       stroke: borderStroke,
     };
   }
-  if (vNode.properties.style['border-right'] && vNode.properties.style['border-right'] === '0') {
+  if (vNode.properties.style?.['border-right'] === '0') {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       right: 0,
@@ -1188,9 +1048,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
 };
 
 const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocumentInstance) => {
-  const tableCellFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tc');
+  const tableCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
 
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
@@ -1204,17 +1062,13 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
         // eslint-disable-next-line prefer-object-spread
         Object.assign({}, previousSpanObject, {
           rowSpan: 0,
-          colSpan: (previousSpanObject && previousSpanObject.colSpan) || 0,
+          colSpan: previousSpanObject?.colSpan || 0,
         })
       );
     }
-    if (
-      vNode.properties.colSpan ||
-      (vNode.properties.style && vNode.properties.style['column-span'])
-    ) {
+    if (vNode.properties.colSpan || vNode.properties.style?.['column-span']) {
       modifiedAttributes.colSpan =
-        vNode.properties.colSpan ||
-        (vNode.properties.style && vNode.properties.style['column-span']);
+        vNode.properties.colSpan || vNode.properties.style?.['column-span'];
       const previousSpanObject = rowSpanMap.get(columnIndex.index);
       rowSpanMap.set(
         columnIndex.index,
@@ -1226,15 +1080,12 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
       columnIndex.index += parseInt(modifiedAttributes.colSpan) - 1;
     }
     if (vNode.properties.style) {
-      if (
-        vNode.properties.style.color &&
-        !['transparent', 'auto'].includes(vNode.properties.style.color)
-      ) {
+      if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
         modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
       }
       if (
         vNode.properties.style['background-color'] &&
-        !['transparent', 'auto'].includes(vNode.properties.style['background-color'])
+        !colorlessColors.includes(vNode.properties.style['background-color'])
       ) {
         modifiedAttributes.backgroundColor = fixupColorCode(
           vNode.properties.style['background-color']
@@ -1242,7 +1093,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
       }
       if (
         vNode.properties.style['vertical-align'] &&
-        ['top', 'middle', 'bottom'].includes(vNode.properties.style['vertical-align'])
+        verticalAlignValues.includes(vNode.properties.style['vertical-align'])
       ) {
         modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
       }
@@ -1251,7 +1102,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
   }
   const tableCellPropertiesFragment = buildTableCellProperties(modifiedAttributes);
   tableCellFragment.import(tableCellPropertiesFragment);
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (isVNode(childVNode) && childVNode.tagName === 'img') {
@@ -1264,11 +1115,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
           tableCellFragment.import(imageFragment);
         }
       } else if (isVNode(childVNode) && childVNode.tagName === 'figure') {
-        if (
-          childVNode.children &&
-          Array.isArray(childVNode.children) &&
-          childVNode.children.length
-        ) {
+        if (vNodeHasChildren(childVNode)) {
           // eslint-disable-next-line no-plusplus
           for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
             const grandChildVNode = childVNode.children[iteratorIndex];
@@ -1295,9 +1142,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
     }
   } else {
     // TODO: Figure out why building with buildParagraph() isn't working
-    const paragraphFragment = fragment({
-      namespaceAlias: { w: namespaces.w },
-    })
+    const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
       .ele('@w', 'p')
       .up();
     tableCellFragment.import(paragraphFragment);
@@ -1310,10 +1155,8 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
 const buildRowSpanCell = (rowSpanMap, columnIndex, attributes) => {
   const rowSpanCellFragments = [];
   let spanObject = rowSpanMap.get(columnIndex.index);
-  while (spanObject && spanObject.rowSpan) {
-    const rowSpanCellFragment = fragment({
-      namespaceAlias: { w: namespaces.w },
-    }).ele('@w', 'tc');
+  while (spanObject?.rowSpan) {
+    const rowSpanCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
 
     const tableCellPropertiesFragment = buildTableCellProperties({
       ...attributes,
@@ -1322,9 +1165,7 @@ const buildRowSpanCell = (rowSpanMap, columnIndex, attributes) => {
     });
     rowSpanCellFragment.import(tableCellPropertiesFragment);
 
-    const paragraphFragment = fragment({
-      namespaceAlias: { w: namespaces.w },
-    })
+    const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
       .ele('@w', 'p')
       .up();
     rowSpanCellFragment.import(paragraphFragment);
@@ -1348,29 +1189,25 @@ const buildRowSpanCell = (rowSpanMap, columnIndex, attributes) => {
 };
 
 const buildTableRowProperties = (attributes) => {
-  const tableRowPropertiesFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'trPr');
-  if (attributes && attributes.constructor === Object) {
+  const tableRowPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'trPr'
+  );
+  if (attributes?.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'tableRowHeight':
           const tableRowHeightFragment = buildTableRowHeight(attributes[key]);
           tableRowPropertiesFragment.import(tableRowHeightFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableRowHeight;
           break;
         case 'rowCantSplit':
           if (attributes.rowCantSplit) {
-            const cantSplitFragment = fragment({
-              namespaceAlias: { w: namespaces.w },
-            })
+            const cantSplitFragment = fragment({ namespaceAlias: { w: namespaces.w } })
               .ele('@w', 'cantSplit')
               .up();
             tableRowPropertiesFragment.import(cantSplitFragment);
-            // Delete used property
             // eslint-disable-next-line no-param-reassign
             delete attributes.rowCantSplit;
           }
@@ -1383,21 +1220,19 @@ const buildTableRowProperties = (attributes) => {
 };
 
 const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
-  const tableRowFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tr');
+  const tableRowFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tr');
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
     // FIXME: find a better way to get row height from cell style
     if (
-      (vNode.properties.style && vNode.properties.style.height) ||
+      vNode.properties.style?.height ||
       (vNode.children[0] &&
         isVNode(vNode.children[0]) &&
         vNode.children[0].properties.style &&
         vNode.children[0].properties.style.height)
     ) {
       modifiedAttributes.tableRowHeight = fixupRowHeight(
-        (vNode.properties.style && vNode.properties.style.height) ||
+        vNode.properties.style?.height ||
           (vNode.children[0] &&
           isVNode(vNode.children[0]) &&
           vNode.children[0].properties.style &&
@@ -1415,7 +1250,7 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
 
   const columnIndex = { index: 0 };
 
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     const tableColumns = vNode.children.filter((childVNode) =>
       ['td', 'th'].includes(childVNode.tagName)
     );
@@ -1464,21 +1299,14 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
   return tableRowFragment;
 };
 
-const buildTableGridCol = (gridWidth) => {
-  const tableGridColFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildTableGridCol = (gridWidth) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'gridCol')
     .att('@w', 'w', String(gridWidth));
 
-  return tableGridColFragment;
-};
-
 const buildTableGrid = (vNode, attributes) => {
-  const tableGridFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tblGrid');
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
+  if (vNodeHasChildren(vNode)) {
     const gridColumns = vNode.children.filter((childVNode) => childVNode.tagName === 'col');
     const gridWidth = attributes.maximumWidth / gridColumns.length;
 
@@ -1493,14 +1321,10 @@ const buildTableGrid = (vNode, attributes) => {
 };
 
 const buildTableGridFromTableRow = (vNode, attributes) => {
-  const tableGridFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tblGrid');
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
+  if (vNodeHasChildren(vNode)) {
     const numberOfGridColumns = vNode.children.reduce((accumulator, childVNode) => {
-      const colSpan =
-        childVNode.properties.colSpan ||
-        (childVNode.properties.style && childVNode.properties.style['column-span']);
+      const colSpan = childVNode.properties.colSpan || childVNode.properties.style?.['column-span'];
 
       return accumulator + (colSpan ? parseInt(colSpan) : 1);
     }, 0);
@@ -1517,9 +1341,10 @@ const buildTableGridFromTableRow = (vNode, attributes) => {
 };
 
 const buildTableBorders = (tableBorder) => {
-  const tableBordersFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tblBorders');
+  const tableBordersFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tblBorders'
+  );
 
   const { color, stroke, ...borders } = tableBorder;
 
@@ -1535,34 +1360,25 @@ const buildTableBorders = (tableBorder) => {
   return tableBordersFragment;
 };
 
-const buildTableWidth = (tableWidth) => {
-  const tableWidthFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildTableWidth = (tableWidth) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'tblW')
     .att('@w', 'type', 'dxa')
     .att('@w', 'w', String(tableWidth))
     .up();
 
-  return tableWidthFragment;
-};
-
-const buildCellMargin = (side, margin) => {
-  const marginFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  })
+const buildCellMargin = (side, margin) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', side)
     .att('@w', 'type', 'dxa')
     .att('@w', 'w', String(margin))
     .up();
 
-  return marginFragment;
-};
-
 const buildTableCellMargins = (margin) => {
-  const tableCellMarFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tblCellMar');
+  const tableCellMarFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tblCellMar'
+  );
 
   ['top', 'bottom'].forEach((side) => {
     const marginFragment = buildCellMargin(side, margin / 2);
@@ -1577,25 +1393,23 @@ const buildTableCellMargins = (margin) => {
 };
 
 const buildTableProperties = (attributes) => {
-  const tablePropertiesFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tblPr');
+  const tablePropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tblPr'
+  );
 
-  if (attributes && attributes.constructor === Object) {
+  if (attributes?.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
-      // eslint-disable-next-line default-case
       switch (key) {
         case 'tableBorder':
           const tableBordersFragment = buildTableBorders(attributes[key]);
           tablePropertiesFragment.import(tableBordersFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableBorder;
           break;
         case 'tableCellSpacing':
           const tableCellSpacingFragment = buildTableCellSpacing(attributes[key]);
           tablePropertiesFragment.import(tableCellSpacingFragment);
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellSpacing;
           break;
@@ -1604,7 +1418,6 @@ const buildTableProperties = (attributes) => {
             const tableWidthFragment = buildTableWidth(attributes[key]);
             tablePropertiesFragment.import(tableWidthFragment);
           }
-          // Delete used property
           // eslint-disable-next-line no-param-reassign
           delete attributes.width;
           break;
@@ -1643,9 +1456,7 @@ const cssBorderParser = (borderString) => {
 };
 
 const buildTable = (vNode, attributes, docxDocumentInstance) => {
-  const tableFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'tbl');
+  const tableFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tbl');
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
     const tableAttributes = vNode.properties.attributes || {};
@@ -1745,7 +1556,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
 
   const rowSpanMap = new Map();
 
-  if (vNode.children && Array.isArray(vNode.children) && vNode.children.length) {
+  if (vNodeHasChildren(vNode)) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (childVNode.tagName === 'colgroup') {
@@ -1811,45 +1622,31 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
   return tableFragment;
 };
 
-const buildPresetGeometry = () => {
-  const presetGeometryFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  })
+const buildPresetGeometry = () =>
+  fragment({ namespaceAlias: { a: namespaces.a } })
     .ele('@a', 'prstGeom')
     .att('prst', 'rect')
     .up();
 
-  return presetGeometryFragment;
-};
-
-const buildExtents = ({ width, height }) => {
-  const extentsFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  })
+const buildExtents = ({ width, height }) =>
+  fragment({ namespaceAlias: { a: namespaces.a } })
     .ele('@a', 'ext')
     .att('cx', width)
     .att('cy', height)
     .up();
 
-  return extentsFragment;
-};
-
-const buildOffset = () => {
-  const offsetFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  })
+const buildOffset = () =>
+  fragment({ namespaceAlias: { a: namespaces.a } })
     .ele('@a', 'off')
     .att('x', '0')
     .att('y', '0')
     .up();
 
-  return offsetFragment;
-};
-
 const buildGraphicFrameTransform = (attributes) => {
-  const graphicFrameTransformFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  }).ele('@a', 'xfrm');
+  const graphicFrameTransformFragment = fragment({ namespaceAlias: { a: namespaces.a } }).ele(
+    '@a',
+    'xfrm'
+  );
 
   const offsetFragment = buildOffset();
   graphicFrameTransformFragment.import(offsetFragment);
@@ -1862,9 +1659,7 @@ const buildGraphicFrameTransform = (attributes) => {
 };
 
 const buildShapeProperties = (attributes) => {
-  const shapeProperties = fragment({
-    namespaceAlias: { pic: namespaces.pic },
-  }).ele('@pic', 'spPr');
+  const shapeProperties = fragment({ namespaceAlias: { pic: namespaces.pic } }).ele('@pic', 'spPr');
 
   const graphicFrameTransformFragment = buildGraphicFrameTransform(attributes);
   shapeProperties.import(graphicFrameTransformFragment);
@@ -1876,20 +1671,13 @@ const buildShapeProperties = (attributes) => {
   return shapeProperties;
 };
 
-const buildFillRect = () => {
-  const fillRectFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  })
+const buildFillRect = () =>
+  fragment({ namespaceAlias: { a: namespaces.a } })
     .ele('@a', 'fillRect')
     .up();
 
-  return fillRectFragment;
-};
-
 const buildStretch = () => {
-  const stretchFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  }).ele('@a', 'stretch');
+  const stretchFragment = fragment({ namespaceAlias: { a: namespaces.a } }).ele('@a', 'stretch');
 
   const fillRectFragment = buildFillRect();
   stretchFragment.import(fillRectFragment);
@@ -1899,10 +1687,8 @@ const buildStretch = () => {
   return stretchFragment;
 };
 
-const buildSrcRectFragment = () => {
-  const srcRectFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  })
+const buildSrcRectFragment = () =>
+  fragment({ namespaceAlias: { a: namespaces.a } })
     .ele('@a', 'srcRect')
     .att('b', '0')
     .att('l', '0')
@@ -1910,22 +1696,15 @@ const buildSrcRectFragment = () => {
     .att('t', '0')
     .up();
 
-  return srcRectFragment;
-};
-
-const buildBinaryLargeImageOrPicture = (relationshipId) => {
-  const binaryLargeImageOrPictureFragment = fragment({
+const buildBinaryLargeImageOrPicture = (relationshipId) =>
+  fragment({
     namespaceAlias: { a: namespaces.a, r: namespaces.r },
   })
     .ele('@a', 'blip')
     .att('@r', 'embed', `rId${relationshipId}`)
     // FIXME: possible values 'email', 'none', 'print', 'hqprint', 'screen'
-    .att('cstate', 'print');
-
-  binaryLargeImageOrPictureFragment.up();
-
-  return binaryLargeImageOrPictureFragment;
-};
+    .att('cstate', 'print')
+    .up();
 
 const buildBinaryLargeImageOrPictureFill = (relationshipId) => {
   const binaryLargeImageOrPictureFillFragment = fragment({
@@ -1943,33 +1722,22 @@ const buildBinaryLargeImageOrPictureFill = (relationshipId) => {
   return binaryLargeImageOrPictureFillFragment;
 };
 
-const buildNonVisualPictureDrawingProperties = () => {
-  const nonVisualPictureDrawingPropertiesFragment = fragment({
-    namespaceAlias: { pic: namespaces.pic },
-  }).ele('@pic', 'cNvPicPr');
-
-  nonVisualPictureDrawingPropertiesFragment.up();
-
-  return nonVisualPictureDrawingPropertiesFragment;
-};
+const buildNonVisualPictureDrawingProperties = () =>
+  fragment({ namespaceAlias: { pic: namespaces.pic } })
+    .ele('@pic', 'cNvPicPr')
+    .up();
 
 const buildNonVisualDrawingProperties = (
   pictureId,
   pictureNameWithExtension,
   pictureDescription = ''
-) => {
-  const nonVisualDrawingPropertiesFragment = fragment({
-    namespaceAlias: { pic: namespaces.pic },
-  })
+) =>
+  fragment({ namespaceAlias: { pic: namespaces.pic } })
     .ele('@pic', 'cNvPr')
     .att('id', pictureId)
     .att('name', pictureNameWithExtension)
-    .att('descr', pictureDescription);
-
-  nonVisualDrawingPropertiesFragment.up();
-
-  return nonVisualDrawingPropertiesFragment;
-};
+    .att('descr', pictureDescription)
+    .up();
 
 const buildNonVisualPictureProperties = (
   pictureId,
@@ -2001,9 +1769,7 @@ const buildPicture = ({
   width,
   height,
 }) => {
-  const pictureFragment = fragment({
-    namespaceAlias: { pic: namespaces.pic },
-  }).ele('@pic', 'pic');
+  const pictureFragment = fragment({ namespaceAlias: { pic: namespaces.pic } }).ele('@pic', 'pic');
   const nonVisualPicturePropertiesFragment = buildNonVisualPictureProperties(
     id,
     fileNameWithExtension,
@@ -2020,9 +1786,7 @@ const buildPicture = ({
 };
 
 const buildGraphicData = (graphicType, attributes) => {
-  const graphicDataFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  })
+  const graphicDataFragment = fragment({ namespaceAlias: { a: namespaces.a } })
     .ele('@a', 'graphicData')
     .att('uri', 'http://schemas.openxmlformats.org/drawingml/2006/picture');
   if (graphicType === 'picture') {
@@ -2035,9 +1799,7 @@ const buildGraphicData = (graphicType, attributes) => {
 };
 
 const buildGraphic = (graphicType, attributes) => {
-  const graphicFragment = fragment({
-    namespaceAlias: { a: namespaces.a },
-  }).ele('@a', 'graphic');
+  const graphicFragment = fragment({ namespaceAlias: { a: namespaces.a } }).ele('@a', 'graphic');
   // TODO: Handle drawing type
   const graphicDataFragment = buildGraphicData(graphicType, attributes);
   graphicFragment.import(graphicDataFragment);
@@ -2046,22 +1808,15 @@ const buildGraphic = (graphicType, attributes) => {
   return graphicFragment;
 };
 
-const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) => {
-  const drawingObjectNonVisualPropertiesFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+const buildDrawingObjectNonVisualProperties = (pictureId, pictureName) =>
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'docPr')
     .att('id', pictureId)
     .att('name', pictureName)
     .up();
 
-  return drawingObjectNonVisualPropertiesFragment;
-};
-
-const buildWrapSquare = () => {
-  const wrapSquareFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+const buildWrapSquare = () =>
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'wrapSquare')
     .att('wrapText', 'bothSides')
     .att('distB', '228600')
@@ -2070,24 +1825,14 @@ const buildWrapSquare = () => {
     .att('distR', '228600')
     .up();
 
-  return wrapSquareFragment;
-};
-
 // eslint-disable-next-line no-unused-vars
-const buildWrapNone = () => {
-  const wrapNoneFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+const buildWrapNone = () =>
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'wrapNone')
     .up();
 
-  return wrapNoneFragment;
-};
-
-const buildEffectExtentFragment = () => {
-  const effectExtentFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+const buildEffectExtentFragment = () =>
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'effectExtent')
     .att('b', '0')
     .att('l', '0')
@@ -2095,25 +1840,15 @@ const buildEffectExtentFragment = () => {
     .att('t', '0')
     .up();
 
-  return effectExtentFragment;
-};
-
-const buildExtent = ({ width, height }) => {
-  const extentFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+const buildExtent = ({ width, height }) =>
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'extent')
     .att('cx', width)
     .att('cy', height)
     .up();
 
-  return extentFragment;
-};
-
-const buildPositionV = () => {
-  const positionVFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+const buildPositionV = () =>
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'positionV')
     .att('relativeFrom', 'paragraph')
     .ele('@wp', 'posOffset')
@@ -2121,13 +1856,8 @@ const buildPositionV = () => {
     .up()
     .up();
 
-  return positionVFragment;
-};
-
-const buildPositionH = () => {
-  const positionHFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+const buildPositionH = () =>
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'positionH')
     .att('relativeFrom', 'column')
     .ele('@wp', 'posOffset')
@@ -2135,25 +1865,15 @@ const buildPositionH = () => {
     .up()
     .up();
 
-  return positionHFragment;
-};
-
-const buildSimplePos = () => {
-  const simplePosFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+const buildSimplePos = () =>
+  fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'simplePos')
     .att('x', '0')
     .att('y', '0')
     .up();
 
-  return simplePosFragment;
-};
-
 const buildAnchoredDrawing = (graphicType, attributes) => {
-  const anchoredDrawingFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+  const anchoredDrawingFragment = fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'anchor')
     .att('distB', '0')
     .att('distL', '0')
@@ -2192,9 +1912,7 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
 };
 
 const buildInlineDrawing = (graphicType, attributes) => {
-  const inlineDrawingFragment = fragment({
-    namespaceAlias: { wp: namespaces.wp },
-  })
+  const inlineDrawingFragment = fragment({ namespaceAlias: { wp: namespaces.wp } })
     .ele('@wp', 'inline')
     .att('distB', '0')
     .att('distL', '0')
@@ -2219,9 +1937,7 @@ const buildInlineDrawing = (graphicType, attributes) => {
 };
 
 const buildDrawing = (inlineOrAnchored = false, graphicType, attributes) => {
-  const drawingFragment = fragment({
-    namespaceAlias: { w: namespaces.w },
-  }).ele('@w', 'drawing');
+  const drawingFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'drawing');
   const inlineOrAnchoredDrawingFragment = inlineOrAnchored
     ? buildInlineDrawing(graphicType, attributes)
     : buildAnchoredDrawing(graphicType, attributes);

@@ -1,4 +1,4 @@
-import { namespaces } from '../helpers';
+import namespaces from '../namespaces';
 
 const relsXML = `
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>

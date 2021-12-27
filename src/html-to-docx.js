@@ -1,7 +1,8 @@
 import { create } from 'xmlbuilder2';
 import VNode from 'virtual-dom/vnode/vnode';
 import VText from 'virtual-dom/vnode/vtext';
-import * as HTMLToVDOM_ from 'html-to-vdom';
+// eslint-disable-next-line import/no-named-default
+import { default as HTMLToVDOM } from 'html-to-vdom';
 
 import { relsXML } from './schemas';
 import DocxDocument from './docx-document';
@@ -16,55 +17,26 @@ import {
   pointRegex,
   pointToHIP,
 } from './utils/unit-conversion';
-
-const HTMLToVDOM = HTMLToVDOM_;
+import {
+  defaultDocumentOptions,
+  defaultHTMLString,
+  relsFolderName,
+  headerFileName,
+  footerFileName,
+  themeFileName,
+  documentFileName,
+  headerType,
+  footerType,
+  internalRelationship,
+  wordFolder,
+  themeFolder,
+  themeType,
+} from './constants';
 
 const convertHTML = HTMLToVDOM({
   VNode,
   VText,
 });
-
-const defaultDocumentOptions = {
-  orientation: 'portrait',
-  margins: {
-    top: 1440,
-    right: 1800,
-    bottom: 1440,
-    left: 1800,
-    header: 720,
-    footer: 720,
-    gutter: 0,
-  },
-  title: '',
-  subject: '',
-  creator: 'html-to-docx',
-  keywords: ['html-to-docx'],
-  description: '',
-  lastModifiedBy: 'html-to-docx',
-  revision: 1,
-  createdAt: new Date(),
-  modifiedAt: new Date(),
-  headerType: 'default',
-  header: false,
-  footerType: 'default',
-  footer: false,
-  font: 'Times New Roman',
-  fontSize: 22,
-  complexScriptFontSize: 22,
-  table: {
-    row: {
-      cantSplit: false,
-    },
-  },
-  pageNumber: false,
-  skipFirstHeaderFooter: false,
-  lineNumber: false,
-  lineNumberOptions: {
-    countBy: 1,
-    start: 0,
-    restart: 'continuous',
-  },
-};
 
 const mergeOptions = (options, patch) => ({ ...options, ...patch });
 
@@ -115,7 +87,6 @@ const fixupMargins = (margins) => {
 const normalizeDocumentOptions = (documentOptions) => {
   const normalizedDocumentOptions = { ...documentOptions };
   Object.keys(documentOptions).forEach((key) => {
-    // eslint-disable-next-line default-case
     switch (key) {
       case 'margins':
         normalizedDocumentOptions.margins = fixupMargins(documentOptions[key]);
@@ -132,8 +103,7 @@ const normalizeDocumentOptions = (documentOptions) => {
 
 // Ref: https://en.wikipedia.org/wiki/Office_Open_XML_file_formats
 // http://officeopenxml.com/anatomyofOOXML.php
-// eslint-disable-next-line import/prefer-default-export
-export function addFilesToContainer(
+function addFilesToContainer(
   zip,
   htmlString,
   suppliedDocumentOptions,
@@ -145,11 +115,11 @@ export function addFilesToContainer(
 
   if (documentOptions.header && !headerHTMLString) {
     // eslint-disable-next-line no-param-reassign
-    headerHTMLString = '<p></p>';
+    headerHTMLString = defaultHTMLString;
   }
   if (documentOptions.footer && !footerHTMLString) {
     // eslint-disable-next-line no-param-reassign
-    footerHTMLString = '<p></p>';
+    footerHTMLString = defaultHTMLString;
   }
 
   const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
@@ -157,7 +127,7 @@ export function addFilesToContainer(
   docxDocument.documentXML = renderDocumentFile(docxDocument);
 
   zip
-    .folder('_rels')
+    .folder(relsFolderName)
     .file(
       '.rels',
       create({ encoding: 'UTF-8', standalone: true }, relsXML).toString({ prettyPrint: true }),
@@ -171,18 +141,19 @@ export function addFilesToContainer(
   if (docxDocument.header && headerHTMLString) {
     const vTree = convertHTML(headerHTMLString);
 
-    docxDocument.relationshipFilename = 'header1';
+    docxDocument.relationshipFilename = headerFileName;
     const { headerId, headerXML } = docxDocument.generateHeaderXML(vTree);
-    docxDocument.relationshipFilename = 'document';
+    docxDocument.relationshipFilename = documentFileName;
+    const fileNameWithExt = `${headerType}${headerId}.xml`;
 
     const relationshipId = docxDocument.createDocumentRelationships(
       docxDocument.relationshipFilename,
-      'header',
-      `header${headerId}.xml`,
-      'Internal'
+      headerType,
+      fileNameWithExt,
+      internalRelationship
     );
 
-    zip.folder('word').file(`header${headerId}.xml`, headerXML.toString({ prettyPrint: true }), {
+    zip.folder(wordFolder).file(fileNameWithExt, headerXML.toString({ prettyPrint: true }), {
       createFolders: false,
     });
 
@@ -191,59 +162,51 @@ export function addFilesToContainer(
   if (docxDocument.footer && footerHTMLString) {
     const vTree = convertHTML(footerHTMLString);
 
-    docxDocument.relationshipFilename = 'footer1';
+    docxDocument.relationshipFilename = footerFileName;
     const { footerId, footerXML } = docxDocument.generateFooterXML(vTree);
-    docxDocument.relationshipFilename = 'document';
+    docxDocument.relationshipFilename = documentFileName;
+    const fileNameWithExt = `${footerType}${footerId}.xml`;
 
     const relationshipId = docxDocument.createDocumentRelationships(
       docxDocument.relationshipFilename,
-      'footer',
-      `footer${footerId}.xml`,
-      'Internal'
+      footerType,
+      fileNameWithExt,
+      internalRelationship
     );
 
-    zip.folder('word').file(`footer${footerId}.xml`, footerXML.toString({ prettyPrint: true }), {
+    zip.folder(wordFolder).file(fileNameWithExt, footerXML.toString({ prettyPrint: true }), {
       createFolders: false,
     });
 
     docxDocument.footerObjects.push({ footerId, relationshipId, type: docxDocument.footerType });
   }
-
+  const themeFileNameWithExt = `${themeFileName}.xml`;
   docxDocument.createDocumentRelationships(
     docxDocument.relationshipFilename,
-    'theme',
-    'theme/theme1.xml',
-    'Internal'
+    themeType,
+    `${themeFolder}/${themeFileNameWithExt}`,
+    internalRelationship
   );
-  zip.folder('word').folder('theme').file('theme1.xml', docxDocument.generateThemeXML(), {
-    createFolders: false,
-  });
-
   zip
-    .folder('word')
-    .file('document.xml', docxDocument.generateDocumentXML(), {
-      createFolders: false,
-    })
-    .file('fontTable.xml', docxDocument.generateFontTableXML(), {
-      createFolders: false,
-    })
-    .file('styles.xml', docxDocument.generateStylesXML(), {
-      createFolders: false,
-    })
-    .file('numbering.xml', docxDocument.generateNumberingXML(), {
-      createFolders: false,
-    })
-    .file('settings.xml', docxDocument.generateSettingsXML(), {
-      createFolders: false,
-    })
-    .file('webSettings.xml', docxDocument.generateWebSettingsXML(), {
+    .folder(wordFolder)
+    .folder(themeFolder)
+    .file(themeFileNameWithExt, docxDocument.generateThemeXML(), {
       createFolders: false,
     });
+
+  zip
+    .folder(wordFolder)
+    .file('document.xml', docxDocument.generateDocumentXML(), { createFolders: false })
+    .file('fontTable.xml', docxDocument.generateFontTableXML(), { createFolders: false })
+    .file('styles.xml', docxDocument.generateStylesXML(), { createFolders: false })
+    .file('numbering.xml', docxDocument.generateNumberingXML(), { createFolders: false })
+    .file('settings.xml', docxDocument.generateSettingsXML(), { createFolders: false })
+    .file('webSettings.xml', docxDocument.generateWebSettingsXML(), { createFolders: false });
 
   const relationshipXMLs = docxDocument.generateRelsXML();
   if (relationshipXMLs && Array.isArray(relationshipXMLs)) {
     relationshipXMLs.forEach(({ fileName, xmlString }) => {
-      zip.folder('word').folder('_rels').file(`${fileName}.xml.rels`, xmlString, {
+      zip.folder(wordFolder).folder(relsFolderName).file(`${fileName}.xml.rels`, xmlString, {
         createFolders: false,
       });
     });
@@ -253,3 +216,5 @@ export function addFilesToContainer(
 
   return zip;
 }
+
+export default addFilesToContainer;

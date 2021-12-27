@@ -1,11 +1,10 @@
 /* eslint-disable no-useless-escape */
-/* eslint-disable no-param-reassign */
 import JSZip from 'jszip';
-import { addFilesToContainer } from './src/html-to-docx';
+import addFilesToContainer from './src/html-to-docx';
 
 const minifyHTMLString = (htmlString) => {
-  if (typeof htmlString === 'string' || htmlString instanceof String) {
-    try {
+  try {
+    if (typeof htmlString === 'string' || htmlString instanceof String) {
       const minifiedHTMLString = htmlString
         .replace(/\n/g, ' ')
         .replace(/\r/g, ' ')
@@ -15,10 +14,10 @@ const minifyHTMLString = (htmlString) => {
         .replace(/\>[\t ]+$/g, '>');
 
       return minifiedHTMLString;
-    } catch (error) {
-      return null;
     }
-  } else {
+
+    throw new Error('invalid html string');
+  } catch (error) {
     return null;
   }
 };

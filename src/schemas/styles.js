@@ -1,7 +1,11 @@
-import { namespaces } from '../helpers';
+import { defaultFont, defaultFontSize } from '../constants';
+import namespaces from '../namespaces';
 
-const generateStylesXML = (font = 'Times New Roman', fontSize = 22, complexScriptFontSize = 22) => {
-  return `
+const generateStylesXML = (
+  font = defaultFont,
+  fontSize = defaultFontSize,
+  complexScriptFontSize = defaultFontSize
+) => `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
   <w:styles xmlns:w="${namespaces.w}" xmlns:r="${namespaces.r}">
@@ -144,6 +148,5 @@ const generateStylesXML = (font = 'Times New Roman', fontSize = 22, complexScrip
 	</w:style>
   </w:styles>
   `;
-};
 
 export default generateStylesXML;

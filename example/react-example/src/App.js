@@ -1,10 +1,7 @@
-/* eslint-disable no-console */
-const fs = require('fs');
-// FIXME: Incase you have the npm package
-// const HTMLtoDOCX = require('html-to-docx');
-const HTMLtoDOCX = require('../dist/html-to-docx.umd');
+import HTMLtoDOCX from 'html-to-docx';
+import { saveAs } from 'file-saver';
 
-const filePath = './example.docx';
+import './App.css';
 
 const htmlString = `<!DOCTYPE html>
 <html lang="en">
@@ -53,18 +50,6 @@ const htmlString = `<!DOCTYPE html>
                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make
                 a type specimen book.
             </strong>
-        </p>
-        <p style="margin-left: 40px;">
-            <strong>Left indented paragraph:</strong>
-            <span>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</span>
-        </p>
-        <p style="margin-right: 40px;">
-            <strong>Right indented paragraph:</strong>
-            <span>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</span>
-        </p>
-        <p style="margin-left: 40px; margin-right: 40px;">
-            <strong>Left and right indented paragraph:</strong>
-            <span>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</span>
         </p>
         <ul style="list-style-type: circle;">
             <li>Unordered list element</li>
@@ -122,18 +107,27 @@ const htmlString = `<!DOCTYPE html>
     </body>
 </html>`;
 
-(async () => {
-  const fileBuffer = await HTMLtoDOCX(htmlString, null, {
-    table: { row: { cantSplit: true } },
-    footer: true,
-    pageNumber: true,
-  });
+function App() {
+  async function downloadDocx(params) {
+    const fileBuffer = await HTMLtoDOCX(htmlString, null, {
+      table: { row: { cantSplit: true } },
+      footer: true,
+      pageNumber: true,
+    });
 
-  fs.writeFile(filePath, fileBuffer, (error) => {
-    if (error) {
-      console.log('Docx file creation failed');
-      return;
-    }
-    console.log('Docx file created successfully');
-  });
-})();
+    saveAs(fileBuffer, 'html-to-docx.docx');
+  }
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+        <a className="App-link" href="#" onClick={downloadDocx}>
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
+}
+
+export default App;
