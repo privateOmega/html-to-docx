@@ -36,7 +36,7 @@ import {
 } from '../utils/unit-conversion';
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
-import { buildImage } from './render-document-file';
+import { buildImage, buildList } from './render-document-file';
 import {
   defaultFont,
   hyperlinkType,
@@ -1130,6 +1130,11 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
               }
             }
           }
+        }
+      } else if (isVNode(childVNode) && ['ul', 'ol'].includes(childVNode.tagName)) {
+        // render list in table
+        if (vNodeHasChildren(childVNode)) {
+          buildList(childVNode, docxDocumentInstance, tableCellFragment);
         }
       } else {
         const paragraphFragment = buildParagraph(
