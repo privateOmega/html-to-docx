@@ -85,7 +85,7 @@ const htmlString = `<!DOCTYPE html>
             <li>Tea
                 <ol>
                     <li>Black tea
-                        <ol>
+                        <ol style="list-style-type:lower-alpha-bracket-end;" data-start="2">
                             <li>Srilankan <strong>Tea</strong>
                                 <ul>
                                     <li>Uva <b>Tea</b></li>
