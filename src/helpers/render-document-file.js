@@ -164,7 +164,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
   if (
     vNode.tagName === 'div' &&
     (vNode.properties.attributes.class === 'page-break' ||
-      vNode.properties.style?.['page-break-after'])
+      (vNode.properties.style && vNode.properties.style['page-break-after']))
   ) {
     const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
       .ele('@w', 'p')
