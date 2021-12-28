@@ -202,7 +202,7 @@ const buildTextElement = (text) =>
 
 const buildRunProperties = (attributes) => {
   const runPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'rPr');
-  if (attributes?.constructor === Object) {
+  if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
       switch (key) {
         case 'strong':
@@ -325,7 +325,7 @@ const buildRun = (vNode, attributes) => {
         runPropertiesFragment.import(formattingFragment);
       }
 
-      if (tempVNode?.children?.length) {
+      if (tempVNode.children && tempVNode.children.length) {
         vNodes = tempVNode.children.slice().concat(vNodes);
       }
     }
@@ -419,7 +419,7 @@ const buildRunOrRuns = (vNode, attributes) => {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       const modifiedAttributes = { ...attributes };
-      if (isVNode(vNode) && vNode.properties?.style) {
+      if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
         if (
           vNode.properties.style.color &&
           !colorlessColors.includes(vNode.properties.style.color)
@@ -454,7 +454,7 @@ const buildRunOrHyperLink = (vNode, attributes, docxDocumentInstance) => {
     const relationshipId = docxDocumentInstance.createDocumentRelationships(
       docxDocumentInstance.relationshipFilename,
       hyperlinkType,
-      vNode.properties?.href ?? ''
+      vNode.properties && vNode.properties.href ? vNode.properties.href : ''
     );
     const hyperlinkFragment = fragment({ namespaceAlias: { w: namespaces.w, r: namespaces.r } })
       .ele('@w', 'hyperlink')
@@ -577,7 +577,7 @@ const buildParagraphProperties = (attributes) => {
     '@w',
     'pPr'
   );
-  if (attributes?.constructor === Object) {
+  if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
       switch (key) {
         case 'numbering':
@@ -652,7 +652,7 @@ const computeImageDimensions = (vNode, attributes) => {
   let modifiedHeight;
   let modifiedWidth;
 
-  if (vNode.properties?.style) {
+  if (vNode.properties && vNode.properties.style) {
     if (vNode.properties.style.width) {
       if (vNode.properties.style.width !== 'auto') {
         if (pixelRegex.test(vNode.properties.style.width)) {
@@ -664,7 +664,7 @@ const computeImageDimensions = (vNode, attributes) => {
         }
       } else {
         // eslint-disable-next-line no-lonely-if
-        if (vNode.properties?.style?.height === 'auto') {
+        if (vNode.properties.style.height && vNode.properties.style.height === 'auto') {
           modifiedWidth = originalWidthInEMU;
           modifiedHeight = originalHeightInEMU;
         }
@@ -713,7 +713,7 @@ const computeImageDimensions = (vNode, attributes) => {
 const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
   const modifiedAttributes = { ...attributes };
-  if (isVNode(vNode) && vNode.properties?.style) {
+  if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
     if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
       modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
     }
@@ -738,7 +738,7 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
       modifiedAttributes.textAlign = vNode.properties.style['text-align'];
     }
     // FIXME: remove bold check when other font weights are handled.
-    if (vNode.properties.style?.['font-weight'] === 'bold') {
+    if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
       modifiedAttributes.strong = vNode.properties.style['font-weight'];
     }
     if (vNode.properties.style['font-size']) {
@@ -904,7 +904,7 @@ const buildTableCellProperties = (attributes) => {
     '@w',
     'tcPr'
   );
-  if (attributes?.constructor === Object) {
+  if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
       switch (key) {
         case 'backgroundColor':
@@ -965,15 +965,12 @@ const fixupTableCellBorder = (vNode, attributes) => {
       };
     }
   }
-  if (vNode.properties.style?.['border-top'] === '0') {
+  if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] === '0') {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       top: 0,
     };
-  } else if (
-    vNode.properties.style?.['border-top'] &&
-    vNode.properties.style['border-top'] !== '0'
-  ) {
+  } else if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] !== '0') {
     // eslint-disable-next-line no-use-before-define
     const [borderSize, borderStroke, borderColor] = cssBorderParser(
       vNode.properties.style['border-top']
@@ -985,7 +982,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
       stroke: borderStroke,
     };
   }
-  if (vNode.properties.style?.['border-left'] === '0') {
+  if (vNode.properties.style['border-left'] && vNode.properties.style['border-left'] === '0') {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       left: 0,
@@ -1005,7 +1002,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
       stroke: borderStroke,
     };
   }
-  if (vNode.properties.style?.['border-bottom'] === '0') {
+  if (vNode.properties.style['border-bottom'] && vNode.properties.style['border-bottom'] === '0') {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       bottom: 0,
@@ -1025,7 +1022,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
       stroke: borderStroke,
     };
   }
-  if (vNode.properties.style?.['border-right'] === '0') {
+  if (vNode.properties.style['border-right'] && vNode.properties.style['border-right'] === '0') {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       right: 0,
@@ -1062,13 +1059,17 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
         // eslint-disable-next-line prefer-object-spread
         Object.assign({}, previousSpanObject, {
           rowSpan: 0,
-          colSpan: previousSpanObject?.colSpan || 0,
+          colSpan: (previousSpanObject && previousSpanObject.colSpan) || 0,
         })
       );
     }
-    if (vNode.properties.colSpan || vNode.properties.style?.['column-span']) {
+    if (
+      vNode.properties.colSpan ||
+      (vNode.properties.style && vNode.properties.style['column-span'])
+    ) {
       modifiedAttributes.colSpan =
-        vNode.properties.colSpan || vNode.properties.style?.['column-span'];
+        vNode.properties.colSpan ||
+        (vNode.properties.style && vNode.properties.style['column-span']);
       const previousSpanObject = rowSpanMap.get(columnIndex.index);
       rowSpanMap.set(
         columnIndex.index,
@@ -1160,7 +1161,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
 const buildRowSpanCell = (rowSpanMap, columnIndex, attributes) => {
   const rowSpanCellFragments = [];
   let spanObject = rowSpanMap.get(columnIndex.index);
-  while (spanObject?.rowSpan) {
+  while (spanObject && spanObject.rowSpan) {
     const rowSpanCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
 
     const tableCellPropertiesFragment = buildTableCellProperties({
@@ -1198,7 +1199,7 @@ const buildTableRowProperties = (attributes) => {
     '@w',
     'trPr'
   );
-  if (attributes?.constructor === Object) {
+  if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
       switch (key) {
         case 'tableRowHeight':
@@ -1230,14 +1231,14 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.properties) {
     // FIXME: find a better way to get row height from cell style
     if (
-      vNode.properties.style?.height ||
+      (vNode.properties.style && vNode.properties.style.height) ||
       (vNode.children[0] &&
         isVNode(vNode.children[0]) &&
         vNode.children[0].properties.style &&
         vNode.children[0].properties.style.height)
     ) {
       modifiedAttributes.tableRowHeight = fixupRowHeight(
-        vNode.properties.style?.height ||
+        (vNode.properties.style && vNode.properties.style.height) ||
           (vNode.children[0] &&
           isVNode(vNode.children[0]) &&
           vNode.children[0].properties.style &&
@@ -1329,7 +1330,9 @@ const buildTableGridFromTableRow = (vNode, attributes) => {
   const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
   if (vNodeHasChildren(vNode)) {
     const numberOfGridColumns = vNode.children.reduce((accumulator, childVNode) => {
-      const colSpan = childVNode.properties.colSpan || childVNode.properties.style?.['column-span'];
+      const colSpan =
+        childVNode.properties.colSpan ||
+        (childVNode.properties.style && childVNode.properties.style['column-span']);
 
       return accumulator + (colSpan ? parseInt(colSpan) : 1);
     }, 0);
@@ -1403,7 +1406,7 @@ const buildTableProperties = (attributes) => {
     'tblPr'
   );
 
-  if (attributes?.constructor === Object) {
+  if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
       switch (key) {
         case 'tableBorder':
