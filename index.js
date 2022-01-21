@@ -9,9 +9,9 @@ const minifyHTMLString = (htmlString) => {
         .replace(/\n/g, ' ')
         .replace(/\r/g, ' ')
         .replace(/\r\n/g, ' ')
-        .replace(/[\t]+\</g, '<')
-        .replace(/\>[\t ]+\</g, '><')
-        .replace(/\>[\t ]+$/g, '>');
+        .replace(/[\t ]+\</g, ' <')
+        .replace(/\>[\t ]+$/g, '> ')
+        .replace(/\>[\t ]+\</g, '> <');
 
       return minifiedHTMLString;
     }
