@@ -81,6 +81,30 @@ full fledged examples can be found under `example/`
 
 Currently page break can be implemented by having div with classname "page-break" or style "page-break-after" despite the values of the "page-break-after", and contents inside the div element will be ignored. `<div class="page-break" style="page-break-after: always;"></div>`
 
+<br>
+
+CSS list-style-type for `<ol>` element are now supported. Just do something like this in the HTML:
+```
+  <ol style="list-style-type:lower-alpha;">
+    <li>List item</li>
+    ...
+  </ol>
+```
+List of supported list-style-type:
+- upper-alpha, will result in `A. List item`
+- lower-alpha, will result in `a. List item`
+- upper-roman, will result in `I. List item`
+- lower-roman, will result in `i. List item`
+- decimal, will result in `1. List item`
+- lower-alpha-bracket-end, will result in `a) List item`
+- decimal-bracket-end, will result in `1) List item`
+- decimal-bracket, will result in `(1) List item`
+
+
+Also you could add attribute `data-start="n"` to start the numbering from the n-th.
+
+`<ol data-start="2">` will start the numbering from ( B. b. II. ii. 2. )
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
