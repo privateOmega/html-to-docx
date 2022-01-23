@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.2](https://github.com/privateOmega/html-to-docx/compare/v1.3.1...v1.3.2) (2022-01-23)
+
+
+### Features
+
+* add support for lists within table cells ([b7d5ce7](https://github.com/privateOmega/html-to-docx/commit/b7d5ce7c6381c8e5ea79e537ee78768c9fefdbb5))
+* allow different list style types ([5579be2](https://github.com/privateOmega/html-to-docx/commit/5579be26639286bd0abd75cd3957795b52f044d3))
+
 ### [1.3.1](https://github.com/privateOmega/html-to-docx/compare/v1.3.0...v1.3.1) (2021-12-27)
 
 ## [1.3.0](https://github.com/privateOmega/html-to-docx/compare/v1.2.4...v1.3.0) (2021-12-27)
