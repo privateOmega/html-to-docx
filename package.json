@@ -12,6 +12,9 @@
   ],
   "main": "dist/html-to-docx.umd.js",
   "module": "dist/html-to-docx.esm.js",
+  "browser" : {
+  "fs": false
+  },
   "scripts": {
     "test": "npm run build && node example/example-node.js",
     "release": "standard-version",
