@@ -14,7 +14,7 @@
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
     "preinstall": "npx npm-force-resolutions",
-    "test": "jest",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest tests/",
     "prerelease": "rollup -c",
     "release": "standard-version",
     "lint": "eslint --fix .",
