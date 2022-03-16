@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+import { fixupColorCode } from '../src/helpers/xml-builder';
 import {
   rgbRegex,
   hslRegex,
@@ -110,5 +111,36 @@ describe('Color Conversion Methods', () => {
     it.skip('should hex3 to hex throw error for invalid inputs', () => {
       expect(hex3ToHex('aa', 100, null)).toThrow();
     });
+  });
+});
+
+describe('fixupColorCode', () => {
+  it('should get hex value from color name', () => {
+    expect(fixupColorCode('antiquewhite')).toEqualCaseInsensitive('faebd7');
+  });
+
+  it('should get 000000 hex value only from random color names', () => {
+    expect(fixupColorCode('randomcolor')).toEqualCaseInsensitive('000000');
+  });
+
+  it.skip('should get 000000 hex value only for invalid input', () => {
+    expect(fixupColorCode(null)).toEqualCaseInsensitive('000000');
+    expect(fixupColorCode(undefined)).toEqualCaseInsensitive('000000');
+  });
+
+  it('should get hex value from rgb value', () => {
+    expect(fixupColorCode('rgb(128, 0, 128)')).toEqual('800080');
+  });
+
+  it('should get hex value from hsl value', () => {
+    expect(fixupColorCode('hsl(3, 100%, 50%)')).toEqual('ff0d00');
+  });
+
+  it('should get hex value from hex value', () => {
+    expect(fixupColorCode('#ff0d00')).toEqual('ff0d00');
+  });
+
+  it('should get hex value from hex3 value', () => {
+    expect(fixupColorCode('#fd0')).toEqual('ffdd00');
   });
 });
