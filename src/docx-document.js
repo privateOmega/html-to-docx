@@ -15,6 +15,7 @@ import {
   landscapeWidth,
   portraitMargins,
   themeType as themeFileType,
+  defaultDocumentOptions,
 } from './constants';
 import { convertVTreeToXML } from './helpers';
 import namespaces from './namespaces';
