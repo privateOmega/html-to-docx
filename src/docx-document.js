@@ -31,6 +31,7 @@ import {
   hyperlinkType,
   documentFileName,
   imageType,
+  defaultDocumentOptions,
 } from './constants';
 import { getListStyleType, getListPrefixSuffix } from './utils/list';
 
@@ -112,10 +113,14 @@ class DocxDocument {
     this.zip = properties.zip;
     this.htmlString = properties.htmlString;
     this.orientation = properties.orientation;
+    this.pageSize = properties.pageSize || defaultDocumentOptions.pageSize;
 
     const isPortraitOrientation = this.orientation === defaultOrientation;
-    this.width = isPortraitOrientation ? landscapeHeight : landscapeWidth;
-    this.height = isPortraitOrientation ? landscapeWidth : landscapeHeight;
+    const height = this.pageSize.height ? this.pageSize.height : landscapeHeight;
+    const width = this.pageSize.width ? this.pageSize.width : landscapeWidth;
+
+    this.width = isPortraitOrientation ? height : width;
+    this.height = isPortraitOrientation ? width : height;
 
     const marginsObject = properties.margins;
     this.margins =
