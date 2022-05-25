@@ -4,7 +4,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import { VText } from 'virtual-dom';
 import isVNode from 'virtual-dom/vnode/is-vnode';
 import isVText from 'virtual-dom/vnode/is-vtext';
 import colorNames from 'color-name';
@@ -214,6 +213,12 @@ const buildRunProperties = (attributes) => {
         case 'u':
           runPropertiesFragment.import(buildUnderline());
           break;
+        case 'sub':
+          runPropertiesFragment.import(buildVertAlign('subscript'));
+          break;
+        case 'sup':
+          runPropertiesFragment.import(buildVertAlign('superscript'));
+          break;
         case 'color':
           runPropertiesFragment.import(buildColor(attributes[key]));
           break;
@@ -271,7 +276,7 @@ const buildTextFormatting = (vNode) => {
 
 const buildRun = (vNode, attributes) => {
   const runFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
-  const runPropertiesFragment = buildRunProperties(attributes);
+  const runPropertiesFragment = buildRunProperties(cloneDeep(attributes));
 
   if (
     isVNode(vNode) &&
@@ -294,15 +299,25 @@ const buildRun = (vNode, attributes) => {
       'pre',
     ].includes(vNode.tagName)
   ) {
-    const textArray = [];
+    const runFragmentsArray = [];
 
     let vNodes = [vNode];
+    // create temp run fragments to split the paragraph into different runs
+    let tempAttributes = cloneDeep(attributes);
+    let tempRunFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
     while (vNodes.length) {
       const tempVNode = vNodes.shift();
       if (isVText(tempVNode)) {
-        textArray.push(tempVNode.text);
-      }
-      if (
+        const textFragment = buildTextElement(tempVNode.text);
+        const tempRunPropertiesFragment = buildRunProperties(tempAttributes);
+        tempRunFragment.import(tempRunPropertiesFragment);
+        tempRunFragment.import(textFragment);
+        runFragmentsArray.push(tempRunFragment);
+
+        // re initialize temp run fragments with new fragment
+        tempAttributes = cloneDeep(attributes);
+        tempRunFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
+      } else if (
         isVNode(tempVNode) &&
         [
           'strong',
@@ -321,6 +336,24 @@ const buildRun = (vNode, attributes) => {
           'pre',
         ].includes(tempVNode.tagName)
       ) {
+        switch (tempVNode.tagName) {
+          case 'strong':
+          case 'b':
+            tempAttributes.strong = true;
+            break;
+          case 'i':
+            tempAttributes.i = true;
+            break;
+          case 'u':
+            tempAttributes.u = true;
+            break;
+          case 'sub':
+            tempAttributes.sub = true;
+            break;
+          case 'sup':
+            tempAttributes.sup = true;
+            break;
+        }
         const formattingFragment = buildTextFormatting(tempVNode);
         runPropertiesFragment.import(formattingFragment);
       }
@@ -329,10 +362,8 @@ const buildRun = (vNode, attributes) => {
         vNodes = tempVNode.children.slice().concat(vNodes);
       }
     }
-    if (textArray.length) {
-      const combinedString = textArray.join('');
-      // eslint-disable-next-line no-param-reassign
-      vNode = new VText(combinedString);
+    if (runFragmentsArray.length) {
+      return runFragmentsArray;
     }
   }
 
@@ -414,7 +445,7 @@ const fixupMargin = (marginString) => {
 
 const buildRunOrRuns = (vNode, attributes) => {
   if (isVNode(vNode) && vNode.tagName === 'span') {
-    const runFragments = [];
+    let runFragments = [];
 
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
@@ -438,14 +469,16 @@ const buildRunOrRuns = (vNode, attributes) => {
           modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
         }
       }
-      runFragments.push(buildRun(childVNode, modifiedAttributes));
+      const tempRunFragments = buildRun(childVNode, modifiedAttributes);
+      runFragments = runFragments.concat(
+        Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments]
+      );
     }
 
     return runFragments;
   } else {
-    const runFragment = buildRun(vNode, attributes);
-
-    return runFragment;
+    const tempRunFragments = buildRun(vNode, attributes);
+    return tempRunFragments;
   }
 };
 
@@ -820,8 +853,14 @@ const buildParagraph = (vNode, attributes, docxDocumentInstance) => {
         paragraphFragment.import(runOrHyperlinkFragments);
       }
     } else if (vNode.tagName === 'blockquote') {
-      const runFragment = buildRun(vNode, attributes);
-      paragraphFragment.import(runFragment);
+      const runFragmentOrFragments = buildRun(vNode, attributes);
+      if (Array.isArray(runFragmentOrFragments)) {
+        for (let index = 0; index < runFragmentOrFragments.length; index++) {
+          paragraphFragment.import(runFragmentOrFragments[index]);
+        }
+      } else {
+        paragraphFragment.import(runFragmentOrFragments);
+      }
     } else {
       for (let index = 0; index < vNode.children.length; index++) {
         const childVNode = vNode.children[index];
