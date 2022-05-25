@@ -309,7 +309,11 @@ const buildRun = (vNode, attributes) => {
       const tempVNode = vNodes.shift();
       if (isVText(tempVNode)) {
         const textFragment = buildTextElement(tempVNode.text);
+<<<<<<< HEAD
         const tempRunPropertiesFragment = buildRunProperties({ ...attributes, ...tempAttributes });
+=======
+        const tempRunPropertiesFragment = buildRunProperties(tempAttributes);
+>>>>>>> 48a98bc (fix: add support for multi level nested formatting)
         tempRunFragment.import(tempRunPropertiesFragment);
         tempRunFragment.import(textFragment);
         runFragmentsArray.push(tempRunFragment);
@@ -336,7 +340,10 @@ const buildRun = (vNode, attributes) => {
           'pre',
         ].includes(tempVNode.tagName)
       ) {
+<<<<<<< HEAD
         tempAttributes = {};
+=======
+>>>>>>> 48a98bc (fix: add support for multi level nested formatting)
         switch (tempVNode.tagName) {
           case 'strong':
           case 'b':
