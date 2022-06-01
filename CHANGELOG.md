@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/privateOmega/html-to-docx/compare/v1.3.2...v1.4.0) (2022-06-01)
+
+
+### Bug Fixes
+
+* add support for multi level nested formatting ([48a98bc](https://github.com/privateOmega/html-to-docx/commit/48a98bc9a0352800f22c0c518e9ee432cd7ee19e))
+* parent styles to children ([b0d004b](https://github.com/privateOmega/html-to-docx/commit/b0d004b64ee5ce47ca71137c581923e2e4ce4e77))
+* point regex ([fb82509](https://github.com/privateOmega/html-to-docx/commit/fb8250997a7c9fef6538fdadfc0c2c1d8430ea18))
+
 ### [1.3.2](https://github.com/privateOmega/html-to-docx/compare/v1.3.1...v1.3.2) (2022-01-23)
 
 
