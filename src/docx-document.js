@@ -10,6 +10,7 @@ import {
   headerType as headerFileType,
   hyperlinkType,
   imageType,
+  defaultDocumentOptions,
   landscapeHeight,
   landscapeMargins,
   landscapeWidth,
@@ -112,10 +113,9 @@ class DocxDocument {
     this.zip = properties.zip;
     this.htmlString = properties.htmlString;
     this.orientation = properties.orientation;
-    this.pageSize = properties.pageSize || {};
+    this.pageSize = properties.pageSize || defaultDocumentOptions.pageSize;
 
     const isPortraitOrientation = this.orientation === defaultOrientation;
-
     const height = this.pageSize.height ? this.pageSize.height : landscapeHeight;
     const width = this.pageSize.width ? this.pageSize.width : landscapeWidth;
 
