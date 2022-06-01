@@ -309,7 +309,7 @@ const buildRun = (vNode, attributes) => {
       const tempVNode = vNodes.shift();
       if (isVText(tempVNode)) {
         const textFragment = buildTextElement(tempVNode.text);
-        const tempRunPropertiesFragment = buildRunProperties(tempAttributes);
+        const tempRunPropertiesFragment = buildRunProperties({ ...attributes, ...tempAttributes });
         tempRunFragment.import(tempRunPropertiesFragment);
         tempRunFragment.import(textFragment);
         runFragmentsArray.push(tempRunFragment);
@@ -336,6 +336,7 @@ const buildRun = (vNode, attributes) => {
           'pre',
         ].includes(tempVNode.tagName)
       ) {
+        tempAttributes = {};
         switch (tempVNode.tagName) {
           case 'strong':
           case 'b':
@@ -359,6 +360,10 @@ const buildRun = (vNode, attributes) => {
       }
 
       if (tempVNode.children && tempVNode.children.length) {
+        if (tempVNode.children.length > 1) {
+          attributes = { ...attributes, ...tempAttributes };
+        }
+
         vNodes = tempVNode.children.slice().concat(vNodes);
       }
     }
