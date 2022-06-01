@@ -1,39 +1,38 @@
-import { create, fragment } from 'xmlbuilder2';
 import { nanoid } from 'nanoid';
-
+import { create, fragment } from 'xmlbuilder2';
 import {
-  generateCoreXML,
-  generateStylesXML,
-  generateNumberingXMLTemplate,
-  generateThemeXML,
-  documentRelsXML as documentRelsXMLString,
-  settingsXML as settingsXMLString,
-  webSettingsXML as webSettingsXMLString,
-  contentTypesXML as contentTypesXMLString,
-  fontTableXML as fontTableXMLString,
-  genericRelsXML as genericRelsXMLString,
-  generateDocumentTemplate,
-} from './schemas';
-import { convertVTreeToXML } from './helpers';
-import namespaces from './namespaces';
-import {
-  footerType as footerFileType,
-  headerType as headerFileType,
-  themeType as themeFileType,
-  landscapeMargins,
-  portraitMargins,
-  defaultOrientation,
-  landscapeWidth,
-  landscapeHeight,
   applicationName,
   defaultFont,
   defaultFontSize,
-  hyperlinkType,
+  defaultOrientation,
   documentFileName,
+  footerType as footerFileType,
+  headerType as headerFileType,
+  hyperlinkType,
   imageType,
   defaultDocumentOptions,
+  landscapeHeight,
+  landscapeMargins,
+  landscapeWidth,
+  portraitMargins,
+  themeType as themeFileType,
 } from './constants';
-import { getListStyleType, getListPrefixSuffix } from './utils/list';
+import { convertVTreeToXML } from './helpers';
+import namespaces from './namespaces';
+import {
+  contentTypesXML as contentTypesXMLString,
+  documentRelsXML as documentRelsXMLString,
+  fontTableXML as fontTableXMLString,
+  generateCoreXML,
+  generateDocumentTemplate,
+  generateNumberingXMLTemplate,
+  generateStylesXML,
+  generateThemeXML,
+  genericRelsXML as genericRelsXMLString,
+  settingsXML as settingsXMLString,
+  webSettingsXML as webSettingsXMLString,
+} from './schemas';
+import { getListPrefixSuffix, getListStyleType } from './utils/list';
 
 function generateContentTypesFragments(contentTypesXML, type, objects) {
   if (objects && Array.isArray(objects)) {
