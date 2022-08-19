@@ -21,6 +21,15 @@ import {
   cmToTWIP,
   pixelToPoint,
   pointToPixel,
+  HIPToPoint,
+  HIPToTWIP,
+  TWIPToHIP,
+  pixelToHIP,
+  HIPToPixel,
+  EIPToPoint,
+  pointToEIP,
+  pixelToEIP,
+  EIPToPixel,
 } from '../src/utils/unit-conversion';
 
 describe('Unit Regexes', () => {
@@ -91,29 +100,29 @@ describe('Unit Regexes', () => {
 });
 
 describe('Unit Conversion Methods', () => {
-  // describe('pixelToEMU', () => {
-  //   it('should pixel be converted to equivalent emu', () => {
-  //     expect(pixelToEMU());
-  //   });
-  // });
+  describe('pixelToEMU', () => {
+    it('should pixel be converted to equivalent emu', () => {
+      expect(pixelToEMU(20)).toEqual(190500);
+    });
+  });
 
-  // describe('EMUToPixel', () => {
-  //   it('should emu be converted to equivalent pixel', () => {
-  //     expect(EMUToPixel());
-  //   });
-  // });
+  describe('EMUToPixel', () => {
+    it('should emu be converted to equivalent pixel', () => {
+      expect(EMUToPixel(190500)).toEqual(20);
+    });
+  });
 
-  // describe('TWIPToEMU', () => {
-  //   it('should twip be converted to equivalent emu', () => {
-  //     expect(TWIPToEMU());
-  //   });
-  // });
+  describe('TWIPToEMU', () => {
+    it('should twip be converted to equivalent emu', () => {
+      expect(TWIPToEMU(1)).toEqual(635);
+    });
+  });
 
-  // describe('EMUToTWIP', () => {
-  //   it('should emu be converted to equivalent twip', () => {
-  //     expect(EMUToTWIP());
-  //   });
-  // });
+  describe('EMUToTWIP', () => {
+    it('should emu be converted to equivalent twip', () => {
+      expect(EMUToTWIP(635)).toEqual(1);
+    });
+  });
 
   describe('pointToTWIP', () => {
     it('should pixel be converted to equivalent twip', () => {
@@ -127,29 +136,29 @@ describe('Unit Conversion Methods', () => {
     });
   });
 
-  // describe('pointToHIP', () => {
-  //   it('should point be converted to equivalent hip', () => {
-  //     expect(pointToHIP());
-  //   });
-  // });
+  describe('pointToHIP', () => {
+    it('should point be converted to equivalent hip', () => {
+      expect(pointToHIP(20)).toEqual(40);
+    });
+  });
 
-  // describe('HIPToPoint', () => {
-  //   it('should hip be converted to equivalent point', () => {
-  //     expect(HIPToPoint());
-  //   });
-  // });
+  describe('HIPToPoint', () => {
+    it('should hip be converted to equivalent point', () => {
+      expect(HIPToPoint(20)).toEqual(10);
+    });
+  });
 
-  // describe('HIPToTWIP', () => {
-  //   it('should hip be converted to equivalent twip', () => {
-  //     expect(HIPToTWIP());
-  //   });
-  // });
+  describe('HIPToTWIP', () => {
+    it('should hip be converted to equivalent twip', () => {
+      expect(HIPToTWIP(40)).toEqual(400);
+    });
+  });
 
-  // describe('TWIPToHIP', () => {
-  //   it('should twip be converted to equivalent hip', () => {
-  //     expect(TWIPToHIP());
-  //   });
-  // });
+  describe('TWIPToHIP', () => {
+    it('should twip be converted to equivalent hip', () => {
+      expect(TWIPToHIP(400)).toEqual(40);
+    });
+  });
 
   describe('pixelToTWIP', () => {
     it('should pixel be converted to equivalent twip', () => {
@@ -163,17 +172,17 @@ describe('Unit Conversion Methods', () => {
     });
   });
 
-  // describe('pixelToHIP', () => {
-  //   it('should pixel be converted to equivalent hip', () => {
-  //     expect(pixelToHIP());
-  //   });
-  // });
+  describe('pixelToHIP', () => {
+    it('should pixel be converted to equivalent hip', () => {
+      expect(pixelToHIP(1)).toEqual(1.5);
+    });
+  });
 
-  // describe('HIPToPixel', () => {
-  //   it('should hip be converted to equivalent pixel', () => {
-  //     expect(HIPToPixel());
-  //   });
-  // });
+  describe('HIPToPixel', () => {
+    it('should hip be converted to equivalent pixel', () => {
+      expect(HIPToPixel(1.5)).toEqual(1);
+    });
+  });
 
   describe('inchToPoint', () => {
     it('should inch be converted to equivalent point', () => {
@@ -195,7 +204,7 @@ describe('Unit Conversion Methods', () => {
 
   describe('cmToTWIP', () => {
     it('should cm be converted to equivalent twip', () => {
-      expect(cmToTWIP(1)).toEqual(566.9);
+      expect(cmToTWIP(1)).toBeCloseTo(567, 0);
     });
   });
 
@@ -211,27 +220,27 @@ describe('Unit Conversion Methods', () => {
     });
   });
 
-  // describe('EIPToPoint', () => {
-  //   it('should eip be converted to equivalent point', () => {
-  //     expect(EIPToPoint());
-  //   });
-  // });
+  describe('EIPToPoint', () => {
+    it('should eip be converted to equivalent point', () => {
+      expect(EIPToPoint(8)).toEqual(1);
+    });
+  });
 
-  // describe('pointToEIP', () => {
-  //   it('should point be converted to equivalent eip', () => {
-  //     expect(pointToEIP());
-  //   });
-  // });
+  describe('pointToEIP', () => {
+    it('should point be converted to equivalent eip', () => {
+      expect(pointToEIP(1)).toEqual(8);
+    });
+  });
 
-  // describe('pixelToEIP', () => {
-  //   it('should pixel be converted to equivalent eip', () => {
-  //     expect(pixelToEIP());
-  //   });
-  // });
+  describe('pixelToEIP', () => {
+    it('should pixel be converted to equivalent eip', () => {
+      expect(pixelToEIP(1)).toEqual(6);
+    });
+  });
 
-  // describe('EIPToPixel', () => {
-  //   it('should eip be converted to equivalent pixel', () => {
-  //     expect(EIPToPixel());
-  //   });
-  // });
+  describe('EIPToPixel', () => {
+    it('should eip be converted to equivalent pixel', () => {
+      expect(EIPToPixel(6)).toEqual(1);
+    });
+  });
 });
