@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-escape */
 import JSZip from 'jszip';
-import addFilesToContainer from './src/html-to-docx';
+import addFilesToContainer from './html-to-docx';
 
 const minifyHTMLString = (htmlString) => {
   try {
