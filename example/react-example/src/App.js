@@ -16,6 +16,10 @@ const htmlString = `<!DOCTYPE html>
                 src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
                 alt="Red dot"
             />
+            <img
+                src="https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"
+                alt="Red dot"
+            />
         </div>
         <div>
             <h1>This is heading 1</h1>
