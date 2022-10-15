@@ -12,7 +12,7 @@ export default {
   external: ['color-name', 'escape-html', 'html-to-vdom', 'jszip', 'virtual-dom', 'xmlbuilder2'],
   plugins: [
     resolve(),
-    json({ include: 'package.json', preferConst: true }),
+    json(),
     commonjs(),
     builtins(),
     terser({
