@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable radix */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-case-declarations */
@@ -1088,7 +1089,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
   }
 };
 
-const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocumentInstance) => {
+const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDocumentInstance) => {
   const tableCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
 
   const modifiedAttributes = { ...attributes };
@@ -1151,7 +1152,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       if (isVNode(childVNode) && childVNode.tagName === 'img') {
-        const imageFragment = buildImage(
+        const imageFragment = await buildImage(
           docxDocumentInstance,
           childVNode,
           modifiedAttributes.maximumWidth
@@ -1165,7 +1166,7 @@ const buildTableCell = (vNode, attributes, rowSpanMap, columnIndex, docxDocument
           for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
             const grandChildVNode = childVNode.children[iteratorIndex];
             if (grandChildVNode.tagName === 'img') {
-              const imageFragment = buildImage(
+              const imageFragment = await buildImage(
                 docxDocumentInstance,
                 grandChildVNode,
                 modifiedAttributes.maximumWidth
@@ -1269,7 +1270,7 @@ const buildTableRowProperties = (attributes) => {
   return tableRowPropertiesFragment;
 };
 
-const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
+const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
   const tableRowFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tr');
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
@@ -1321,7 +1322,7 @@ const buildTableRow = (vNode, attributes, rowSpanMap, docxDocumentInstance) => {
             tableRowFragment.import(rowSpanCellFragment);
           }
         }
-        const tableCellFragment = buildTableCell(
+        const tableCellFragment = await buildTableCell(
           childVNode,
           { ...modifiedAttributes, maximumWidth: columnWidth },
           rowSpanMap,
@@ -1507,7 +1508,7 @@ const cssBorderParser = (borderString) => {
   return [size, stroke, color];
 };
 
-const buildTable = (vNode, attributes, docxDocumentInstance) => {
+const buildTable = async (vNode, attributes, docxDocumentInstance) => {
   const tableFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tbl');
   const modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
@@ -1625,7 +1626,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
               );
               tableFragment.import(tableGridFragment);
             }
-            const tableRowFragment = buildTableRow(
+            const tableRowFragment = await buildTableRow(
               grandChildVNode,
               modifiedAttributes,
               rowSpanMap,
@@ -1645,7 +1646,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
               );
               tableFragment.import(tableGridFragment);
             }
-            const tableRowFragment = buildTableRow(
+            const tableRowFragment = await buildTableRow(
               grandChildVNode,
               modifiedAttributes,
               rowSpanMap,
@@ -1659,7 +1660,7 @@ const buildTable = (vNode, attributes, docxDocumentInstance) => {
           const tableGridFragment = buildTableGridFromTableRow(childVNode, modifiedAttributes);
           tableFragment.import(tableGridFragment);
         }
-        const tableRowFragment = buildTableRow(
+        const tableRowFragment = await buildTableRow(
           childVNode,
           modifiedAttributes,
           rowSpanMap,
