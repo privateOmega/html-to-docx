@@ -72,7 +72,7 @@ function generateXMLString(xmlString) {
   return xmlDocumentString.toString({ prettyPrint: true });
 }
 
-function generateSectionXML(vTree, type = 'header') {
+async function generateSectionXML(vTree, type = 'header') {
   const sectionXML = create({
     encoding: 'UTF-8',
     standalone: true,
@@ -88,7 +88,7 @@ function generateSectionXML(vTree, type = 'header') {
   }).ele('@w', type === 'header' ? 'hdr' : 'ftr');
 
   const XMLFragment = fragment();
-  convertVTreeToXML(this, vTree, XMLFragment);
+  await convertVTreeToXML(this, vTree, XMLFragment);
   if (type === 'footer' && XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
     XMLFragment.first().import(
       fragment({ namespaceAlias: { w: namespaces.w } })

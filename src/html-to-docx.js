@@ -103,7 +103,7 @@ const normalizeDocumentOptions = (documentOptions) => {
 
 // Ref: https://en.wikipedia.org/wiki/Office_Open_XML_file_formats
 // http://officeopenxml.com/anatomyofOOXML.php
-function addFilesToContainer(
+async function addFilesToContainer(
   zip,
   htmlString,
   suppliedDocumentOptions,
@@ -124,7 +124,7 @@ function addFilesToContainer(
 
   const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
   // Conversion to Word XML happens here
-  docxDocument.documentXML = renderDocumentFile(docxDocument);
+  docxDocument.documentXML = await renderDocumentFile(docxDocument);
 
   zip
     .folder(relsFolderName)
@@ -142,7 +142,7 @@ function addFilesToContainer(
     const vTree = convertHTML(headerHTMLString);
 
     docxDocument.relationshipFilename = headerFileName;
-    const { headerId, headerXML } = docxDocument.generateHeaderXML(vTree);
+    const { headerId, headerXML } = await docxDocument.generateHeaderXML(vTree);
     docxDocument.relationshipFilename = documentFileName;
     const fileNameWithExt = `${headerType}${headerId}.xml`;
 
@@ -163,7 +163,7 @@ function addFilesToContainer(
     const vTree = convertHTML(footerHTMLString);
 
     docxDocument.relationshipFilename = footerFileName;
-    const { footerId, footerXML } = docxDocument.generateFooterXML(vTree);
+    const { footerId, footerXML } = await docxDocument.generateFooterXML(vTree);
     docxDocument.relationshipFilename = documentFileName;
     const fileNameWithExt = `${footerType}${footerId}.xml`;
 
