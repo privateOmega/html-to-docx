@@ -67,7 +67,7 @@ export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = nul
     const imageBuffer = Buffer.from(response.fileContent, 'base64');
     const imageProperties = sizeOf(imageBuffer);
 
-    const imageFragment = xmlBuilder.buildParagraph(
+    const imageFragment = await xmlBuilder.buildParagraph(
       vNode,
       {
         type: 'picture',
@@ -85,7 +85,7 @@ export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = nul
   }
 };
 
-export const buildList = (vNode, docxDocumentInstance, xmlFragment) => {
+export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
   const listElements = [];
 
   let vNodeObjects = [
@@ -103,7 +103,7 @@ export const buildList = (vNode, docxDocumentInstance, xmlFragment) => {
       isVText(tempVNodeObject.node) ||
       (isVNode(tempVNodeObject.node) && !['ul', 'ol', 'li'].includes(tempVNodeObject.node.tagName))
     ) {
-      const paragraphFragment = xmlBuilder.buildParagraph(
+      const paragraphFragment = await xmlBuilder.buildParagraph(
         tempVNodeObject.node,
         {
           numbering: { levelId: tempVNodeObject.level, numberingId: tempVNodeObject.numberingId },
@@ -205,7 +205,7 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'h4':
     case 'h5':
     case 'h6':
-      const headingFragment = xmlBuilder.buildParagraph(
+      const headingFragment = await xmlBuilder.buildParagraph(
         vNode,
         {
           paragraphStyle: `Heading${vNode.tagName[1]}`,
@@ -232,7 +232,7 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'blockquote':
     case 'code':
     case 'pre':
-      const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
+      const paragraphFragment = await xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
       return;
     case 'figure':
@@ -251,7 +251,7 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
             );
             xmlFragment.import(tableFragment);
             // Adding empty paragraph for space after table
-            const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
+            const emptyParagraphFragment = await xmlBuilder.buildParagraph(null, {});
             xmlFragment.import(emptyParagraphFragment);
           } else if (childVNode.tagName === 'img') {
             const imageFragment = await buildImage(docxDocumentInstance, childVNode);
@@ -273,12 +273,12 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       );
       xmlFragment.import(tableFragment);
       // Adding empty paragraph for space after table
-      const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
+      const emptyParagraphFragment = await xmlBuilder.buildParagraph(null, {});
       xmlFragment.import(emptyParagraphFragment);
       return;
     case 'ol':
     case 'ul':
-      buildList(vNode, docxDocumentInstance, xmlFragment);
+      await buildList(vNode, docxDocumentInstance, xmlFragment);
       return;
     case 'img':
       const imageFragment = await buildImage(docxDocumentInstance, vNode);
@@ -287,7 +287,7 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       }
       return;
     case 'br':
-      const linebreakFragment = xmlBuilder.buildParagraph(null, {});
+      const linebreakFragment = await xmlBuilder.buildParagraph(null, {});
       xmlFragment.import(linebreakFragment);
       return;
   }
