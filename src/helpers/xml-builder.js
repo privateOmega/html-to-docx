@@ -385,27 +385,12 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
     runFragment.import(textFragment);
   } else if (attributes && attributes.type === 'picture') {
     let response = null;
-    let base64Uri = null;
-    try {
-      const imageSource = vNode.properties.src;
-      if (isValidUrl(imageSource)) {
-        const base64String = await imageToBase64(imageSource).catch((error) => {
-          // eslint-disable-next-line no-console
-          console.warning(`skipping image download and conversion due to ${error}`);
-        });
 
-        if (base64String) {
-          base64Uri = `data:${mimeTypes.lookup(imageSource)};base64, ${base64String}`;
-        }
-      } else {
-        base64Uri = decodeURIComponent(vNode.properties.src);
-      }
-      if (base64Uri) {
-        response = docxDocumentInstance.createMediaFile(base64Uri);
-      }
-    } catch (error) {
-      // NOOP
+    const base64Uri = decodeURIComponent(vNode.properties.src);
+    if (base64Uri) {
+      response = docxDocumentInstance.createMediaFile(base64Uri);
     }
+
     if (response) {
       docxDocumentInstance.zip
         .folder('word')
@@ -421,14 +406,8 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
         internalRelationship
       );
 
-      const imageBuffer = Buffer.from(response.fileContent, 'base64');
-      const imageProperties = sizeOf(imageBuffer);
-
       attributes.inlineOrAnchored = true;
       attributes.relationshipId = documentRelsId;
-      attributes.maximumWidth = docxDocumentInstance.availableDocumentSpace;
-      attributes.originalWidth = imageProperties.width;
-      attributes.originalHeight = imageProperties.height;
       attributes.id = response.id;
       attributes.fileContent = response.fileContent;
       attributes.fileNameWithExtension = response.fileNameWithExtension;
@@ -576,6 +555,7 @@ const buildRunOrHyperLink = async (vNode, attributes, docxDocumentInstance) => {
 
     return hyperlinkFragment;
   }
+
   const runFragments = await buildRunOrRuns(vNode, attributes, docxDocumentInstance);
 
   return runFragments;
@@ -612,7 +592,7 @@ const buildSpacing = (lineSpacing, beforeSpacing, afterSpacing) => {
     spacingFragment.att('@w', 'after', afterSpacing);
   }
 
-  spacingFragment.att('@w', 'lineRule', 'exact').up();
+  spacingFragment.att('@w', 'lineRule', 'auto').up();
 
   return spacingFragment;
 };
@@ -931,6 +911,29 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
       for (let index = 0; index < vNode.children.length; index++) {
         const childVNode = vNode.children[index];
         if (childVNode.tagName === 'img') {
+          let base64String;
+          const imageSource = childVNode.properties.src;
+          if (isValidUrl(imageSource)) {
+            base64String = await imageToBase64(imageSource).catch((error) => {
+              // eslint-disable-next-line no-console
+              console.warning(`skipping image download and conversion due to ${error}`);
+            });
+
+            if (base64String && mimeTypes.lookup(imageSource)) {
+              childVNode.properties.src = `data:${mimeTypes.lookup(
+                imageSource
+              )};base64, ${base64String}`;
+            } else {
+              break;
+            }
+          }
+          const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
+          const imageProperties = sizeOf(imageBuffer);
+
+          modifiedAttributes.maximumWidth = docxDocumentInstance.availableDocumentSpace;
+          modifiedAttributes.originalWidth = imageProperties.width;
+          modifiedAttributes.originalHeight = imageProperties.height;
+
           computeImageDimensions(childVNode, modifiedAttributes);
         }
         const runOrHyperlinkFragments = await buildRunOrHyperLink(
@@ -959,9 +962,36 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
     // In case paragraphs has to be rendered where vText is present. Eg. table-cell
     // Or in case the vNode is something like img
     if (isVNode(vNode) && vNode.tagName === 'img') {
+      const imageSource = vNode.properties.src;
+      let base64String = imageSource;
+      if (isValidUrl(imageSource)) {
+        base64String = await imageToBase64(imageSource).catch((error) => {
+          // eslint-disable-next-line no-console
+          console.warning(`skipping image download and conversion due to ${error}`);
+        });
+
+        if (base64String && mimeTypes.lookup(imageSource)) {
+          vNode.properties.src = `data:${mimeTypes.lookup(imageSource)};base64, ${base64String}`;
+        } else {
+          paragraphFragment.up();
+
+          return paragraphFragment;
+        }
+      } else {
+        // eslint-disable-next-line no-useless-escape, prefer-destructuring
+        base64String = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)[2];
+      }
+
+      const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
+      const imageProperties = sizeOf(imageBuffer);
+
+      modifiedAttributes.maximumWidth = docxDocumentInstance.availableDocumentSpace;
+      modifiedAttributes.originalWidth = imageProperties.width;
+      modifiedAttributes.originalHeight = imageProperties.height;
+
       computeImageDimensions(vNode, modifiedAttributes);
     }
-    const runFragments = await buildRunOrRuns(vNode, modifiedAttributes);
+    const runFragments = await buildRunOrRuns(vNode, modifiedAttributes, docxDocumentInstance);
     if (Array.isArray(runFragments)) {
       for (let index = 0; index < runFragments.length; index++) {
         const runFragment = runFragments[index];
@@ -1248,11 +1278,12 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
           await buildList(childVNode, docxDocumentInstance, tableCellFragment);
         }
       } else {
-        const paragraphFragment = buildParagraph(
+        const paragraphFragment = await buildParagraph(
           childVNode,
           modifiedAttributes,
           docxDocumentInstance
         );
+
         tableCellFragment.import(paragraphFragment);
       }
     }
