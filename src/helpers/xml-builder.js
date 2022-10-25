@@ -926,6 +926,9 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
             } else {
               break;
             }
+          } else {
+            // eslint-disable-next-line no-useless-escape, prefer-destructuring
+            base64String = imageSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)[2];
           }
           const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
           const imageProperties = sizeOf(imageBuffer);
