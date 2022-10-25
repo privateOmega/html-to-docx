@@ -63,8 +63,10 @@
     "escape-html": "^1.0.3",
     "html-to-vdom": "^0.7.0",
     "image-size": "^1.0.0",
+    "image-to-base64": "^2.2.0",
     "jszip": "^3.7.1",
     "lodash": "^4.17.21",
+    "mime-types": "^2.1.35",
     "nanoid": "^3.1.25",
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "2.1.2"

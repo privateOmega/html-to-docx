@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-case-declarations */
 import { fragment } from 'xmlbuilder2';
 import VNode from 'virtual-dom/vnode/vnode';
@@ -8,6 +9,8 @@ import isVText from 'virtual-dom/vnode/is-vtext';
 import { default as HTMLToVDOM } from 'html-to-vdom';
 import escape from 'escape-html';
 import sizeOf from 'image-size';
+import imageToBase64 from 'image-to-base64';
+import mimeTypes from 'mime-types';
 
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
@@ -15,6 +18,7 @@ import * as xmlBuilder from './xml-builder';
 import namespaces from '../namespaces';
 import { imageType, internalRelationship } from '../constants';
 import { vNodeHasChildren } from '../utils/vnode';
+import { isValidUrl } from '../utils/url';
 
 const convertHTML = HTMLToVDOM({
   VNode,
@@ -22,11 +26,26 @@ const convertHTML = HTMLToVDOM({
 });
 
 // eslint-disable-next-line consistent-return, no-shadow
-export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => {
+export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = null) => {
   let response = null;
+  let base64Uri = null;
   try {
-    // libtidy encodes the image src
-    response = docxDocumentInstance.createMediaFile(decodeURIComponent(vNode.properties.src));
+    const imageSource = vNode.properties.src;
+    if (isValidUrl(imageSource)) {
+      const base64String = await imageToBase64(imageSource).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.warning(`skipping image download and conversion due to ${error}`);
+      });
+
+      if (base64String) {
+        base64Uri = `data:${mimeTypes.lookup(imageSource)};base64, ${base64String}`;
+      }
+    } else {
+      base64Uri = decodeURIComponent(vNode.properties.src);
+    }
+    if (base64Uri) {
+      response = docxDocumentInstance.createMediaFile(base64Uri);
+    }
   } catch (error) {
     // NOOP
   }
@@ -48,7 +67,7 @@ export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => 
     const imageBuffer = Buffer.from(response.fileContent, 'base64');
     const imageProperties = sizeOf(imageBuffer);
 
-    const imageFragment = xmlBuilder.buildParagraph(
+    const imageFragment = await xmlBuilder.buildParagraph(
       vNode,
       {
         type: 'picture',
@@ -66,7 +85,7 @@ export const buildImage = (docxDocumentInstance, vNode, maximumWidth = null) => 
   }
 };
 
-export const buildList = (vNode, docxDocumentInstance, xmlFragment) => {
+export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
   const listElements = [];
 
   let vNodeObjects = [
@@ -84,7 +103,7 @@ export const buildList = (vNode, docxDocumentInstance, xmlFragment) => {
       isVText(tempVNodeObject.node) ||
       (isVNode(tempVNodeObject.node) && !['ul', 'ol', 'li'].includes(tempVNodeObject.node.tagName))
     ) {
-      const paragraphFragment = xmlBuilder.buildParagraph(
+      const paragraphFragment = await xmlBuilder.buildParagraph(
         tempVNodeObject.node,
         {
           numbering: { levelId: tempVNodeObject.level, numberingId: tempVNodeObject.numberingId },
@@ -160,7 +179,7 @@ export const buildList = (vNode, docxDocumentInstance, xmlFragment) => {
   return listElements;
 };
 
-function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
+async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
   if (
     vNode.tagName === 'div' &&
     (vNode.properties.attributes.class === 'page-break' ||
@@ -186,7 +205,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'h4':
     case 'h5':
     case 'h6':
-      const headingFragment = xmlBuilder.buildParagraph(
+      const headingFragment = await xmlBuilder.buildParagraph(
         vNode,
         {
           paragraphStyle: `Heading${vNode.tagName[1]}`,
@@ -213,7 +232,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     case 'blockquote':
     case 'code':
     case 'pre':
-      const paragraphFragment = xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
+      const paragraphFragment = await xmlBuilder.buildParagraph(vNode, {}, docxDocumentInstance);
       xmlFragment.import(paragraphFragment);
       return;
     case 'figure':
@@ -222,7 +241,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         for (let index = 0; index < vNode.children.length; index++) {
           const childVNode = vNode.children[index];
           if (childVNode.tagName === 'table') {
-            const tableFragment = xmlBuilder.buildTable(
+            const tableFragment = await xmlBuilder.buildTable(
               childVNode,
               {
                 maximumWidth: docxDocumentInstance.availableDocumentSpace,
@@ -232,10 +251,10 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
             );
             xmlFragment.import(tableFragment);
             // Adding empty paragraph for space after table
-            const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
+            const emptyParagraphFragment = await xmlBuilder.buildParagraph(null, {});
             xmlFragment.import(emptyParagraphFragment);
           } else if (childVNode.tagName === 'img') {
-            const imageFragment = buildImage(docxDocumentInstance, childVNode);
+            const imageFragment = await buildImage(docxDocumentInstance, childVNode);
             if (imageFragment) {
               xmlFragment.import(imageFragment);
             }
@@ -244,7 +263,7 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       }
       return;
     case 'table':
-      const tableFragment = xmlBuilder.buildTable(
+      const tableFragment = await xmlBuilder.buildTable(
         vNode,
         {
           maximumWidth: docxDocumentInstance.availableDocumentSpace,
@@ -254,21 +273,21 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       );
       xmlFragment.import(tableFragment);
       // Adding empty paragraph for space after table
-      const emptyParagraphFragment = xmlBuilder.buildParagraph(null, {});
+      const emptyParagraphFragment = await xmlBuilder.buildParagraph(null, {});
       xmlFragment.import(emptyParagraphFragment);
       return;
     case 'ol':
     case 'ul':
-      buildList(vNode, docxDocumentInstance, xmlFragment);
+      await buildList(vNode, docxDocumentInstance, xmlFragment);
       return;
     case 'img':
-      const imageFragment = buildImage(docxDocumentInstance, vNode);
+      const imageFragment = await buildImage(docxDocumentInstance, vNode);
       if (imageFragment) {
         xmlFragment.import(imageFragment);
       }
       return;
     case 'br':
-      const linebreakFragment = xmlBuilder.buildParagraph(null, {});
+      const linebreakFragment = await xmlBuilder.buildParagraph(null, {});
       xmlFragment.import(linebreakFragment);
       return;
   }
@@ -277,13 +296,13 @@ function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
       // eslint-disable-next-line no-use-before-define
-      convertVTreeToXML(docxDocumentInstance, childVNode, xmlFragment);
+      await convertVTreeToXML(docxDocumentInstance, childVNode, xmlFragment);
     }
   }
 }
 
 // eslint-disable-next-line consistent-return
-export function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
+export async function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
   if (!vTree) {
     // eslint-disable-next-line no-useless-return
     return '';
@@ -292,22 +311,22 @@ export function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < vTree.length; index++) {
       const vNode = vTree[index];
-      convertVTreeToXML(docxDocumentInstance, vNode, xmlFragment);
+      await convertVTreeToXML(docxDocumentInstance, vNode, xmlFragment);
     }
   } else if (isVNode(vTree)) {
-    findXMLEquivalent(docxDocumentInstance, vTree, xmlFragment);
+    await findXMLEquivalent(docxDocumentInstance, vTree, xmlFragment);
   } else if (isVText(vTree)) {
     xmlBuilder.buildTextElement(xmlFragment, escape(String(vTree.text)));
   }
   return xmlFragment;
 }
 
-function renderDocumentFile(docxDocumentInstance) {
+async function renderDocumentFile(docxDocumentInstance) {
   const vTree = convertHTML(docxDocumentInstance.htmlString);
 
   const xmlFragment = fragment({ namespaceAlias: { w: namespaces.w } });
 
-  const populatedXmlFragment = convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
+  const populatedXmlFragment = await convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
 
   return populatedXmlFragment;
 }

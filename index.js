@@ -43,7 +43,7 @@ async function generateContainer(
     footerHTML = minifyHTMLString(footerHTML);
   }
 
-  addFilesToContainer(zip, contentHTML, documentOptions, headerHTML, footerHTML);
+  await addFilesToContainer(zip, contentHTML, documentOptions, headerHTML, footerHTML);
 
   const buffer = await zip.generateAsync({ type: 'arraybuffer' });
   if (Object.prototype.hasOwnProperty.call(global, 'Blob')) {
