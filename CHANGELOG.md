@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/privateOmega/html-to-docx/compare/v1.4.0...v1.5.0) (2022-10-25)
+
+
+### Features
+
+* add support for nested images ([882014f](https://github.com/privateOmega/html-to-docx/commit/882014f4017359139dbbfd5f7c8c14cae48f55bf))
+* add support for urls in image src ([60c7e5b](https://github.com/privateOmega/html-to-docx/commit/60c7e5bcefaaee26068206087be0345d0c79b988))
+* add valid url regex and util method ([c5020ce](https://github.com/privateOmega/html-to-docx/commit/c5020ce220e324c7ba0d48976998604162b3a73f))
+
+
+### Bug Fixes
+
+* address issues with nested base64 images ([78f7e58](https://github.com/privateOmega/html-to-docx/commit/78f7e580b4cfe659f72ec24d2317f75e3fb35d54))
+* address issues with nested images ([854b46e](https://github.com/privateOmega/html-to-docx/commit/854b46e3c337668005a0ecdb60d47b3723e98934))
+* move url regex into the util function ([e9b289b](https://github.com/privateOmega/html-to-docx/commit/e9b289b6f27f89ec9bc5219a57621987f9522fc5))
+
 ## [1.4.0](https://github.com/privateOmega/html-to-docx/compare/v1.3.2...v1.4.0) (2022-06-01)
 
 
