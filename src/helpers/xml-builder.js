@@ -928,7 +928,9 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
             }
           } else {
             // eslint-disable-next-line no-useless-escape, prefer-destructuring
-            base64String = imageSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)[2];
+            base64String = imageSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)?.[2];
+            // eslint-disable-next-line no-continue
+            if (!base64String) continue;
           }
           const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
           const imageProperties = sizeOf(imageBuffer);
