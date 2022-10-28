@@ -12,6 +12,7 @@ import { cloneDeep } from 'lodash';
 import imageToBase64 from 'image-to-base64';
 import mimeTypes from 'mime-types';
 import sizeOf from 'image-size';
+import { existsSync } from 'fs';
 
 import namespaces from '../namespaces';
 import {
@@ -912,8 +913,14 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
         const childVNode = vNode.children[index];
         if (childVNode.tagName === 'img') {
           let base64String;
-          const imageSource = childVNode.properties.src;
-          if (isValidUrl(imageSource)) {
+          let imageSource = childVNode.properties.src;
+          const isLocalFile = imageSource.startsWith('file:///');
+          if (isValidUrl(imageSource) || isLocalFile) {
+            if (isLocalFile) {
+              imageSource = imageSource.replace('file:///', '');
+              // eslint-disable-next-line no-continue
+              if (!existsSync(imageSource)) continue;
+            }
             base64String = await imageToBase64(imageSource).catch((error) => {
               // eslint-disable-next-line no-console
               console.warning(`skipping image download and conversion due to ${error}`);
