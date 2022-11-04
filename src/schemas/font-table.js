@@ -7,6 +7,13 @@ const fontTableXML = `
       xmlns:r="${namespaces.r}"
       xmlns:w="${namespaces.w}"
       >
+        <w:font w:name="Symbol">
+            <w:panose1 w:val="05050102010706020507"/>
+            <w:charset w:val="02"/>
+            <w:family w:val="decorative"/>
+            <w:pitch w:val="variable"/>
+            <w:sig w:usb0="00000000" w:usb1="10000000" w:usb2="00000000" w:usb3="00000000" w:csb0="80000000" w:csb1="00000000"/>
+        </w:font>
         <w:font w:name="Calibri">
             <w:panose1 w:val="020F0502020204030204"/>
             <w:charset w:val="00"/>
