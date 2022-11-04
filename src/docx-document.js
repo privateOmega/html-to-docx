@@ -301,7 +301,7 @@ class DocxDocument {
           )
           .up()
           .ele('@w', 'lvlText')
-          .att('@w', 'val', type === 'ol' ? getListPrefixSuffix(properties.style, level) : '')
+          .att('@w', 'val', type === 'ol' ? getListPrefixSuffix(properties.style, level) : '')
           .up()
           .ele('@w', 'lvlJc')
           .att('@w', 'val', 'left')
