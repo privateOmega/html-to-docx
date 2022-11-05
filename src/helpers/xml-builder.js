@@ -779,13 +779,15 @@ const computeImageDimensions = (vNode, attributes) => {
   attributes.height = modifiedHeight;
 };
 
-const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
-  const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
+const modifiedStyleAttributesBuilder = (vNode, attributes) => {
   const modifiedAttributes = { ...attributes };
+
+  // styles
   if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
     if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
       modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
     }
+
     if (
       vNode.properties.style['background-color'] &&
       !colorlessColors.includes(vNode.properties.style['background-color'])
@@ -794,18 +796,21 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
         vNode.properties.style['background-color']
       );
     }
+
     if (
       vNode.properties.style['vertical-align'] &&
       verticalAlignValues.includes(vNode.properties.style['vertical-align'])
     ) {
       modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
     }
+
     if (
       vNode.properties.style['text-align'] &&
       ['left', 'right', 'center', 'justify'].includes(vNode.properties.style['text-align'])
     ) {
       modifiedAttributes.textAlign = vNode.properties.style['text-align'];
     }
+
     // FIXME: remove bold check when other font weights are handled.
     if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
       modifiedAttributes.strong = vNode.properties.style['font-weight'];
@@ -839,6 +844,8 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
       modifiedAttributes.display = vNode.properties.style.display;
     }
   }
+
+  // other
   if (isVNode(vNode) && vNode.tagName === 'blockquote') {
     modifiedAttributes.indentation = { left: 284 };
     modifiedAttributes.textAlign = 'justify';
@@ -847,6 +854,13 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
   } else if (isVNode(vNode) && vNode.tagName === 'pre') {
     modifiedAttributes.font = 'Courier';
   }
+
+  return modifiedAttributes;
+};
+
+const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
+  const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
+  const modifiedAttributes = modifiedStyleAttributesBuilder(vNode, attributes);
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
   if (isVNode(vNode) && vNodeHasChildren(vNode)) {
@@ -1180,7 +1194,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
 const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDocumentInstance) => {
   const tableCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
 
-  const modifiedAttributes = { ...attributes };
+  let modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
     if (vNode.properties.rowSpan) {
       rowSpanMap.set(columnIndex.index, { rowSpan: vNode.properties.rowSpan - 1, colSpan: 0 });
@@ -1214,23 +1228,11 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
       columnIndex.index += parseInt(modifiedAttributes.colSpan) - 1;
     }
     if (vNode.properties.style) {
-      if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
-        modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
-      }
-      if (
-        vNode.properties.style['background-color'] &&
-        !colorlessColors.includes(vNode.properties.style['background-color'])
-      ) {
-        modifiedAttributes.backgroundColor = fixupColorCode(
-          vNode.properties.style['background-color']
-        );
-      }
-      if (
-        vNode.properties.style['vertical-align'] &&
-        verticalAlignValues.includes(vNode.properties.style['vertical-align'])
-      ) {
-        modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
-      }
+      modifiedAttributes = {
+        ...modifiedAttributes,
+        ...modifiedStyleAttributesBuilder(vNode, attributes),
+      };
+
       fixupTableCellBorder(vNode, modifiedAttributes);
     }
   }
