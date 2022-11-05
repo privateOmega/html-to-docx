@@ -206,6 +206,143 @@ const buildTextElement = (text) =>
     .txt(text)
     .up();
 
+// eslint-disable-next-line consistent-return
+const fixupLineHeight = (lineHeight, fontSize) => {
+  // FIXME: If line height is anything other than a number
+  // eslint-disable-next-line no-restricted-globals
+  if (!isNaN(lineHeight)) {
+    if (fontSize) {
+      const actualLineHeight = +lineHeight * fontSize;
+
+      return HIPToTWIP(actualLineHeight);
+    } else {
+      // 240 TWIP or 12 point is default line height
+      return +lineHeight * 240;
+    }
+  } else {
+    // 240 TWIP or 12 point is default line height
+    return 240;
+  }
+};
+
+// eslint-disable-next-line consistent-return
+const fixupFontSize = (fontSizeString) => {
+  if (pointRegex.test(fontSizeString)) {
+    const matchedParts = fontSizeString.match(pointRegex);
+    // convert point to half point
+    return pointToHIP(matchedParts[1]);
+  } else if (pixelRegex.test(fontSizeString)) {
+    const matchedParts = fontSizeString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelToHIP(matchedParts[1]);
+  }
+};
+
+// eslint-disable-next-line consistent-return
+const fixupRowHeight = (rowHeightString) => {
+  if (pointRegex.test(rowHeightString)) {
+    const matchedParts = rowHeightString.match(pointRegex);
+    // convert point to half point
+    return pointToTWIP(matchedParts[1]);
+  } else if (pixelRegex.test(rowHeightString)) {
+    const matchedParts = rowHeightString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelToTWIP(matchedParts[1]);
+  }
+};
+
+// eslint-disable-next-line consistent-return
+const fixupMargin = (marginString) => {
+  if (pointRegex.test(marginString)) {
+    const matchedParts = marginString.match(pointRegex);
+    // convert point to half point
+    return pointToTWIP(matchedParts[1]);
+  } else if (pixelRegex.test(marginString)) {
+    const matchedParts = marginString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelToTWIP(matchedParts[1]);
+  }
+};
+
+const modifiedStyleAttributesBuilder = (vNode, attributes) => {
+  const modifiedAttributes = { ...attributes };
+
+  // styles
+  if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
+    if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
+      modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
+    }
+
+    if (
+      vNode.properties.style['background-color'] &&
+      !colorlessColors.includes(vNode.properties.style['background-color'])
+    ) {
+      modifiedAttributes.backgroundColor = fixupColorCode(
+        vNode.properties.style['background-color']
+      );
+    }
+
+    if (
+      vNode.properties.style['vertical-align'] &&
+      verticalAlignValues.includes(vNode.properties.style['vertical-align'])
+    ) {
+      modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
+    }
+
+    if (
+      vNode.properties.style['text-align'] &&
+      ['left', 'right', 'center', 'justify'].includes(vNode.properties.style['text-align'])
+    ) {
+      modifiedAttributes.textAlign = vNode.properties.style['text-align'];
+    }
+
+    // FIXME: remove bold check when other font weights are handled.
+    if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
+      modifiedAttributes.strong = vNode.properties.style['font-weight'];
+    }
+    if (vNode.properties.style['font-size']) {
+      modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
+    }
+    if (vNode.properties.style['line-height']) {
+      modifiedAttributes.lineHeight = fixupLineHeight(
+        vNode.properties.style['line-height'],
+        vNode.properties.style['font-size']
+          ? fixupFontSize(vNode.properties.style['font-size'])
+          : null
+      );
+    }
+    if (vNode.properties.style['margin-left'] || vNode.properties.style['margin-right']) {
+      const leftMargin = fixupMargin(vNode.properties.style['margin-left']);
+      const rightMargin = fixupMargin(vNode.properties.style['margin-right']);
+      const indentation = {};
+      if (leftMargin) {
+        indentation.left = leftMargin;
+      }
+      if (rightMargin) {
+        indentation.right = rightMargin;
+      }
+      if (leftMargin || rightMargin) {
+        modifiedAttributes.indentation = indentation;
+      }
+    }
+    if (vNode.properties.style.display) {
+      modifiedAttributes.display = vNode.properties.style.display;
+    }
+  }
+
+  // other
+  if (isVNode(vNode) && vNode.tagName === 'blockquote') {
+    modifiedAttributes.indentation = { left: 284 };
+    modifiedAttributes.textAlign = 'justify';
+  } else if (isVNode(vNode) && vNode.tagName === 'code') {
+    modifiedAttributes.highlightColor = 'lightGray';
+  } else if (isVNode(vNode) && vNode.tagName === 'pre') {
+    modifiedAttributes.font = 'Courier';
+  }
+
+  return modifiedAttributes;
+};
+
 // html tag to formatting function
 // options are passed to the formatting function if needed
 const buildFormatting = (htmlTag, options) => {
@@ -416,90 +553,13 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
   return runFragment;
 };
 
-// eslint-disable-next-line consistent-return
-const fixupLineHeight = (lineHeight, fontSize) => {
-  // FIXME: If line height is anything other than a number
-  // eslint-disable-next-line no-restricted-globals
-  if (!isNaN(lineHeight)) {
-    if (fontSize) {
-      const actualLineHeight = +lineHeight * fontSize;
-
-      return HIPToTWIP(actualLineHeight);
-    } else {
-      // 240 TWIP or 12 point is default line height
-      return +lineHeight * 240;
-    }
-  } else {
-    // 240 TWIP or 12 point is default line height
-    return 240;
-  }
-};
-
-// eslint-disable-next-line consistent-return
-const fixupFontSize = (fontSizeString) => {
-  if (pointRegex.test(fontSizeString)) {
-    const matchedParts = fontSizeString.match(pointRegex);
-    // convert point to half point
-    return pointToHIP(matchedParts[1]);
-  } else if (pixelRegex.test(fontSizeString)) {
-    const matchedParts = fontSizeString.match(pixelRegex);
-    // convert pixels to half point
-    return pixelToHIP(matchedParts[1]);
-  }
-};
-
-// eslint-disable-next-line consistent-return
-const fixupRowHeight = (rowHeightString) => {
-  if (pointRegex.test(rowHeightString)) {
-    const matchedParts = rowHeightString.match(pointRegex);
-    // convert point to half point
-    return pointToTWIP(matchedParts[1]);
-  } else if (pixelRegex.test(rowHeightString)) {
-    const matchedParts = rowHeightString.match(pixelRegex);
-    // convert pixels to half point
-    return pixelToTWIP(matchedParts[1]);
-  }
-};
-
-// eslint-disable-next-line consistent-return
-const fixupMargin = (marginString) => {
-  if (pointRegex.test(marginString)) {
-    const matchedParts = marginString.match(pointRegex);
-    // convert point to half point
-    return pointToTWIP(matchedParts[1]);
-  } else if (pixelRegex.test(marginString)) {
-    const matchedParts = marginString.match(pixelRegex);
-    // convert pixels to half point
-    return pixelToTWIP(matchedParts[1]);
-  }
-};
-
 const buildRunOrRuns = async (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.tagName === 'span') {
     let runFragments = [];
 
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
-      const modifiedAttributes = { ...attributes };
-      if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
-        if (
-          vNode.properties.style.color &&
-          !colorlessColors.includes(vNode.properties.style.color)
-        ) {
-          modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
-        }
-        if (
-          vNode.properties.style['background-color'] &&
-          !colorlessColors.includes(vNode.properties.style['background-color'])
-        ) {
-          modifiedAttributes.backgroundColor = fixupColorCode(
-            vNode.properties.style['background-color']
-          );
-        }
-        if (vNode.properties.style['font-size']) {
-          modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
-        }
-      }
+      const modifiedAttributes = modifiedStyleAttributesBuilder(vNode, attributes);
       const tempRunFragments = await buildRun(childVNode, modifiedAttributes, docxDocumentInstance);
       runFragments = runFragments.concat(
         Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments]
@@ -777,85 +837,6 @@ const computeImageDimensions = (vNode, attributes) => {
   attributes.width = modifiedWidth;
   // eslint-disable-next-line no-param-reassign
   attributes.height = modifiedHeight;
-};
-
-const modifiedStyleAttributesBuilder = (vNode, attributes) => {
-  const modifiedAttributes = { ...attributes };
-
-  // styles
-  if (isVNode(vNode) && vNode.properties && vNode.properties.style) {
-    if (vNode.properties.style.color && !colorlessColors.includes(vNode.properties.style.color)) {
-      modifiedAttributes.color = fixupColorCode(vNode.properties.style.color);
-    }
-
-    if (
-      vNode.properties.style['background-color'] &&
-      !colorlessColors.includes(vNode.properties.style['background-color'])
-    ) {
-      modifiedAttributes.backgroundColor = fixupColorCode(
-        vNode.properties.style['background-color']
-      );
-    }
-
-    if (
-      vNode.properties.style['vertical-align'] &&
-      verticalAlignValues.includes(vNode.properties.style['vertical-align'])
-    ) {
-      modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
-    }
-
-    if (
-      vNode.properties.style['text-align'] &&
-      ['left', 'right', 'center', 'justify'].includes(vNode.properties.style['text-align'])
-    ) {
-      modifiedAttributes.textAlign = vNode.properties.style['text-align'];
-    }
-
-    // FIXME: remove bold check when other font weights are handled.
-    if (vNode.properties.style['font-weight'] && vNode.properties.style['font-weight'] === 'bold') {
-      modifiedAttributes.strong = vNode.properties.style['font-weight'];
-    }
-    if (vNode.properties.style['font-size']) {
-      modifiedAttributes.fontSize = fixupFontSize(vNode.properties.style['font-size']);
-    }
-    if (vNode.properties.style['line-height']) {
-      modifiedAttributes.lineHeight = fixupLineHeight(
-        vNode.properties.style['line-height'],
-        vNode.properties.style['font-size']
-          ? fixupFontSize(vNode.properties.style['font-size'])
-          : null
-      );
-    }
-    if (vNode.properties.style['margin-left'] || vNode.properties.style['margin-right']) {
-      const leftMargin = fixupMargin(vNode.properties.style['margin-left']);
-      const rightMargin = fixupMargin(vNode.properties.style['margin-right']);
-      const indentation = {};
-      if (leftMargin) {
-        indentation.left = leftMargin;
-      }
-      if (rightMargin) {
-        indentation.right = rightMargin;
-      }
-      if (leftMargin || rightMargin) {
-        modifiedAttributes.indentation = indentation;
-      }
-    }
-    if (vNode.properties.style.display) {
-      modifiedAttributes.display = vNode.properties.style.display;
-    }
-  }
-
-  // other
-  if (isVNode(vNode) && vNode.tagName === 'blockquote') {
-    modifiedAttributes.indentation = { left: 284 };
-    modifiedAttributes.textAlign = 'justify';
-  } else if (isVNode(vNode) && vNode.tagName === 'code') {
-    modifiedAttributes.highlightColor = 'lightGray';
-  } else if (isVNode(vNode) && vNode.tagName === 'pre') {
-    modifiedAttributes.font = 'Courier';
-  }
-
-  return modifiedAttributes;
 };
 
 const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
