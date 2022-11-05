@@ -14,7 +14,7 @@
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
     "test": "npm run build && node example/example-node.js",
-    "debug": "node example/example-node.js",
+    "debug": "node -r esm example/example-node.js",
     "release": "standard-version",
     "lint": "eslint --fix .",
     "prettier:check": "prettier --check '**/*.{js}'",
