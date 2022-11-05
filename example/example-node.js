@@ -6,7 +6,7 @@ const HTMLtoDOCX = require('../dist/html-to-docx.umd');
 
 const filePath = './example.docx';
 
-const htmlString = `<!DOCTYPE html>
+const htmlString =  `<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
