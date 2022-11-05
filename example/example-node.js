@@ -2,11 +2,11 @@
 const fs = require('fs');
 // FIXME: Incase you have the npm package
 // const HTMLtoDOCX = require('html-to-docx');
-const HTMLtoDOCX = require('../dist/html-to-docx.umd');
+import HTMLtoDOCX from '../index';
 
 const filePath = './example.docx';
 
-const htmlString = `<!DOCTYPE html>
+const htmlString=  `<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -72,7 +72,7 @@ const htmlString = `<!DOCTYPE html>
         </p>
         <ul style="list-style-type: circle;">
             <li>Unordered list element</li>
-        </ul>
+</ul>
         <br>
         <ol style="list-style-type: decimal;">
             <li>Ordered list element</li>

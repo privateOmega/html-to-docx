@@ -206,55 +206,10 @@ const buildTextElement = (text) =>
     .txt(text)
     .up();
 
-const buildRunProperties = (attributes) => {
-  const runPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'rPr');
-  if (attributes && attributes.constructor === Object) {
-    Object.keys(attributes).forEach((key) => {
-      switch (key) {
-        case 'strong':
-          runPropertiesFragment.import(buildBold());
-          break;
-        case 'i':
-          runPropertiesFragment.import(buildItalics());
-          break;
-        case 'u':
-          runPropertiesFragment.import(buildUnderline());
-          break;
-        case 'sub':
-          runPropertiesFragment.import(buildVertAlign('subscript'));
-          break;
-        case 'sup':
-          runPropertiesFragment.import(buildVertAlign('superscript'));
-          break;
-        case 'color':
-          runPropertiesFragment.import(buildColor(attributes[key]));
-          break;
-        case 'backgroundColor':
-          runPropertiesFragment.import(buildShading(attributes[key]));
-          break;
-        case 'fontSize':
-          runPropertiesFragment.import(buildFontSize(attributes[key]));
-          break;
-        case 'hyperlink':
-          runPropertiesFragment.import(buildRunStyleFragment('Hyperlink'));
-          break;
-        case 'highlightColor':
-          runPropertiesFragment.import(buildHighlight(attributes[key]));
-          break;
-        case 'font':
-          runPropertiesFragment.import(buildRunFontFragment('Courier'));
-          break;
-      }
-    });
-  }
-  runPropertiesFragment.up();
-
-  return runPropertiesFragment;
-};
-
-// eslint-disable-next-line consistent-return
-const buildTextFormatting = (vNode) => {
-  switch (vNode.tagName) {
+// html tag to formatting function
+// options are passed to the formatting function if needed
+const buildFormatting = (htmlTag, options) => {
+  switch (htmlTag) {
     case 'strong':
     case 'b':
       return buildBold();
@@ -276,9 +231,44 @@ const buildTextFormatting = (vNode) => {
       return buildHighlight();
     case 'code':
       return buildHighlight('lightGray');
+    case 'highlightColor':
+      return buildHighlight(options?.color || 'lightGray');
+    case 'font':
     case 'pre':
       return buildRunFontFragment('Courier');
+    case 'color':
+      return buildColor(options?.color || 'black');
+    case 'backgroundColor':
+      return buildShading(options?.color || 'black');
+    case 'fontSize':
+      // does this need a unit of measure?
+      return buildFontSize(options?.fontSize || 10);
+    case 'hyperlink':
+      return buildRunStyleFragment('Hyperlink');
   }
+
+  return null;
+};
+
+const buildRunProperties = (attributes) => {
+  const runPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'rPr');
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      const options = {};
+      if (key === 'color' || key === 'backgroundColor' || key === 'highlightColor') {
+        options.color = attributes[key];
+      }
+
+      if (key === 'fontSize') {
+        options.fontSize = attributes[key];
+      }
+
+      runPropertiesFragment.import(buildFormatting(key, options));
+    });
+  }
+  runPropertiesFragment.up();
+
+  return runPropertiesFragment;
 };
 
 const buildRun = async (vNode, attributes, docxDocumentInstance) => {
@@ -362,7 +352,7 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
             tempAttributes.sup = true;
             break;
         }
-        const formattingFragment = buildTextFormatting(tempVNode);
+        const formattingFragment = buildFormatting(tempVNode.tagName);
         runPropertiesFragment.import(formattingFragment);
       }
 
