@@ -264,7 +264,7 @@ const fixupMargin = (marginString) => {
   }
 };
 
-const modifiedStyleAttributesBuilder = (vNode, attributes) => {
+const modifiedStyleAttributesBuilder = (vNode, attributes, options) => {
   const modifiedAttributes = { ...attributes };
 
   // styles
@@ -330,14 +330,16 @@ const modifiedStyleAttributesBuilder = (vNode, attributes) => {
     }
   }
 
-  // other
-  if (isVNode(vNode) && vNode.tagName === 'blockquote') {
-    modifiedAttributes.indentation = { left: 284 };
-    modifiedAttributes.textAlign = 'justify';
-  } else if (isVNode(vNode) && vNode.tagName === 'code') {
-    modifiedAttributes.highlightColor = 'lightGray';
-  } else if (isVNode(vNode) && vNode.tagName === 'pre') {
-    modifiedAttributes.font = 'Courier';
+  // paragraph only
+  if (options && options.isParagraph) {
+    if (isVNode(vNode) && vNode.tagName === 'blockquote') {
+      modifiedAttributes.indentation = { left: 284 };
+      modifiedAttributes.textAlign = 'justify';
+    } else if (isVNode(vNode) && vNode.tagName === 'code') {
+      modifiedAttributes.highlightColor = 'lightGray';
+    } else if (isVNode(vNode) && vNode.tagName === 'pre') {
+      modifiedAttributes.font = 'Courier';
+    }
   }
 
   return modifiedAttributes;
@@ -841,7 +843,9 @@ const computeImageDimensions = (vNode, attributes) => {
 
 const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
-  const modifiedAttributes = modifiedStyleAttributesBuilder(vNode, attributes);
+  const modifiedAttributes = modifiedStyleAttributesBuilder(vNode, attributes, {
+    isParagraph: true,
+  });
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
   if (isVNode(vNode) && vNodeHasChildren(vNode)) {
