@@ -371,17 +371,17 @@ const buildFormatting = (htmlTag, options) => {
     case 'code':
       return buildHighlight('lightGray');
     case 'highlightColor':
-      return buildHighlight(options?.color || 'lightGray');
+      return buildHighlight(options && options.color ? options.color : 'lightGray');
     case 'font':
     case 'pre':
       return buildRunFontFragment('Courier');
     case 'color':
-      return buildColor(options?.color || 'black');
+      return buildColor(options && options.color ? options.color : 'black');
     case 'backgroundColor':
-      return buildShading(options?.color || 'black');
+      return buildShading(options && options.color ? options.color : 'black');
     case 'fontSize':
       // does this need a unit of measure?
-      return buildFontSize(options?.fontSize || 10);
+      return buildFontSize(options && options.fontSize ? options.fontSize : 10);
     case 'hyperlink':
       return buildRunStyleFragment('Hyperlink');
   }
