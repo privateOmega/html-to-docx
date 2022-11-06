@@ -402,7 +402,10 @@ const buildRunProperties = (attributes) => {
         options.fontSize = attributes[key];
       }
 
-      runPropertiesFragment.import(buildFormatting(key, options));
+      const formattingFragment = buildFormatting(key, options);
+      if (formattingFragment) {
+        runPropertiesFragment.import(formattingFragment);
+      }
     });
   }
   runPropertiesFragment.up();
@@ -492,7 +495,10 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
             break;
         }
         const formattingFragment = buildFormatting(tempVNode.tagName);
-        runPropertiesFragment.import(formattingFragment);
+
+        if (formattingFragment) {
+          runPropertiesFragment.import(formattingFragment);
+        }
       }
 
       if (tempVNode.children && tempVNode.children.length) {
