@@ -432,10 +432,15 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
   const runFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(cloneDeep(attributes));
 
+  // case where we have recursive spans representing font changes
+  if (isVNode(vNode) && vNode.tagName === 'span') {
+    // eslint-disable-next-line no-use-before-define
+    return buildRunOrRuns(vNode, attributes, docxDocumentInstance);
+  }
+
   if (
     isVNode(vNode) &&
     [
-      'span',
       'strong',
       'b',
       'em',
@@ -514,6 +519,35 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
         if (formattingFragment) {
           runPropertiesFragment.import(formattingFragment);
         }
+        // go a layer deeper if there is a span somewhere in the children
+      } else if (isVNode(tempVNode) && tempVNode.tagName === 'span') {
+        // eslint-disable-next-line no-use-before-define
+        const spanFragment = await buildRunOrRuns(
+          tempVNode,
+          { ...attributes, ...tempAttributes },
+          docxDocumentInstance
+        );
+
+        // if spanFragment is an array, we need to add each fragment to the runFragmentsArray. If the fragment is an array, perform a depth first search on the array to add each fragment to the runFragmentsArray
+        if (Array.isArray(spanFragment)) {
+          const dfs = (array) => {
+            array.forEach((fragmentFromSpan) => {
+              if (Array.isArray(fragmentFromSpan)) {
+                dfs(fragmentFromSpan);
+              } else {
+                runFragmentsArray.push(fragmentFromSpan);
+              }
+            });
+          };
+
+          dfs(spanFragment);
+        } else {
+          runFragmentsArray.push(spanFragment);
+        }
+
+        // do not slice and concat children since this is already accounted for in the buildRunOrRuns function
+        // eslint-disable-next-line no-continue
+        continue;
       }
 
       if (tempVNode.children && tempVNode.children.length) {
