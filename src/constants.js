@@ -60,6 +60,9 @@ const defaultDocumentOptions = {
     start: 0,
     restart: 'continuous',
   },
+  numbering: {
+    defaultOrderedListStyleType: 'decimal',
+  },
 };
 const defaultHTMLString = '<p></p>';
 const relsFolderName = '_rels';
