@@ -93,16 +93,26 @@ CSS list-style-type for `<ol>` element are now supported. Just do something like
     ...
   </ol>
 ```
-List of supported list-style-type:
+List of supported list-style-types:
 - upper-alpha, will result in `A. List item`
 - lower-alpha, will result in `a. List item`
 - upper-roman, will result in `I. List item`
 - lower-roman, will result in `i. List item`
-- decimal, will result in `1. List item`
 - lower-alpha-bracket-end, will result in `a) List item`
 - decimal-bracket-end, will result in `1) List item`
 - decimal-bracket, will result in `(1) List item`
+- decimal, **(the default)** will result in `1. List item`
 
+If you would like to override the default list-style-type, you would go pass in a parameter `defaultOrderedListStyleType` in the options object under the object `numbering`. For example:
+```
+  const options = {
+    numbering: {
+      defaultOrderedListStyleType: 'decimal'
+    }
+  }
+
+ const fileBuffer = await HTMLtoDOCX(htmlString, null, options);
+```
 
 Also you could add attribute `data-start="n"` to start the numbering from the n-th.
 

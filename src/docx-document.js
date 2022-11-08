@@ -33,7 +33,7 @@ import {
   imageType,
   defaultDocumentOptions,
 } from './constants';
-import { getListStyleType, getListPrefixSuffix } from './utils/list';
+import ListStyleBuilder from './utils/list';
 
 function generateContentTypesFragments(contentTypesXML, type, objects) {
   if (objects && Array.isArray(objects)) {
@@ -182,6 +182,8 @@ class DocxDocument {
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
     this.generateFooterXML = this.generateFooterXML.bind(this);
     this.generateSectionXML = generateSectionXML.bind(this);
+
+    this.ListStyleBuilder = new ListStyleBuilder(properties.numbering);
   }
 
   generateContentTypesXML() {
@@ -301,12 +303,18 @@ class DocxDocument {
             '@w',
             'val',
             type === 'ol'
-              ? getListStyleType(properties.style && properties.style['list-style-type'])
+              ? this.ListStyleBuilder.getListStyleType(
+                  properties.style && properties.style['list-style-type']
+                )
               : 'bullet'
           )
           .up()
           .ele('@w', 'lvlText')
-          .att('@w', 'val', type === 'ol' ? getListPrefixSuffix(properties.style, level) : '')
+          .att(
+            '@w',
+            'val',
+            type === 'ol' ? this.ListStyleBuilder.getListPrefixSuffix(properties.style, level) : ''
+          )
           .up()
           .ele('@w', 'lvlJc')
           .att('@w', 'val', 'left')
