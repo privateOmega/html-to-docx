@@ -119,8 +119,8 @@ class DocxDocument {
     const height = this.pageSize.height ? this.pageSize.height : landscapeHeight;
     const width = this.pageSize.width ? this.pageSize.width : landscapeWidth;
 
-    this.width = isPortraitOrientation ? height : width;
-    this.height = isPortraitOrientation ? width : height;
+    this.width = isPortraitOrientation ? width : height;
+    this.height = isPortraitOrientation ? height : width;
 
     const marginsObject = properties.margins;
     this.margins =
