@@ -14,6 +14,7 @@
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
     "test": "npm run build && node example/example-node.js",
+    "debug": "node -r esm example/example-node.js",
     "release": "standard-version",
     "lint": "eslint --fix .",
     "prettier:check": "prettier --check '**/*.{js}'",
@@ -63,6 +64,7 @@
   "dependencies": {
     "color-name": "^1.1.4",
     "escape-html": "^1.0.3",
+    "esm": "^3.2.25",
     "html-to-vdom": "^0.7.0",
     "image-size": "^1.0.0",
     "image-to-base64": "^2.2.0",
