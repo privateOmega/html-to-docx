@@ -252,6 +252,19 @@ const fixupRowHeight = (rowHeightString) => {
 };
 
 // eslint-disable-next-line consistent-return
+const fixupColumnWidth = (columnWidthString) => {
+  if (pointRegex.test(columnWidthString)) {
+    const matchedParts = columnWidthString.match(pointRegex);
+    // convert point to half point
+    return pointToTWIP(matchedParts[1]);
+  } else if (pixelRegex.test(columnWidthString)) {
+    const matchedParts = columnWidthString.match(pixelRegex);
+    // convert pixels to half point
+    return pixelToTWIP(matchedParts[1]);
+  }
+};
+
+// eslint-disable-next-line consistent-return
 const fixupMargin = (marginString) => {
   if (pointRegex.test(marginString)) {
     const matchedParts = marginString.match(pointRegex);
@@ -327,6 +340,10 @@ const modifiedStyleAttributesBuilder = (vNode, attributes, options) => {
     }
     if (vNode.properties.style.display) {
       modifiedAttributes.display = vNode.properties.style.display;
+    }
+
+    if (vNode.properties.style.width) {
+      modifiedAttributes.width = vNode.properties.style.width;
     }
   }
 
@@ -1037,6 +1054,13 @@ const buildTableCellBorders = (tableCellBorder) => {
   return tableCellBordersFragment;
 };
 
+const buildTableCellWidth = (tableCellWidth) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'tcW')
+    .att('@w', 'w', fixupColumnWidth(tableCellWidth))
+    .att('@w', 'type', 'dxa')
+    .up();
+
 const buildTableCellProperties = (attributes) => {
   const tableCellPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
@@ -1074,6 +1098,11 @@ const buildTableCellProperties = (attributes) => {
           tableCellPropertiesFragment.import(verticalMergeFragment);
 
           delete attributes.rowSpan;
+          break;
+        case 'width':
+          const widthFragment = buildTableCellWidth(attributes[key]);
+          tableCellPropertiesFragment.import(widthFragment);
+          delete attributes.width;
           break;
       }
     });
@@ -1378,6 +1407,7 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
       fixupTableCellBorder(vNode, modifiedAttributes);
     }
   }
+
   const tableRowPropertiesFragment = buildTableRowProperties(modifiedAttributes);
   tableRowFragment.import(tableRowPropertiesFragment);
 
@@ -1387,36 +1417,31 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
     const tableColumns = vNode.children.filter((childVNode) =>
       ['td', 'th'].includes(childVNode.tagName)
     );
-    const columnWidth = docxDocumentInstance.availableDocumentSpace / tableColumns.length;
+    const maximumColumnWidth = docxDocumentInstance.availableDocumentSpace / tableColumns.length;
 
-    for (let index = 0; index < vNode.children.length; index++) {
-      const childVNode = vNode.children[index];
-      if (['td', 'th'].includes(childVNode.tagName)) {
-        const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
-        if (Array.isArray(rowSpanCellFragments)) {
-          for (
-            let iteratorIndex = 0;
-            iteratorIndex < rowSpanCellFragments.length;
-            iteratorIndex++
-          ) {
-            const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const column of tableColumns) {
+      const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
+      if (Array.isArray(rowSpanCellFragments)) {
+        for (let iteratorIndex = 0; iteratorIndex < rowSpanCellFragments.length; iteratorIndex++) {
+          const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
 
-            tableRowFragment.import(rowSpanCellFragment);
-          }
+          tableRowFragment.import(rowSpanCellFragment);
         }
-        const tableCellFragment = await buildTableCell(
-          childVNode,
-          { ...modifiedAttributes, maximumWidth: columnWidth },
-          rowSpanMap,
-          columnIndex,
-          docxDocumentInstance
-        );
-        columnIndex.index++;
-
-        tableRowFragment.import(tableCellFragment);
       }
+      const tableCellFragment = await buildTableCell(
+        column,
+        { ...modifiedAttributes, maximumWidth: maximumColumnWidth },
+        rowSpanMap,
+        columnIndex,
+        docxDocumentInstance
+      );
+      columnIndex.index++;
+
+      tableRowFragment.import(tableCellFragment);
     }
   }
+
   if (columnIndex.index < rowSpanMap.size) {
     const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
     if (Array.isArray(rowSpanCellFragments)) {
@@ -1427,6 +1452,7 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
       }
     }
   }
+
   tableRowFragment.up();
 
   return tableRowFragment;
