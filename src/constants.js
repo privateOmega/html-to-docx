@@ -49,8 +49,8 @@ const defaultDocumentOptions = {
     },
   },
   pageSize: {
-    height: landscapeHeight,
-    width: landscapeWidth,
+    width: landscapeHeight,
+    height: landscapeWidth,
   },
   pageNumber: false,
   skipFirstHeaderFooter: false,
