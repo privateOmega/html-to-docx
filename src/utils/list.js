@@ -2,13 +2,7 @@ class ListStyleBuilder {
   // defaults is an object passed in from constants.js / numbering with the following properties:
   // defaultOrderedListStyleType: 'decimal' (unless otherwise specified)
   constructor(defaults) {
-    if (!defaults) {
-      throw new Error(
-        'ListStyleBuilder requires a defaults object. See constants.js / numbering for an example.'
-      );
-    }
-
-    this.defaults = defaults;
+    this.defaults = defaults || { defaultOrderedListStyleType: 'decimal' };
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -27,7 +21,7 @@ class ListStyleBuilder {
       case 'decimal':
       case 'decimal-bracket':
       default:
-        return 'decimal';
+        return this.defaults.defaultOrderedListStyleType;
     }
   }
 
@@ -57,4 +51,4 @@ class ListStyleBuilder {
   }
 }
 
-export { ListStyleBuilder as default };
+export default ListStyleBuilder;

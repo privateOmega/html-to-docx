@@ -74,6 +74,8 @@ full fledged examples can be found under `example/`
     - `start` <[Number]> start of the numbering - 1. Defaults to `0`.
     - `countBy` <[Number]> skip numbering in how many lines in between + 1. Defaults to `1`.
     - `restart` <"continuous"|"newPage"|"newSection"> numbering restart strategy. Defaults to `continuous`.
+  - `numbering` <?[Object]>
+    - `defaultOrderedListStyleType` <?[String]> default ordered list style type. Defaults to `decimal`.
 - `footerHTMLString` <[String]> clean html string equivalent of footer. Defaults to `<p></p>` if footer flag is `true`.
 
 ### Returns
@@ -102,17 +104,6 @@ List of supported list-style-types:
 - decimal-bracket-end, will result in `1) List item`
 - decimal-bracket, will result in `(1) List item`
 - decimal, **(the default)** will result in `1. List item`
-
-If you would like to override the default list-style-type, you would go pass in a parameter `defaultOrderedListStyleType` in the options object under the object `numbering`. For example:
-```
-  const options = {
-    numbering: {
-      defaultOrderedListStyleType: 'decimal'
-    }
-  }
-
- const fileBuffer = await HTMLtoDOCX(htmlString, null, options);
-```
 
 Also you could add attribute `data-start="n"` to start the numbering from the n-th.
 
