@@ -20,6 +20,7 @@ class ListStyleBuilder {
         return 'lowerLetter';
       case 'decimal':
       case 'decimal-bracket':
+        return 'decimal';
       default:
         return this.defaults.defaultOrderedListStyleType;
     }
