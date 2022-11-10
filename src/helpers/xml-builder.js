@@ -476,69 +476,70 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
         // re initialize temp run fragments with new fragment
         tempAttributes = cloneDeep(attributes);
         tempRunFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
-      } else if (
-        isVNode(tempVNode) &&
-        [
-          'strong',
-          'b',
-          'em',
-          'i',
-          'u',
-          'ins',
-          'strike',
-          'del',
-          's',
-          'sub',
-          'sup',
-          'mark',
-          'code',
-          'pre',
-        ].includes(tempVNode.tagName)
-      ) {
-        tempAttributes = {};
-        switch (tempVNode.tagName) {
-          case 'strong':
-          case 'b':
-            tempAttributes.strong = true;
-            break;
-          case 'i':
-            tempAttributes.i = true;
-            break;
-          case 'u':
-            tempAttributes.u = true;
-            break;
-          case 'sub':
-            tempAttributes.sub = true;
-            break;
-          case 'sup':
-            tempAttributes.sup = true;
-            break;
-        }
-        const formattingFragment = buildFormatting(tempVNode.tagName);
+      } else if (isVNode(tempVNode)) {
+        if (
+          [
+            'strong',
+            'b',
+            'em',
+            'i',
+            'u',
+            'ins',
+            'strike',
+            'del',
+            's',
+            'sub',
+            'sup',
+            'mark',
+            'code',
+            'pre',
+          ].includes(tempVNode.tagName)
+        ) {
+          tempAttributes = {};
+          switch (tempVNode.tagName) {
+            case 'strong':
+            case 'b':
+              tempAttributes.strong = true;
+              break;
+            case 'i':
+              tempAttributes.i = true;
+              break;
+            case 'u':
+              tempAttributes.u = true;
+              break;
+            case 'sub':
+              tempAttributes.sub = true;
+              break;
+            case 'sup':
+              tempAttributes.sup = true;
+              break;
+          }
+          const formattingFragment = buildFormatting(tempVNode);
 
-        if (formattingFragment) {
-          runPropertiesFragment.import(formattingFragment);
-        }
-        // go a layer deeper if there is a span somewhere in the children
-      } else if (isVNode(tempVNode) && tempVNode.tagName === 'span') {
-        // eslint-disable-next-line no-use-before-define
-        const spanFragment = await buildRunOrRuns(
-          tempVNode,
-          { ...attributes, ...tempAttributes },
-          docxDocumentInstance
-        );
+          if(formattingFragment) {
+            runPropertiesFragment.import(formattingFragment);
+          }
+          // go a layer deeper if there is a span somewhere in the children
+        } else if (tempVNode.tagName === 'span') {
+          // eslint-disable-next-line no-use-before-define
+          const spanFragment = await buildRunOrRuns(
+            tempVNode,
+            { ...attributes, ...tempAttributes },
+            docxDocumentInstance
+          );
 
-        // if spanFragment is an array, we need to add each fragment to the runFragmentsArray. If the fragment is an array, perform a depth first search on the array to add each fragment to the runFragmentsArray
-        if (Array.isArray(spanFragment)) {
-          spanFragment.flat(Infinity);
-          runFragmentsArray.push(...spanFragment);
-        } else {
-          runFragmentsArray.push(spanFragment);
-        }
+          // if spanFragment is an array, we need to add each fragment to the runFragmentsArray. If the fragment is an array, perform a depth first search on the array to add each fragment to the runFragmentsArray
+          if (Array.isArray(spanFragment)) {
+            spanFragment.flat(Infinity);
+            runFragmentsArray.push(...spanFragment);
+          } else {
+            runFragmentsArray.push(spanFragment);
+          }
 
-        // do not slice and concat children since this is already accounted for in the buildRunOrRuns function
-        // eslint-disable-next-line no-continue
-        continue;
+          // do not slice and concat children since this is already accounted for in the buildRunOrRuns function
+          // eslint-disable-next-line no-continue
+          continue;
+        }
       }
 
       if (tempVNode.children && tempVNode.children.length) {
