@@ -79,6 +79,12 @@ const htmlString = `<!DOCTYPE html>
         </ol>
         <div class="page-break" style="page-break-after: always"></div>
         <ul>
+            <li><span style="font-size:10pt"><span style="color:##e28743">I am a teacup <strong><span style="color:#595959">A strong teacup</span></strong></span></span></li>
+            <li><span style="font-size:10pt"><span style="color:#4d4f53">I am another teacup <strong><span style="color:#2596be">A blue</span></strong> Teacup</span></span></li>
+            <li><span style="font-size:10pt"><span style="color:#cc1177">Stonks only go up if you turn the chart sometimes</span></span></li>
+        </ul>
+        <div class="page-break" style="page-break-after: always"></div>
+        <ul>
             <li>
                 <a href="https://en.wikipedia.org/wiki/Coffee">
                     <strong>

@@ -530,17 +530,8 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
 
         // if spanFragment is an array, we need to add each fragment to the runFragmentsArray. If the fragment is an array, perform a depth first search on the array to add each fragment to the runFragmentsArray
         if (Array.isArray(spanFragment)) {
-          const dfs = (array) => {
-            array.forEach((fragmentFromSpan) => {
-              if (Array.isArray(fragmentFromSpan)) {
-                dfs(fragmentFromSpan);
-              } else {
-                runFragmentsArray.push(fragmentFromSpan);
-              }
-            });
-          };
-
-          dfs(spanFragment);
+          spanFragment.flat(Infinity);
+          runFragmentsArray.push(...spanFragment);
         } else {
           runFragmentsArray.push(spanFragment);
         }
