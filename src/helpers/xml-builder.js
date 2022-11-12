@@ -255,11 +255,9 @@ const fixupRowHeight = (rowHeightString) => {
 const fixupColumnWidth = (columnWidthString) => {
   if (pointRegex.test(columnWidthString)) {
     const matchedParts = columnWidthString.match(pointRegex);
-    // convert point to half point
     return pointToTWIP(matchedParts[1]);
   } else if (pixelRegex.test(columnWidthString)) {
     const matchedParts = columnWidthString.match(pixelRegex);
-    // convert pixels to half point
     return pixelToTWIP(matchedParts[1]);
   }
 };
