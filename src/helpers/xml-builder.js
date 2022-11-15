@@ -516,7 +516,7 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
           }
           const formattingFragment = buildFormatting(tempVNode);
 
-          if(formattingFragment) {
+          if (formattingFragment) {
             runPropertiesFragment.import(formattingFragment);
           }
           // go a layer deeper if there is a span somewhere in the children
@@ -969,7 +969,8 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
           const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
           const imageProperties = sizeOf(imageBuffer);
 
-          modifiedAttributes.maximumWidth = docxDocumentInstance.availableDocumentSpace;
+          modifiedAttributes.maximumWidth =
+            modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
           modifiedAttributes.originalWidth = imageProperties.width;
           modifiedAttributes.originalHeight = imageProperties.height;
 
@@ -1024,7 +1025,8 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
       const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
       const imageProperties = sizeOf(imageBuffer);
 
-      modifiedAttributes.maximumWidth = docxDocumentInstance.availableDocumentSpace;
+      modifiedAttributes.maximumWidth =
+        modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
       modifiedAttributes.originalWidth = imageProperties.width;
       modifiedAttributes.originalHeight = imageProperties.height;
 
