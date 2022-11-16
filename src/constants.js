@@ -48,6 +48,10 @@ const defaultDocumentOptions = {
       cantSplit: false,
     },
   },
+  pageSize: {
+    width: landscapeHeight,
+    height: landscapeWidth,
+  },
   pageNumber: false,
   skipFirstHeaderFooter: false,
   lineNumber: false,
@@ -55,6 +59,9 @@ const defaultDocumentOptions = {
     countBy: 1,
     start: 0,
     restart: 'continuous',
+  },
+  numbering: {
+    defaultOrderedListStyleType: 'decimal',
   },
 };
 const defaultHTMLString = '<p></p>';

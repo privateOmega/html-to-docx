@@ -37,6 +37,9 @@ full fledged examples can be found under `example/`
 - `headerHTMLString` <[String]> clean html string equivalent of header. Defaults to `<p></p>` if header flag is `true`.
 - `documentOptions` <?[Object]>
   - `orientation` <"portrait"|"landscape"> defines the general orientation of the document. Defaults to portrait.
+  - `pageSize` <?[Object]> Defaults to U.S. letter portrait orientation.
+    - `width` <[Number]> width of the page for all pages in this section in [TWIP]. Defaults to 12240. Maximum 31680. Supports equivalent measurement in [pixel], [cm] or [inch].
+    - `height` <[Number]> height of the page for all pages in this section in [TWIP]. Defaults to 15840. Maximum 31680. Supports equivalent measurement in [pixel], [cm] or [inch].
   - `margins` <?[Object]>
     - `top` <[Number]> distance between the top of the text margins for the main document and the top of the page for all pages in this section in [TWIP]. Defaults to 1440. Supports equivalent measurement in [pixel], [cm] or [inch].
     - `right` <[Number]> distance between the right edge of the page and the right edge of the text extents for this document in [TWIP]. Defaults to 1800. Supports equivalent measurement in [pixel], [cm] or [inch].
@@ -71,6 +74,8 @@ full fledged examples can be found under `example/`
     - `start` <[Number]> start of the numbering - 1. Defaults to `0`.
     - `countBy` <[Number]> skip numbering in how many lines in between + 1. Defaults to `1`.
     - `restart` <"continuous"|"newPage"|"newSection"> numbering restart strategy. Defaults to `continuous`.
+  - `numbering` <?[Object]>
+    - `defaultOrderedListStyleType` <?[String]> default ordered list style type. Defaults to `decimal`.
 - `footerHTMLString` <[String]> clean html string equivalent of footer. Defaults to `<p></p>` if footer flag is `true`.
 
 ### Returns
@@ -90,16 +95,15 @@ CSS list-style-type for `<ol>` element are now supported. Just do something like
     ...
   </ol>
 ```
-List of supported list-style-type:
+List of supported list-style-types:
 - upper-alpha, will result in `A. List item`
 - lower-alpha, will result in `a. List item`
 - upper-roman, will result in `I. List item`
 - lower-roman, will result in `i. List item`
-- decimal, will result in `1. List item`
 - lower-alpha-bracket-end, will result in `a) List item`
 - decimal-bracket-end, will result in `1) List item`
 - decimal-bracket, will result in `(1) List item`
-
+- decimal, **(the default)** will result in `1. List item`
 
 Also you could add attribute `data-start="n"` to start the numbering from the n-th.
 

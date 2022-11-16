@@ -31,8 +31,9 @@ import {
   hyperlinkType,
   documentFileName,
   imageType,
+  defaultDocumentOptions,
 } from './constants';
-import { getListStyleType, getListPrefixSuffix } from './utils/list';
+import ListStyleBuilder from './utils/list';
 
 function generateContentTypesFragments(contentTypesXML, type, objects) {
   if (objects && Array.isArray(objects)) {
@@ -112,10 +113,14 @@ class DocxDocument {
     this.zip = properties.zip;
     this.htmlString = properties.htmlString;
     this.orientation = properties.orientation;
+    this.pageSize = properties.pageSize || defaultDocumentOptions.pageSize;
 
     const isPortraitOrientation = this.orientation === defaultOrientation;
-    this.width = isPortraitOrientation ? landscapeHeight : landscapeWidth;
-    this.height = isPortraitOrientation ? landscapeWidth : landscapeHeight;
+    const height = this.pageSize.height ? this.pageSize.height : landscapeHeight;
+    const width = this.pageSize.width ? this.pageSize.width : landscapeWidth;
+
+    this.width = isPortraitOrientation ? width : height;
+    this.height = isPortraitOrientation ? height : width;
 
     const marginsObject = properties.margins;
     this.margins =
@@ -177,6 +182,8 @@ class DocxDocument {
     this.generateHeaderXML = this.generateHeaderXML.bind(this);
     this.generateFooterXML = this.generateFooterXML.bind(this);
     this.generateSectionXML = generateSectionXML.bind(this);
+
+    this.ListStyleBuilder = new ListStyleBuilder(properties.numbering);
   }
 
   generateContentTypesXML() {
@@ -296,12 +303,18 @@ class DocxDocument {
             '@w',
             'val',
             type === 'ol'
-              ? getListStyleType(properties.style && properties.style['list-style-type'])
+              ? this.ListStyleBuilder.getListStyleType(
+                  properties.style && properties.style['list-style-type']
+                )
               : 'bullet'
           )
           .up()
           .ele('@w', 'lvlText')
-          .att('@w', 'val', type === 'ol' ? getListPrefixSuffix(properties.style, level) : '')
+          .att(
+            '@w',
+            'val',
+            type === 'ol' ? this.ListStyleBuilder.getListPrefixSuffix(properties.style, level) : ''
+          )
           .up()
           .ele('@w', 'lvlJc')
           .att('@w', 'val', 'left')
@@ -325,8 +338,8 @@ class DocxDocument {
             fragment({ namespaceAlias: { w: namespaces.w } })
               .ele('@w', 'rPr')
               .ele('@w', 'rFonts')
-              .att('@w', 'ascii', 'Wingdings')
-              .att('@w', 'hAnsi', 'Wingdings')
+              .att('@w', 'ascii', 'Symbol')
+              .att('@w', 'hAnsi', 'Symbol')
               .att('@w', 'hint', 'default')
               .up()
               .up()
