@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/privateOmega/html-to-docx/compare/v1.5.0...v1.6.0) (2022-11-16)
+
+
+### Features
+
+* add pageSize as an optional additional document option ([ed9aeda](https://github.com/privateOmega/html-to-docx/commit/ed9aedaf1ad462bd0ce5d284fd915d24d280c428))
+* include pageSize as an optional additional document option ([5aa34d5](https://github.com/privateOmega/html-to-docx/commit/5aa34d5dd6851001c53551a602f8b46ab538564e))
+
+
+### Bug Fixes
+
+* add null check for formatting that is not supported ([969e31b](https://github.com/privateOmega/html-to-docx/commit/969e31b044ed2d7764d4bf887b732e2a3afc7b57))
+* add options param in modifiedStyleAttributesBbilder to support paragraph-only attributes ([b113dfb](https://github.com/privateOmega/html-to-docx/commit/b113dfb43a4ef5a2e253627f5eda8dd19cf1655f))
+* change page size ternary order ([88938f3](https://github.com/privateOmega/html-to-docx/commit/88938f3efef46d8a9d310d9325cb6b476d1bec71))
+* corrected case for decimal return value ([680b239](https://github.com/privateOmega/html-to-docx/commit/680b239ad56af3498c5da7c0cf834105ee8a1842))
+* dont override maxwidth if already present ([678d6ad](https://github.com/privateOmega/html-to-docx/commit/678d6adfbb202a0604c2be805a36edeac0220530))
+* replace options to use tiernary conditional operator ([da2d38e](https://github.com/privateOmega/html-to-docx/commit/da2d38e1061fa59c9e54832f39611bbb831d8390))
+* update default height and width measurements ([5614566](https://github.com/privateOmega/html-to-docx/commit/5614566c2b067a14c5eb8d286b4fc8c3177cfd99))
+* update unordered list symbol unicode ([e80f785](https://github.com/privateOmega/html-to-docx/commit/e80f7851b6c1dce3cd6430382960686dcb0d9db7))
+* use symbol instead of wingdings font for bullet symbol ([8d62648](https://github.com/privateOmega/html-to-docx/commit/8d62648db4de82c56da4d772d6ed64ac23bb1e5d))
+
 ## [1.5.0](https://github.com/privateOmega/html-to-docx/compare/v1.4.0...v1.5.0) (2022-10-25)
 
 
