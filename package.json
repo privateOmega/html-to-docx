@@ -13,7 +13,9 @@
   "main": "dist/html-to-docx.umd.js",
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "test": "npm run build && node example/example-node.js",
+    "prerelease": "rollup -c",
     "release": "standard-version",
     "lint": "eslint --fix .",
     "prettier:check": "prettier --check '**/*.{js}'",
@@ -79,5 +81,9 @@
       "prettier --write",
       "eslint --fix"
     ]
+  },
+  "resolutions": {
+    "@oozcitak/util": "8.3.4",
+    "@oozcitak/dom": "1.15.6"
   }
 }
