@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.3](https://github.com/privateOmega/html-to-docx/compare/v1.6.2...v1.6.3) (2022-11-17)
+
+
+### Bug Fixes
+
+* add pre-install script to force resolutions ([8f2ab68](https://github.com/privateOmega/html-to-docx/commit/8f2ab68e2d358ca96209b7df1065d403e2259c8a))
+* add resolutions for xmlbuilder2 deps ([70e2ce1](https://github.com/privateOmega/html-to-docx/commit/70e2ce1cb3c6a4d8e814653a2746831bb3fb9e86))
+* upgrades the xmlbuilder2 dependency version (Closes [#92](https://github.com/privateOmega/html-to-docx/issues/92)) ([108e1e9](https://github.com/privateOmega/html-to-docx/commit/108e1e92cc1b5a1e2d2d3958fa8086ef573274ef))
+
 ### [1.6.2](https://github.com/privateOmega/html-to-docx/compare/v1.6.1...v1.6.2) (2022-11-17)
 
 
