@@ -79,5 +79,9 @@
       "prettier --write",
       "eslint --fix"
     ]
+  },
+  "resolutions": {
+    "@oozcitak/util": "8.3.4",
+    "@oozcitak/dom": "1.15.6"
   }
 }
