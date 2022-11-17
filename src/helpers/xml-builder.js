@@ -36,6 +36,10 @@ import {
   pixelToTWIP,
   pixelToEIP,
   pointToEIP,
+  cmToTWIP,
+  cmRegex,
+  inchRegex,
+  inchToTWIP,
 } from '../utils/unit-conversion';
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
@@ -248,6 +252,12 @@ const fixupRowHeight = (rowHeightString) => {
     const matchedParts = rowHeightString.match(pixelRegex);
     // convert pixels to half point
     return pixelToTWIP(matchedParts[1]);
+  } else if (cmRegex.test(rowHeightString)) {
+    const matchedParts = rowHeightString.match(cmRegex);
+    return cmToTWIP(matchedParts[1]);
+  } else if (inchRegex.test(rowHeightString)) {
+    const matchedParts = rowHeightString.match(inchRegex);
+    return inchToTWIP(matchedParts[1]);
   }
 };
 
@@ -259,6 +269,12 @@ const fixupColumnWidth = (columnWidthString) => {
   } else if (pixelRegex.test(columnWidthString)) {
     const matchedParts = columnWidthString.match(pixelRegex);
     return pixelToTWIP(matchedParts[1]);
+  } else if (cmRegex.test(columnWidthString)) {
+    const matchedParts = columnWidthString.match(cmRegex);
+    return cmToTWIP(matchedParts[1]);
+  } else if (inchRegex.test(columnWidthString)) {
+    const matchedParts = columnWidthString.match(inchRegex);
+    return inchToTWIP(matchedParts[1]);
   }
 };
 
