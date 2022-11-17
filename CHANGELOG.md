@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.2](https://github.com/privateOmega/html-to-docx/compare/v1.6.1...v1.6.2) (2022-11-17)
+
+
+### Bug Fixes
+
+* add support for different units for column width and row height ([6286870](https://github.com/privateOmega/html-to-docx/commit/62868700852a07adf4ff39db2206fa64ba7c0efe))
+
 ### [1.6.1](https://github.com/privateOmega/html-to-docx/compare/v1.6.0...v1.6.1) (2022-11-16)
 
 ## [1.6.0](https://github.com/privateOmega/html-to-docx/compare/v1.5.0...v1.6.0) (2022-11-16)
