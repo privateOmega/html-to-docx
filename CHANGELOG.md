@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.4](https://github.com/privateOmega/html-to-docx/compare/v1.6.3...v1.6.4) (2022-11-18)
+
+
+### Bug Fixes
+
+* force point to specific versions of @oozcitak/util and @oozcitak/dom ([968d8e1](https://github.com/privateOmega/html-to-docx/commit/968d8e1ccd1c6e21868c9bd01a012f3010677281))
+
 ### [1.6.3](https://github.com/privateOmega/html-to-docx/compare/v1.6.2...v1.6.3) (2022-11-17)
 
 
