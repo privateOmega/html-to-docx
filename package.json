@@ -13,7 +13,6 @@
   "main": "dist/html-to-docx.umd.js",
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "test": "npm run build && node example/example-node.js",
     "prerelease": "rollup -c",
     "release": "standard-version",
