@@ -63,6 +63,8 @@
     "standard-version": "^9.3.1"
   },
   "dependencies": {
+    "@oozcitak/util": "8.3.4",
+    "@oozcitak/dom": "1.15.6",
     "color-name": "^1.1.4",
     "escape-html": "^1.0.3",
     "html-to-vdom": "^0.7.0",
