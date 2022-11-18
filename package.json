@@ -13,7 +13,6 @@
   "main": "dist/html-to-docx.umd.js",
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "test": "npm run build && node example/example-node.js",
     "prerelease": "rollup -c",
     "release": "standard-version",
@@ -64,6 +63,8 @@
     "standard-version": "^9.3.1"
   },
   "dependencies": {
+    "@oozcitak/util": "8.3.4",
+    "@oozcitak/dom": "1.15.6",
     "color-name": "^1.1.4",
     "escape-html": "^1.0.3",
     "html-to-vdom": "^0.7.0",
@@ -83,6 +84,10 @@
     ]
   },
   "resolutions": {
+    "@oozcitak/util": "8.3.4",
+    "@oozcitak/dom": "1.15.6"
+  },
+  "overrides": {
     "@oozcitak/util": "8.3.4",
     "@oozcitak/dom": "1.15.6"
   }
