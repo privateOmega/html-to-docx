@@ -138,3 +138,11 @@ MIT
 [cm]: https://en.wikipedia.org/wiki/Centimetre "cm"
 [inch]: https://en.wikipedia.org/wiki/Inch "inch"
 [pt]: https://en.wikipedia.org/wiki/Point_(typography) "pt"
+
+# Contributors
+
+<a href="https://github.com/privateomega/html-to-docx/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=privateomega/html-to-docx" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
