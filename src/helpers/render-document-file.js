@@ -7,7 +7,6 @@ import isVNode from 'virtual-dom/vnode/is-vnode';
 import isVText from 'virtual-dom/vnode/is-vtext';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
-import escape from 'escape-html';
 import sizeOf from 'image-size';
 import imageToBase64 from 'image-to-base64';
 import mimeTypes from 'mime-types';
@@ -316,7 +315,8 @@ export async function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment
   } else if (isVNode(vTree)) {
     await findXMLEquivalent(docxDocumentInstance, vTree, xmlFragment);
   } else if (isVText(vTree)) {
-    xmlBuilder.buildTextElement(xmlFragment, escape(String(vTree.text)));
+    const paragraphFragment = await xmlBuilder.buildParagraph(vTree, {}, docxDocumentInstance);
+    xmlFragment.import(paragraphFragment);
   }
   return xmlFragment;
 }
