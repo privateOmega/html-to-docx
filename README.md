@@ -115,6 +115,10 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to branch new branches off of develop for contribution.
 
+## Support
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/privateOmega)
+
 ## License
 
 MIT
