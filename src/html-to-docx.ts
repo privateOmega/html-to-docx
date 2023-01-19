@@ -33,18 +33,19 @@ import {
   themeFolder,
   themeType,
 } from './constants';
+import JSZip from 'jszip';
 
 const convertHTML = HTMLToVDOM({
   VNode,
   VText,
 });
 
-const mergeOptions = (options, patch) => ({ ...options, ...patch });
+const mergeOptions = (options: Object, patch: Object) => ({ ...options, ...patch });
 
-const fixupFontSize = (fontSize) => {
+const fixupFontSize = (fontSize: string) => {
   let normalizedFontSize;
   if (pointRegex.test(fontSize)) {
-    const matchedParts = fontSize.match(pointRegex);
+    const matchedParts = fontSize.match(pointRegex) as RegExpMatchArray;
 
     normalizedFontSize = pointToHIP(matchedParts[1]);
   } else if (fontSize) {
@@ -57,7 +58,7 @@ const fixupFontSize = (fontSize) => {
   return normalizedFontSize;
 };
 
-const normalizeUnits = (dimensioningObject, defaultDimensionsProperty) => {
+const normalizeUnits = (dimensioningObject: Object, defaultDimensionsProperty) => {
   let normalizedUnitResult = {};
   if (typeof dimensioningObject === 'object' && dimensioningObject !== null) {
     Object.keys(dimensioningObject).forEach((key) => {
@@ -85,7 +86,7 @@ const normalizeUnits = (dimensioningObject, defaultDimensionsProperty) => {
   return normalizedUnitResult;
 };
 
-const normalizeDocumentOptions = (documentOptions) => {
+const normalizeDocumentOptions = (documentOptions: Object) => {
   const normalizedDocumentOptions = { ...documentOptions };
   Object.keys(documentOptions).forEach((key) => {
     // eslint-disable-next-line default-case
@@ -110,11 +111,11 @@ const normalizeDocumentOptions = (documentOptions) => {
 // Ref: https://en.wikipedia.org/wiki/Office_Open_XML_file_formats
 // http://officeopenxml.com/anatomyofOOXML.php
 async function addFilesToContainer(
-  zip,
-  htmlString,
-  suppliedDocumentOptions,
-  headerHTMLString,
-  footerHTMLString
+  zip: JSZip,
+  htmlString: string,
+  suppliedDocumentOptions: Object,
+  headerHTMLString: string,
+  footerHTMLString: string
 ) {
   const normalizedDocumentOptions = normalizeDocumentOptions(suppliedDocumentOptions);
   const documentOptions = mergeOptions(defaultDocumentOptions, normalizedDocumentOptions);
