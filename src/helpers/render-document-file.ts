@@ -28,8 +28,8 @@ const convertHTML = HTMLToVDOM({
 
 // eslint-disable-next-line consistent-return, no-shadow
 export const buildImage = async (docxDocumentInstance, vNode: VNodeType, maximumWidth = null) => {
-  let response = null;
-  let base64Uri = null;
+  let response: { id: number; fileContent: string; fileNameWithExtension: string } | null = null;
+  let base64Uri: string | null = null;
   try {
     const imageSource = vNode.properties.src;
     if (isValidUrl(imageSource)) {
