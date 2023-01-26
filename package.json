@@ -50,6 +50,7 @@
     "@rollup/plugin-commonjs": "^12.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.1.1",
+    "@rollup/plugin-typescript": "^11.0.0",
     "@types/color-name": "^1.1.1",
     "@types/lodash": "^4.14.186",
     "@types/virtual-dom": "^2.1.1",
@@ -69,8 +70,8 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@oozcitak/util": "8.3.4",
     "@oozcitak/dom": "1.15.6",
+    "@oozcitak/util": "8.3.4",
     "color-name": "^1.1.4",
     "html-entities": "^2.3.3",
     "html-to-vdom": "^0.7.0",
