@@ -4,13 +4,15 @@ import commonjs from '@rollup/plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
 import cleaner from 'rollup-plugin-cleaner';
 import builtins from 'rollup-plugin-node-builtins';
+import typescript from '@rollup/plugin-typescript';
 
 import * as meta from './package.json';
 
 export default {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   external: ['color-name', 'html-to-vdom', 'jszip', 'virtual-dom', 'xmlbuilder2', 'html-entities'],
   plugins: [
+    typescript(),
     resolve(),
     json(),
     commonjs(),
