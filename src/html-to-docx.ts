@@ -4,6 +4,7 @@ import VText from 'virtual-dom/vnode/vtext';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
 import { decode } from 'html-entities';
+import JSZip from 'jszip';
 
 import { relsXML } from './schemas';
 import DocxDocument from './docx-document';
@@ -33,18 +34,18 @@ import {
   themeFolder,
   themeType,
 } from './constants';
-import JSZip from 'jszip';
+import { DocumentOptions } from './interface';
 
 const convertHTML = HTMLToVDOM({
   VNode,
   VText,
 });
 
-const mergeOptions = (options: Object, patch: Object) => ({ ...options, ...patch });
+const mergeOptions = <Type>(options: Type, patch: Type): Type => ({ ...options, ...patch });
 
-const fixupFontSize = (fontSize: string) => {
+const fixupFontSize = (fontSize: string | number) => {
   let normalizedFontSize;
-  if (pointRegex.test(fontSize)) {
+  if (typeof fontSize === 'string' && pointRegex.test(fontSize)) {
     const matchedParts = fontSize.match(pointRegex) as RegExpMatchArray;
 
     normalizedFontSize = pointToHIP(matchedParts[1]);
@@ -59,7 +60,7 @@ const fixupFontSize = (fontSize: string) => {
 };
 
 const normalizeUnits = (dimensioningObject: Object, defaultDimensionsProperty) => {
-  let normalizedUnitResult = {};
+  let normalizedUnitResult: {} | null = {};
   if (typeof dimensioningObject === 'object' && dimensioningObject !== null) {
     Object.keys(dimensioningObject).forEach((key) => {
       if (pixelRegex.test(dimensioningObject[key])) {
@@ -86,7 +87,9 @@ const normalizeUnits = (dimensioningObject: Object, defaultDimensionsProperty) =
   return normalizedUnitResult;
 };
 
-const normalizeDocumentOptions = (documentOptions: Object) => {
+const normalizeDocumentOptions = (
+  documentOptions: Partial<DocumentOptions>
+): Partial<DocumentOptions> => {
   const normalizedDocumentOptions = { ...documentOptions };
   Object.keys(documentOptions).forEach((key) => {
     // eslint-disable-next-line default-case
@@ -113,11 +116,12 @@ const normalizeDocumentOptions = (documentOptions: Object) => {
 async function addFilesToContainer(
   zip: JSZip,
   htmlString: string,
-  suppliedDocumentOptions: Object,
+  suppliedDocumentOptions: Partial<DocumentOptions>,
   headerHTMLString: string,
   footerHTMLString: string
 ) {
   const normalizedDocumentOptions = normalizeDocumentOptions(suppliedDocumentOptions);
+  // @ts-ignore
   const documentOptions = mergeOptions(defaultDocumentOptions, normalizedDocumentOptions);
 
   if (documentOptions.header && !headerHTMLString) {
