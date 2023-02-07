@@ -9,7 +9,7 @@ import * as meta from './package.json';
 
 export default {
   input: 'index.js',
-  external: ['color-name', 'html-to-vdom', 'jszip', 'virtual-dom', 'xmlbuilder2'],
+  external: ['color-name', 'html-to-vdom', 'jszip', 'virtual-dom', 'xmlbuilder2', 'html-entities'],
   plugins: [
     resolve(),
     json(),
