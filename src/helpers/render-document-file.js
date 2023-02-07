@@ -73,6 +73,7 @@ export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = nul
         inlineOrAnchored: true,
         relationshipId: documentRelsId,
         ...response,
+        description: vNode.properties.alt,
         maximumWidth: maximumWidth || docxDocumentInstance.availableDocumentSpace,
         originalWidth: imageProperties.width,
         originalHeight: imageProperties.height,
