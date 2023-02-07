@@ -63,6 +63,7 @@ const defaultDocumentOptions = {
   numbering: {
     defaultOrderedListStyleType: 'decimal',
   },
+  decodeUnicode: false,
 };
 const defaultHTMLString = '<p></p>';
 const relsFolderName = '_rels';

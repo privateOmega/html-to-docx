@@ -3,6 +3,7 @@ import VNode from 'virtual-dom/vnode/vnode';
 import VText from 'virtual-dom/vnode/vtext';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
+import { decode } from 'html-entities';
 
 import { relsXML } from './schemas';
 import DocxDocument from './docx-document';
@@ -125,6 +126,11 @@ async function addFilesToContainer(
   if (documentOptions.footer && !footerHTMLString) {
     // eslint-disable-next-line no-param-reassign
     footerHTMLString = defaultHTMLString;
+  }
+  if (documentOptions.decodeUnicode) {
+    headerHTMLString = decode(headerHTMLString); // eslint-disable-line no-param-reassign
+    htmlString = decode(htmlString); // eslint-disable-line no-param-reassign
+    footerHTMLString = decode(footerHTMLString); // eslint-disable-line no-param-reassign
   }
 
   const docxDocument = new DocxDocument({ zip, htmlString, ...documentOptions });
