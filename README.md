@@ -76,6 +76,7 @@ full fledged examples can be found under `example/`
     - `restart` <"continuous"|"newPage"|"newSection"> numbering restart strategy. Defaults to `continuous`.
   - `numbering` <?[Object]>
     - `defaultOrderedListStyleType` <?[String]> default ordered list style type. Defaults to `decimal`.
+  - `decodeUnicode` <?[Boolean]> flag to enable unicode decoding of header, body and footer. Defaults to `false`.
 - `footerHTMLString` <[String]> clean html string equivalent of footer. Defaults to `<p></p>` if footer flag is `true`.
 
 ### Returns
@@ -142,3 +143,11 @@ MIT
 [cm]: https://en.wikipedia.org/wiki/Centimetre "cm"
 [inch]: https://en.wikipedia.org/wiki/Inch "inch"
 [pt]: https://en.wikipedia.org/wiki/Point_(typography) "pt"
+
+## Contributors
+
+<a href="https://github.com/privateomega/html-to-docx/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=privateomega/html-to-docx" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).

@@ -35,7 +35,11 @@
     "erenard",
     "KeithGillette",
     "juralio-james",
-    "nicolasiscoding <nicolascoding@gmail.com>"
+    "nicolasiscoding <nicolascoding@gmail.com>",
+    "zedtux <zedtux@zedroot.org>",
+    "hlerebours",
+    "hakjeri",
+    "tasola"
   ],
   "license": "MIT",
   "bugs": {
@@ -66,7 +70,7 @@
     "@oozcitak/util": "8.3.4",
     "@oozcitak/dom": "1.15.6",
     "color-name": "^1.1.4",
-    "escape-html": "^1.0.3",
+    "html-entities": "^2.3.3",
     "html-to-vdom": "^0.7.0",
     "image-size": "^1.0.0",
     "image-to-base64": "^2.2.0",

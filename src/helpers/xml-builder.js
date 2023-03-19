@@ -995,7 +995,7 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
         const runOrHyperlinkFragments = await buildRunOrHyperLink(
           childVNode,
           isVNode(childVNode) && childVNode.tagName === 'img'
-            ? { ...modifiedAttributes, type: 'picture' }
+            ? { ...modifiedAttributes, type: 'picture', description: childVNode.properties.alt }
             : modifiedAttributes,
           docxDocumentInstance
         );
