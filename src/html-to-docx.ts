@@ -4,6 +4,7 @@ import VText from 'virtual-dom/vnode/vtext';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
 import { decode } from 'html-entities';
+import JSZip from 'jszip';
 
 import { relsXML } from './schemas';
 import DocxDocument from './docx-document';
@@ -33,19 +34,21 @@ import {
   themeFolder,
   themeType,
 } from './constants';
+import { DocumentOptions } from './interface';
 
 const convertHTML = HTMLToVDOM({
   VNode,
   VText,
 });
 
-const mergeOptions = (options, patch) => ({ ...options, ...patch });
+const mergeOptions = <Type>(options: Type, patch: Type): Type => ({ ...options, ...patch });
 
-const fixupFontSize = (fontSize) => {
+const fixupFontSize = (fontSize?: string | number) => {
   let normalizedFontSize;
-  if (pointRegex.test(fontSize)) {
-    const matchedParts = fontSize.match(pointRegex);
+  if (typeof fontSize === 'string' && pointRegex.test(fontSize)) {
+    const matchedParts = fontSize.match(pointRegex) as RegExpMatchArray;
 
+    // @ts-ignore
     normalizedFontSize = pointToHIP(matchedParts[1]);
   } else if (fontSize) {
     // assuming it is already in HIP
@@ -57,23 +60,33 @@ const fixupFontSize = (fontSize) => {
   return normalizedFontSize;
 };
 
-const normalizeUnits = (dimensioningObject, defaultDimensionsProperty) => {
-  let normalizedUnitResult = {};
+const normalizeUnits = (
+  dimensioningObject: DocumentOptions['pageSize'] | DocumentOptions['margins'],
+  defaultDimensionsProperty: DocumentOptions['pageSize'] | DocumentOptions['margins']
+) => {
+  let normalizedUnitResult: Partial<
+    DocumentOptions['pageSize'] | DocumentOptions['margins']
+  > | null = {};
   if (typeof dimensioningObject === 'object' && dimensioningObject !== null) {
     Object.keys(dimensioningObject).forEach((key) => {
       if (pixelRegex.test(dimensioningObject[key])) {
-        const matchedParts = dimensioningObject[key].match(pixelRegex);
+        const matchedParts = dimensioningObject[key].match(pixelRegex) as RegExpMatchArray;
+        // @ts-ignore
         normalizedUnitResult[key] = pixelToTWIP(matchedParts[1]);
       } else if (cmRegex.test(dimensioningObject[key])) {
-        const matchedParts = dimensioningObject[key].match(cmRegex);
+        const matchedParts = dimensioningObject[key].match(cmRegex) as RegExpMatchArray;
+        // @ts-ignore
         normalizedUnitResult[key] = cmToTWIP(matchedParts[1]);
       } else if (inchRegex.test(dimensioningObject[key])) {
-        const matchedParts = dimensioningObject[key].match(inchRegex);
+        const matchedParts = dimensioningObject[key].match(inchRegex) as RegExpMatchArray;
+        // @ts-ignore
         normalizedUnitResult[key] = inchToTWIP(matchedParts[1]);
       } else if (dimensioningObject[key]) {
+        // @ts-ignore
         normalizedUnitResult[key] = dimensioningObject[key];
       } else {
         // incase value is something like 0
+        // @ts-ignore
         normalizedUnitResult[key] = defaultDimensionsProperty[key];
       }
     });
@@ -85,13 +98,16 @@ const normalizeUnits = (dimensioningObject, defaultDimensionsProperty) => {
   return normalizedUnitResult;
 };
 
-const normalizeDocumentOptions = (documentOptions) => {
+const normalizeDocumentOptions = (
+  documentOptions: Partial<DocumentOptions>
+): Partial<DocumentOptions> => {
   const normalizedDocumentOptions = { ...documentOptions };
   Object.keys(documentOptions).forEach((key) => {
     // eslint-disable-next-line default-case
     switch (key) {
       case 'pageSize':
       case 'margins':
+        // @ts-ignore
         normalizedDocumentOptions[key] = normalizeUnits(
           documentOptions[key],
           defaultDocumentOptions[key]
@@ -110,13 +126,14 @@ const normalizeDocumentOptions = (documentOptions) => {
 // Ref: https://en.wikipedia.org/wiki/Office_Open_XML_file_formats
 // http://officeopenxml.com/anatomyofOOXML.php
 async function addFilesToContainer(
-  zip,
-  htmlString,
-  suppliedDocumentOptions,
-  headerHTMLString,
-  footerHTMLString
+  zip: JSZip,
+  htmlString: string,
+  suppliedDocumentOptions: Partial<DocumentOptions>,
+  headerHTMLString: string,
+  footerHTMLString: string
 ) {
   const normalizedDocumentOptions = normalizeDocumentOptions(suppliedDocumentOptions);
+  // @ts-ignore
   const documentOptions = mergeOptions(defaultDocumentOptions, normalizedDocumentOptions);
 
   if (documentOptions.header && !headerHTMLString) {
@@ -137,6 +154,7 @@ async function addFilesToContainer(
   // Conversion to Word XML happens here
   docxDocument.documentXML = await renderDocumentFile(docxDocument);
 
+  // @ts-ignore
   zip
     .folder(relsFolderName)
     .file(
@@ -145,6 +163,7 @@ async function addFilesToContainer(
       { createFolders: false }
     );
 
+  // @ts-ignore
   zip.folder('docProps').file('core.xml', docxDocument.generateCoreXML(), {
     createFolders: false,
   });
@@ -164,6 +183,7 @@ async function addFilesToContainer(
       internalRelationship
     );
 
+    // @ts-ignore
     zip.folder(wordFolder).file(fileNameWithExt, headerXML.toString({ prettyPrint: true }), {
       createFolders: false,
     });
@@ -185,6 +205,7 @@ async function addFilesToContainer(
       internalRelationship
     );
 
+    // @ts-ignore
     zip.folder(wordFolder).file(fileNameWithExt, footerXML.toString({ prettyPrint: true }), {
       createFolders: false,
     });
@@ -198,6 +219,7 @@ async function addFilesToContainer(
     `${themeFolder}/${themeFileNameWithExt}`,
     internalRelationship
   );
+  // @ts-ignore
   zip
     .folder(wordFolder)
     .folder(themeFolder)
@@ -205,6 +227,7 @@ async function addFilesToContainer(
       createFolders: false,
     });
 
+  // @ts-ignore
   zip
     .folder(wordFolder)
     .file('document.xml', docxDocument.generateDocumentXML(), { createFolders: false })
@@ -217,6 +240,7 @@ async function addFilesToContainer(
   const relationshipXMLs = docxDocument.generateRelsXML();
   if (relationshipXMLs && Array.isArray(relationshipXMLs)) {
     relationshipXMLs.forEach(({ fileName, xmlString }) => {
+      // @ts-ignore
       zip.folder(wordFolder).folder(relsFolderName).file(`${fileName}.xml.rels`, xmlString, {
         createFolders: false,
       });

@@ -1,4 +1,4 @@
-const isValidUrl = (urlString) => {
+const isValidUrl = (urlString: string) => {
   const urlRegex = /http(s)?:\/\/(\w+:?\w*@)?(\S+)(:\d+)?((?<=\.)\w+)+(\/([\w#!:.?+=&%@!\-/])*)?/gi;
 
   return Boolean(urlRegex.test(urlString));

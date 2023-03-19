@@ -1,5 +1,8 @@
 import { create, fragment } from 'xmlbuilder2';
 import { nanoid } from 'nanoid';
+import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
+import { VTree } from 'virtual-dom';
+import JSZip from 'jszip';
 
 import {
   generateCoreXML,
@@ -34,8 +37,13 @@ import {
   defaultDocumentOptions,
 } from './constants';
 import ListStyleBuilder from './utils/list';
+import { DocumentOptions, LineNumberOptions, Margins, PageSize } from './interface';
 
-function generateContentTypesFragments(contentTypesXML, type, objects) {
+function generateContentTypesFragments(
+  contentTypesXML: XMLBuilder,
+  type: 'header' | 'footer',
+  objects: Object[]
+) {
   if (objects && Array.isArray(objects)) {
     objects.forEach((object) => {
       const contentTypesFragment = fragment({ defaultNamespace: { ele: namespaces.contentTypes } })
@@ -52,7 +60,12 @@ function generateContentTypesFragments(contentTypesXML, type, objects) {
   }
 }
 
-function generateSectionReferenceXML(documentXML, documentSectionType, objects, isEnabled) {
+function generateSectionReferenceXML(
+  documentXML: XMLBuilder,
+  documentSectionType: 'header' | 'footer',
+  objects: { relationshipId: string; type: string }[],
+  isEnabled: boolean
+) {
   if (isEnabled && objects && Array.isArray(objects) && objects.length) {
     const xmlFragment = fragment();
     objects.forEach(({ relationshipId, type }) => {
@@ -68,12 +81,12 @@ function generateSectionReferenceXML(documentXML, documentSectionType, objects, 
   }
 }
 
-function generateXMLString(xmlString) {
+function generateXMLString(xmlString: string) {
   const xmlDocumentString = create({ encoding: 'UTF-8', standalone: true }, xmlString);
   return xmlDocumentString.toString({ prettyPrint: true });
 }
 
-async function generateSectionXML(vTree, type = 'header') {
+async function generateSectionXML(vTree: VTree, type: 'header' | 'footer' = 'header') {
   const sectionXML = create({
     encoding: 'UTF-8',
     standalone: true,
@@ -90,6 +103,7 @@ async function generateSectionXML(vTree, type = 'header') {
 
   const XMLFragment = fragment();
   await convertVTreeToXML(this, vTree, XMLFragment);
+  // @ts-ignore
   if (type === 'footer' && XMLFragment.first().node.tagName === 'p' && this.pageNumber) {
     XMLFragment.first().import(
       fragment({ namespaceAlias: { w: namespaces.w } })
@@ -108,7 +122,58 @@ async function generateSectionXML(vTree, type = 'header') {
   return { [`${type}Id`]: this[`last${referenceName}Id`], [`${type}XML`]: sectionXML };
 }
 
+interface IRelationship {
+  relationshipId: string;
+  type: 'header' | 'footer' | 'image' | 'hyperlink' | 'theme';
+  target: string;
+  targetMode: 'External' | 'Internal';
+}
+
 class DocxDocument {
+  zip: JSZip;
+  htmlString: string;
+  orientation: DocumentOptions['orientation'];
+  pageSize: PageSize;
+  width: number;
+  height: number;
+  margins: Margins;
+  availableDocumentSpace: number;
+  title: string;
+  subject: string;
+  creator: string;
+  keywords: string[];
+  description: string;
+  lastModifiedBy: string;
+  revision: number;
+  createdAt: Date;
+  modifiedAt: Date;
+  headerType: DocumentOptions['headerType'];
+  header: boolean;
+  footerType: DocumentOptions['footerType'];
+  footer: boolean;
+  font: string;
+  fontSize: number;
+  complexScriptFontSize: number;
+  tableRowCantSplit: boolean;
+  pageNumber: boolean;
+  skipFirstHeaderFooter: boolean;
+  lineNumber: LineNumberOptions | null;
+  lastNumberingId: number;
+  lastMediaId: number;
+  lastHeaderId: number;
+  lastFooterId: number;
+  // FIXME:
+  numberingObjects: any[];
+  // FIXME:
+  headerObjects: any[];
+  // FIXME:
+  footerObjects: any[];
+  relationshipFilename: string;
+  relationships: { fileName: string; lastRelsId: number; rels: IRelationship[] }[];
+  documentXML: XMLBuilder | null;
+  generateSectionXML: Function;
+  ListStyleBuilder: typeof ListStyleBuilder;
+
   constructor(properties) {
     this.zip = properties.zip;
     this.htmlString = properties.htmlString;
@@ -158,11 +223,9 @@ class DocxDocument {
     this.lastMediaId = 0;
     this.lastHeaderId = 0;
     this.lastFooterId = 0;
-    this.stylesObjects = [];
     this.numberingObjects = [];
     this.relationshipFilename = documentFileName;
     this.relationships = [{ fileName: documentFileName, lastRelsId: 4, rels: [] }];
-    this.mediaFiles = [];
     this.headerObjects = [];
     this.footerObjects = [];
     this.documentXML = null;
@@ -183,6 +246,7 @@ class DocxDocument {
     this.generateFooterXML = this.generateFooterXML.bind(this);
     this.generateSectionXML = generateSectionXML.bind(this);
 
+    // @ts-ignore
     this.ListStyleBuilder = new ListStyleBuilder(properties.numbering);
   }
 
@@ -200,7 +264,7 @@ class DocxDocument {
       { encoding: 'UTF-8', standalone: true },
       generateDocumentTemplate(this.width, this.height, this.orientation, this.margins)
     );
-    documentXML.root().first().import(this.documentXML);
+    documentXML.root().first().import(this.documentXML!);
 
     generateSectionReferenceXML(documentXML, 'header', this.headerObjects, this.header);
     generateSectionReferenceXML(documentXML, 'footer', this.footerObjects, this.footer);
@@ -221,8 +285,8 @@ class DocxDocument {
         .import(
           fragment({ namespaceAlias: { w: namespaces.w } })
             .ele('@w', 'lnNumType')
-            .att('@w', 'countBy', countBy)
-            .att('@w', 'start', start)
+            .att('@w', 'countBy', String(countBy))
+            .att('@w', 'start', String(start))
             .att('@w', 'restart', restart)
         );
     }
@@ -288,7 +352,7 @@ class DocxDocument {
       [...Array(8).keys()].forEach((level) => {
         const levelFragment = fragment({ namespaceAlias: { w: namespaces.w } })
           .ele('@w', 'lvl')
-          .att('@w', 'ilvl', level)
+          .att('@w', 'ilvl', String(level))
           .ele('@w', 'start')
           .att(
             '@w',
@@ -303,7 +367,8 @@ class DocxDocument {
             '@w',
             'val',
             type === 'ol'
-              ? this.ListStyleBuilder.getListStyleType(
+              ? // @ts-ignore
+                this.ListStyleBuilder.getListStyleType(
                   properties.style && properties.style['list-style-type']
                 )
               : 'bullet'
@@ -313,6 +378,7 @@ class DocxDocument {
           .att(
             '@w',
             'val',
+            // @ts-ignore
             type === 'ol' ? this.ListStyleBuilder.getListPrefixSuffix(properties.style, level) : ''
           )
           .up()
@@ -323,12 +389,12 @@ class DocxDocument {
           .ele('@w', 'tabs')
           .ele('@w', 'tab')
           .att('@w', 'val', 'num')
-          .att('@w', 'pos', (level + 1) * 720)
+          .att('@w', 'pos', String((level + 1) * 720))
           .up()
           .up()
           .ele('@w', 'ind')
-          .att('@w', 'left', (level + 1) * 720)
-          .att('@w', 'hanging', 360)
+          .att('@w', 'left', String((level + 1) * 720))
+          .att('@w', 'hanging', String(360))
           .up()
           .up()
           .up();
@@ -368,7 +434,7 @@ class DocxDocument {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  appendRelationships(xmlFragment, relationships) {
+  appendRelationships(xmlFragment: XMLBuilder, relationships: IRelationship[]) {
     relationships.forEach(({ relationshipId, type, target, targetMode }) => {
       xmlFragment.import(
         fragment({ defaultNamespace: { ele: namespaces.relationship } })
@@ -396,16 +462,16 @@ class DocxDocument {
     return relationshipXMLStrings;
   }
 
-  createNumbering(type, properties) {
+  createNumbering(type: string, properties: Object) {
     this.lastNumberingId += 1;
     this.numberingObjects.push({ numberingId: this.lastNumberingId, type, properties });
 
     return this.lastNumberingId;
   }
 
-  createMediaFile(base64String) {
+  createMediaFile(base64String: string) {
     // eslint-disable-next-line no-useless-escape
-    const matches = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    const matches = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/) as RegExpMatchArray;
     if (matches.length !== 3) {
       throw new Error('Invalid base64 string');
     }
@@ -413,6 +479,7 @@ class DocxDocument {
     const base64FileContent = matches[2];
     // matches array contains file type in base64 format - image/jpeg and base64 stringified data
     const fileExtension =
+      // @ts-ignore
       matches[1].match(/\/(.*?)$/)[1] === 'octet-stream' ? 'png' : matches[1].match(/\/(.*?)$/)[1];
 
     const fileNameWithExtension = `image-${nanoid()}.${fileExtension}`;
@@ -422,10 +489,15 @@ class DocxDocument {
     return { id: this.lastMediaId, fileContent: base64FileContent, fileNameWithExtension };
   }
 
-  createDocumentRelationships(fileName = 'document', type, target, targetMode = 'External') {
+  createDocumentRelationships(
+    fileName: string = 'document',
+    type: IRelationship['type'],
+    target: string,
+    targetMode: IRelationship['targetMode'] = 'External'
+  ) {
     let relationshipObject = this.relationships.find(
       (relationship) => relationship.fileName === fileName
-    );
+    )!;
     let lastRelsId = 1;
     if (relationshipObject) {
       lastRelsId = relationshipObject.lastRelsId + 1;
@@ -454,6 +526,7 @@ class DocxDocument {
     }
 
     relationshipObject.rels.push({
+      // @ts-ignore
       relationshipId: lastRelsId,
       type: relationshipType,
       target,
@@ -463,11 +536,11 @@ class DocxDocument {
     return lastRelsId;
   }
 
-  generateHeaderXML(vTree) {
+  generateHeaderXML(vTree: VTree) {
     return this.generateSectionXML(vTree, 'header');
   }
 
-  generateFooterXML(vTree) {
+  generateFooterXML(vTree: VTree) {
     return this.generateSectionXML(vTree, 'footer');
   }
 }

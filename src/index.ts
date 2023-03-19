@@ -1,10 +1,12 @@
 /* eslint-disable no-useless-escape */
 import JSZip from 'jszip';
-import addFilesToContainer from './src/html-to-docx';
 
-const minifyHTMLString = (htmlString) => {
+import addFilesToContainer from './html-to-docx';
+import { DocumentOptions } from './interface';
+
+const minifyHTMLString = (htmlString: string) => {
   try {
-    if (typeof htmlString === 'string' || htmlString instanceof String) {
+    if (typeof htmlString === 'string' || (htmlString as any) instanceof String) {
       const minifiedHTMLString = htmlString
         .replace(/\n/g, ' ')
         .replace(/\r/g, ' ')
@@ -22,11 +24,17 @@ const minifyHTMLString = (htmlString) => {
   }
 };
 
+/**
+ * @param htmlString <String> clean html string equivalent of document content.
+ * @param headerHTMLString <String> clean html string equivalent of header. Defaults to <p></p> if header flag is true.
+ * @param documentOptions <DocumentOptions>
+ * @param footerHTMLString <String> clean html string equivalent of footer. Defaults to <p></p> if footer flag is true.
+ */
 async function generateContainer(
-  htmlString,
-  headerHTMLString,
-  documentOptions = {},
-  footerHTMLString
+  htmlString: string,
+  headerHTMLString: string,
+  documentOptions: DocumentOptions = {},
+  footerHTMLString: string
 ) {
   const zip = new JSZip();
 
@@ -34,13 +42,13 @@ async function generateContainer(
   let headerHTML = headerHTMLString;
   let footerHTML = footerHTMLString;
   if (htmlString) {
-    contentHTML = minifyHTMLString(contentHTML);
+    contentHTML = minifyHTMLString(contentHTML) as string;
   }
   if (headerHTMLString) {
-    headerHTML = minifyHTMLString(headerHTML);
+    headerHTML = minifyHTMLString(headerHTML) as string;
   }
   if (footerHTMLString) {
-    footerHTML = minifyHTMLString(footerHTML);
+    footerHTML = minifyHTMLString(footerHTML) as string;
   }
 
   await addFilesToContainer(zip, contentHTML, documentOptions, headerHTML, footerHTML);

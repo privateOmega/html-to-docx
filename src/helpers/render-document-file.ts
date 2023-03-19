@@ -10,6 +10,8 @@ import { default as HTMLToVDOM } from 'html-to-vdom';
 import sizeOf from 'image-size';
 import imageToBase64 from 'image-to-base64';
 import mimeTypes from 'mime-types';
+import { VNode as VNodeType, VTree } from 'virtual-dom';
+import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
@@ -25,15 +27,15 @@ const convertHTML = HTMLToVDOM({
 });
 
 // eslint-disable-next-line consistent-return, no-shadow
-export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = null) => {
-  let response = null;
-  let base64Uri = null;
+export const buildImage = async (docxDocumentInstance, vNode: VNodeType, maximumWidth = null) => {
+  let response: { id: number; fileContent: string; fileNameWithExtension: string } | null = null;
+  let base64Uri: string | null = null;
   try {
     const imageSource = vNode.properties.src;
     if (isValidUrl(imageSource)) {
       const base64String = await imageToBase64(imageSource).catch((error) => {
         // eslint-disable-next-line no-console
-        console.warning(`skipping image download and conversion due to ${error}`);
+        console.warn(`skipping image download and conversion due to ${error}`);
       });
 
       if (base64String) {
@@ -85,7 +87,11 @@ export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = nul
   }
 };
 
-export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
+export const buildList = async (
+  vNode: VNodeType,
+  docxDocumentInstance,
+  xmlFragment: XMLBuilder
+) => {
   const listElements = [];
 
   let vNodeObjects = [
@@ -179,7 +185,7 @@ export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
   return listElements;
 };
 
-async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
+async function findXMLEquivalent(docxDocumentInstance, vNode: VNodeType, xmlFragment: XMLBuilder) {
   if (
     vNode.tagName === 'div' &&
     (vNode.properties.attributes.class === 'page-break' ||
@@ -302,7 +308,11 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
 }
 
 // eslint-disable-next-line consistent-return
-export async function convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment) {
+export async function convertVTreeToXML(
+  docxDocumentInstance,
+  vTree: VTree,
+  xmlFragment: XMLBuilder
+) {
   if (!vTree) {
     // eslint-disable-next-line no-useless-return
     return '';

@@ -5,12 +5,12 @@ export const hslRegex = /hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/i;
 export const hexRegex = /#([0-9A-F]{6})/i;
 export const hex3Regex = /#([0-9A-F])([0-9A-F])([0-9A-F])/i;
 
-// eslint-disable-next-line import/prefer-default-export
-export const rgbToHex = (red, green, blue) => {
+export type RGBComponent = string | number
+
+export const rgbToHex = (red: RGBComponent, green: RGBComponent, blue: RGBComponent) => {
   const hexColorCode = [red, green, blue]
     .map((x) => {
-      // eslint-disable-next-line radix, no-param-reassign
-      x = parseInt(x).toString(16);
+      x = parseInt(<string>x).toString(16);
       return x.length === 1 ? `0${x}` : x;
     })
     .join('');
@@ -53,7 +53,7 @@ export const hslToHex = (hue, saturation, luminosity) => {
     .join('');
 };
 
-export const hex3ToHex = (red, green, blue) => {
+export const hex3ToHex = (red: string, green: string, blue: string) => {
   const hexColorCode = [red, green, blue].map((x) => `${x}${x}`).join('');
 
   return hexColorCode;
