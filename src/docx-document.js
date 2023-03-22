@@ -28,6 +28,7 @@ import {
   applicationName,
   defaultFont,
   defaultFontSize,
+  defaultLang,
   hyperlinkType,
   documentFileName,
   imageType,
@@ -148,6 +149,7 @@ class DocxDocument {
     this.font = properties.font || defaultFont;
     this.fontSize = properties.fontSize || defaultFontSize;
     this.complexScriptFontSize = properties.complexScriptFontSize || defaultFontSize;
+    this.lang = properties.lang || defaultLang;
     this.tableRowCantSplit =
       (properties.table && properties.table.row && properties.table.row.cantSplit) || false;
     this.pageNumber = properties.pageNumber || false;
@@ -258,7 +260,7 @@ class DocxDocument {
 
   generateStylesXML() {
     return generateXMLString(
-      generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize)
+      generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize, this.lang)
     );
   }
 

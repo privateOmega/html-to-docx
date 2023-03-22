@@ -103,6 +103,7 @@ const paragraphBordersObject = {
 };
 const colorlessColors = ['transparent', 'auto'];
 const verticalAlignValues = ['top', 'middle', 'bottom'];
+const defaultLang = 'en-US';
 
 export {
   defaultDocumentOptions,
@@ -131,4 +132,5 @@ export {
   paragraphBordersObject,
   colorlessColors,
   verticalAlignValues,
+  defaultLang,
 };

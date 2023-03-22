@@ -1,10 +1,11 @@
-import { defaultFont, defaultFontSize } from '../constants';
+import { defaultFont, defaultFontSize, defaultLang } from '../constants';
 import namespaces from '../namespaces';
 
 const generateStylesXML = (
   font = defaultFont,
   fontSize = defaultFontSize,
-  complexScriptFontSize = defaultFontSize
+  complexScriptFontSize = defaultFontSize,
+  lang = defaultLang
 ) => `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
@@ -15,7 +16,7 @@ const generateStylesXML = (
 		  <w:rFonts w:ascii="${font}" w:eastAsiaTheme="minorHAnsi" w:hAnsiTheme="minorHAnsi" w:cstheme="minorBidi" />
 		  <w:sz w:val="${fontSize}" />
 		  <w:szCs w:val="${complexScriptFontSize}" />
-		  <w:lang w:val="en-US" w:eastAsia="en-US" w:bidi="ar-SA" />
+		  <w:lang w:val="${lang}" w:eastAsia="${lang}" w:bidi="ar-SA" />
 		</w:rPr>
 	  </w:rPrDefault>
 	  <w:pPrDefault>
