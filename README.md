@@ -77,6 +77,7 @@ full fledged examples can be found under `example/`
   - `numbering` <?[Object]>
     - `defaultOrderedListStyleType` <?[String]> default ordered list style type. Defaults to `decimal`.
   - `decodeUnicode` <?[Boolean]> flag to enable unicode decoding of header, body and footer. Defaults to `false`.
+  - `lang` <?[String]> language localization code for spell checker to work properly. Defaults to `en-US`.
 - `footerHTMLString` <[String]> clean html string equivalent of footer. Defaults to `<p></p>` if footer flag is `true`.
 
 ### Returns
