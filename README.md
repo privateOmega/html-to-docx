@@ -88,7 +88,6 @@ full fledged examples can be found under `example/`
 
 Currently page break can be implemented by having div with classname "page-break" or style "page-break-after" despite the values of the "page-break-after", and contents inside the div element will be ignored. `<div class="page-break" style="page-break-after: always;"></div>`
 
-<br>
 
 CSS list-style-type for `<ol>` element are now supported. Just do something like this in the HTML:
 ```
@@ -110,6 +109,13 @@ List of supported list-style-types:
 Also you could add attribute `data-start="n"` to start the numbering from the n-th.
 
 `<ol data-start="2">` will start the numbering from ( B. b. II. ii. 2. )
+
+
+Font family doesnt work consistently for all word processor softwares
+
+- Word Desktop work as intended
+- LibreOffice ignores the fontTable.xml file, and finds a font by itself
+- Word Online ignores the fontTable.xml file, and finds closest font in their font library
 
 ## Contributing
 
