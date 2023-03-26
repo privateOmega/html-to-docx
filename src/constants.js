@@ -24,6 +24,7 @@ const portraitMargins = {
 };
 const defaultFont = 'Times New Roman';
 const defaultFontSize = 22;
+const defaultLang = 'en-US';
 const defaultDocumentOptions = {
   orientation: defaultOrientation,
   margins: cloneDeep(portraitMargins),
@@ -64,6 +65,7 @@ const defaultDocumentOptions = {
     defaultOrderedListStyleType: 'decimal',
   },
   decodeUnicode: false,
+  defaultLang,
 };
 const defaultHTMLString = '<p></p>';
 const relsFolderName = '_rels';
@@ -131,4 +133,5 @@ export {
   paragraphBordersObject,
   colorlessColors,
   verticalAlignValues,
+  defaultLang,
 };

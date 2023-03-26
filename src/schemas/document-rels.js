@@ -8,6 +8,7 @@ const documentRelsXML = `
     <Relationship Id="rId2" Type="${namespaces.styles}" Target="styles.xml"/>
     <Relationship Id="rId3" Type="${namespaces.settingsRelation}" Target="settings.xml"/>
     <Relationship Id="rId4" Type="${namespaces.webSettingsRelation}" Target="webSettings.xml"/>
+    <Relationship Id="rId5" Type="${namespaces.fontTable}" Target="fontTable.xml"/>
   </Relationships>
 `;
 

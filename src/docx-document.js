@@ -28,12 +28,14 @@ import {
   applicationName,
   defaultFont,
   defaultFontSize,
+  defaultLang,
   hyperlinkType,
   documentFileName,
   imageType,
   defaultDocumentOptions,
 } from './constants';
 import ListStyleBuilder from './utils/list';
+import { fontFamilyToTableObject } from './utils/font-family-conversion';
 
 function generateContentTypesFragments(contentTypesXML, type, objects) {
   if (objects && Array.isArray(objects)) {
@@ -148,6 +150,7 @@ class DocxDocument {
     this.font = properties.font || defaultFont;
     this.fontSize = properties.fontSize || defaultFontSize;
     this.complexScriptFontSize = properties.complexScriptFontSize || defaultFontSize;
+    this.lang = properties.lang || defaultLang;
     this.tableRowCantSplit =
       (properties.table && properties.table.row && properties.table.row.cantSplit) || false;
     this.pageNumber = properties.pageNumber || false;
@@ -160,8 +163,9 @@ class DocxDocument {
     this.lastFooterId = 0;
     this.stylesObjects = [];
     this.numberingObjects = [];
+    this.fontTableObjects = [];
     this.relationshipFilename = documentFileName;
-    this.relationships = [{ fileName: documentFileName, lastRelsId: 4, rels: [] }];
+    this.relationships = [{ fileName: documentFileName, lastRelsId: 5, rels: [] }];
     this.mediaFiles = [];
     this.headerObjects = [];
     this.footerObjects = [];
@@ -258,13 +262,54 @@ class DocxDocument {
 
   generateStylesXML() {
     return generateXMLString(
-      generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize)
+      generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize, this.lang)
     );
   }
 
-  // eslint-disable-next-line class-methods-use-this
   generateFontTableXML() {
-    return generateXMLString(fontTableXMLString);
+    const fontTableXML = create({ encoding: 'UTF-8', standalone: true }, fontTableXMLString);
+    const fontNames = [
+      'Arial',
+      'Calibri',
+      'Calibri Light',
+      'Courier New',
+      'Symbol',
+      'Times New Roman',
+    ];
+    this.fontTableObjects.forEach(({ fontName, genericFontName }) => {
+      if (!fontNames.includes(fontName)) {
+        fontNames.push(fontName);
+        const fontFragment = fragment({
+          namespaceAlias: { w: namespaces.w },
+        })
+          .ele('@w', 'font')
+          .att('@w', 'name', fontName);
+
+        switch (genericFontName) {
+          case 'serif':
+            fontFragment.ele('@w', 'altName').att('@w', 'val', 'Times New Roman');
+            fontFragment.ele('@w', 'family').att('@w', 'val', 'roman');
+            fontFragment.ele('@w', 'pitch').att('@w', 'val', 'variable');
+            break;
+          case 'sans-serif':
+            fontFragment.ele('@w', 'altName').att('@w', 'val', 'Arial');
+            fontFragment.ele('@w', 'family').att('@w', 'val', 'swiss');
+            fontFragment.ele('@w', 'pitch').att('@w', 'val', 'variable');
+            break;
+          case 'monospace':
+            fontFragment.ele('@w', 'altName').att('@w', 'val', 'Courier New');
+            fontFragment.ele('@w', 'family').att('@w', 'val', 'modern');
+            fontFragment.ele('@w', 'pitch').att('@w', 'val', 'fixed');
+            break;
+          default:
+            break;
+        }
+
+        fontTableXML.root().import(fontFragment);
+      }
+    });
+
+    return fontTableXML.toString({ prettyPrint: true });
   }
 
   generateThemeXML() {
@@ -401,6 +446,12 @@ class DocxDocument {
     this.numberingObjects.push({ numberingId: this.lastNumberingId, type, properties });
 
     return this.lastNumberingId;
+  }
+
+  createFont(fontFamily) {
+    const fontTableObject = fontFamilyToTableObject(fontFamily, this.font);
+    this.fontTableObjects.push(fontTableObject);
+    return fontTableObject.fontName;
   }
 
   createMediaFile(base64String) {
