@@ -290,6 +290,8 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
       const linebreakFragment = await xmlBuilder.buildParagraph(null, {});
       xmlFragment.import(linebreakFragment);
       return;
+    case 'head':
+      return;
   }
   if (vNodeHasChildren(vNode)) {
     // eslint-disable-next-line no-plusplus
