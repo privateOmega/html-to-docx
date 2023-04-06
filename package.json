@@ -67,8 +67,8 @@
     "standard-version": "^9.3.1"
   },
   "dependencies": {
-    "@oozcitak/util": "8.3.4",
     "@oozcitak/dom": "1.15.6",
+    "@oozcitak/util": "8.3.4",
     "color-name": "^1.1.4",
     "html-entities": "^2.3.3",
     "html-to-vdom": "^0.7.0",
@@ -79,7 +79,7 @@
     "mime-types": "^2.1.35",
     "nanoid": "^3.1.25",
     "virtual-dom": "^2.1.1",
-    "xmlbuilder2": "2.1.2"
+    "xmlbuilder2": "^3.0.2"
   },
   "lint-staged": {
     "src/**/*.js": [
