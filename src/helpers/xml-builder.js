@@ -864,29 +864,37 @@ const computeImageDimensions = (vNode, attributes) => {
   let modifiedWidth;
 
   if (vNode.properties && vNode.properties.style) {
-    if (vNode.properties.style.width) {
-      if (vNode.properties.style.width !== 'auto') {
-        if (pixelRegex.test(vNode.properties.style.width)) {
-          modifiedWidth = pixelToEMU(vNode.properties.style.width.match(pixelRegex)[1]);
-        } else if (percentageRegex.test(vNode.properties.style.width)) {
-          const percentageValue = vNode.properties.style.width.match(percentageRegex)[1];
+    const styleWidth =
+      vNode.properties.style.width > vNode.properties.style['max-width']
+        ? vNode.properties.style['max-width']
+        : vNode.properties.style.width;
+    const styleHeight =
+      vNode.properties.style.height > vNode.properties.style['max-height']
+        ? vNode.properties.style['max-height']
+        : vNode.properties.style.height;
+    if (styleWidth) {
+      if (styleWidth !== 'auto') {
+        if (pixelRegex.test(styleWidth)) {
+          modifiedWidth = pixelToEMU(styleWidth.match(pixelRegex)[1]);
+        } else if (percentageRegex.test(styleWidth)) {
+          const percentageValue = styleWidth.match(percentageRegex)[1];
 
           modifiedWidth = Math.round((percentageValue / 100) * originalWidthInEMU);
         }
       } else {
         // eslint-disable-next-line no-lonely-if
-        if (vNode.properties.style.height && vNode.properties.style.height === 'auto') {
+        if (styleHeight && styleHeight === 'auto') {
           modifiedWidth = originalWidthInEMU;
           modifiedHeight = originalHeightInEMU;
         }
       }
     }
-    if (vNode.properties.style.height) {
-      if (vNode.properties.style.height !== 'auto') {
-        if (pixelRegex.test(vNode.properties.style.height)) {
-          modifiedHeight = pixelToEMU(vNode.properties.style.height.match(pixelRegex)[1]);
-        } else if (percentageRegex.test(vNode.properties.style.height)) {
-          const percentageValue = vNode.properties.style.width.match(percentageRegex)[1];
+    if (styleHeight) {
+      if (styleHeight !== 'auto') {
+        if (pixelRegex.test(styleHeight)) {
+          modifiedHeight = pixelToEMU(styleHeight.match(pixelRegex)[1]);
+        } else if (percentageRegex.test(styleHeight)) {
+          const percentageValue = styleWidth.match(percentageRegex)[1];
 
           modifiedHeight = Math.round((percentageValue / 100) * originalHeightInEMU);
           if (!modifiedWidth) {
