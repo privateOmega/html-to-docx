@@ -9,7 +9,7 @@ import isVNode from 'virtual-dom/vnode/is-vnode';
 import isVText from 'virtual-dom/vnode/is-vtext';
 import colorNames from 'color-name';
 import { cloneDeep } from 'lodash';
-import imageToBase64 from 'image-to-base64';
+import imageToBase64 from 'fixed-image-to-base64';
 import mimeTypes from 'mime-types';
 import sizeOf from 'image-size';
 

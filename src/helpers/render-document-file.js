@@ -8,7 +8,7 @@ import isVText from 'virtual-dom/vnode/is-vtext';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
 import sizeOf from 'image-size';
-import imageToBase64 from 'image-to-base64';
+import imageToBase64 from 'fixed-image-to-base64';
 import mimeTypes from 'mime-types';
 
 // FIXME: remove the cyclic dependency
