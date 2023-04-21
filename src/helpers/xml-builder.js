@@ -862,16 +862,16 @@ const computeImageDimensions = (vNode, attributes) => {
   }
   let modifiedHeight;
   let modifiedWidth;
+  let modifiedMaxHeight;
+  let modifiedMaxWidth;
 
-  if (vNode.properties && vNode.properties.style) {
-    const styleWidth =
-      vNode.properties.style.width > vNode.properties.style['max-width']
-        ? vNode.properties.style['max-width']
-        : vNode.properties.style.width;
-    const styleHeight =
-      vNode.properties.style.height > vNode.properties.style['max-height']
-        ? vNode.properties.style['max-height']
-        : vNode.properties.style.height;
+  if (vNode?.properties?.style) {
+    const styleWidth = vNode.properties.style.width;
+    const styleHeight = vNode.properties.style.height;
+    const styleMaxWidth = vNode.properties.style['max-width'];
+    const styleMaxHeight = vNode.properties.style['max-height'];
+
+    // style - width
     if (styleWidth) {
       if (styleWidth !== 'auto') {
         if (pixelRegex.test(styleWidth)) {
@@ -883,18 +883,20 @@ const computeImageDimensions = (vNode, attributes) => {
         }
       } else {
         // eslint-disable-next-line no-lonely-if
-        if (styleHeight && styleHeight === 'auto') {
+        if (styleHeight === 'auto') {
           modifiedWidth = originalWidthInEMU;
           modifiedHeight = originalHeightInEMU;
         }
       }
     }
+
+    // style - height
     if (styleHeight) {
       if (styleHeight !== 'auto') {
         if (pixelRegex.test(styleHeight)) {
           modifiedHeight = pixelToEMU(styleHeight.match(pixelRegex)[1]);
         } else if (percentageRegex.test(styleHeight)) {
-          const percentageValue = styleWidth.match(percentageRegex)[1];
+          const percentageValue = styleHeight.match(percentageRegex)[1];
 
           modifiedHeight = Math.round((percentageValue / 100) * originalHeightInEMU);
           if (!modifiedWidth) {
@@ -912,6 +914,43 @@ const computeImageDimensions = (vNode, attributes) => {
           modifiedWidth = originalWidthInEMU;
         }
       }
+    }
+
+    // style - max width
+    if (styleMaxWidth) {
+      if (styleMaxWidth !== 'auto') {
+        if (pixelRegex.test(styleMaxWidth)) {
+          modifiedMaxWidth = pixelToEMU(styleMaxWidth.match(pixelRegex)[1]);
+        } else if (percentageRegex.test(styleMaxWidth)) {
+          const percentageValue = styleMaxWidth.match(percentageRegex)[1];
+
+          modifiedMaxWidth = Math.round((percentageValue / 100) * originalWidthInEMU);
+        }
+      } else {
+        modifiedMaxWidth = originalWidthInEMU;
+      }
+    }
+
+    // style - max height
+    if (styleMaxHeight) {
+      if (styleMaxHeight !== 'auto') {
+        if (pixelRegex.test(styleMaxHeight)) {
+          modifiedMaxHeight = pixelToEMU(styleMaxHeight.match(pixelRegex)[1]);
+        } else if (percentageRegex.test(styleMaxHeight)) {
+          const percentageValue = styleMaxHeight.match(percentageRegex)[1];
+
+          modifiedMaxHeight = Math.round((percentageValue / 100) * originalHeightInEMU);
+        }
+      } else {
+        modifiedMaxHeight = originalHeightInEMU;
+      }
+    }
+
+    if (modifiedMaxWidth) {
+      modifiedWidth = modifiedWidth > modifiedMaxWidth ? modifiedMaxWidth : modifiedWidth;
+    }
+    if (modifiedMaxHeight) {
+      modifiedHeight = modifiedHeight > modifiedMaxHeight ? modifiedMaxHeight : modifiedHeight;
     }
     if (modifiedWidth && !modifiedHeight) {
       modifiedHeight = Math.round(modifiedWidth / aspectRatio);
