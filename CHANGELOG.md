@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.1](https://github.com/geraldalewis/html-to-docx/compare/v1.9.0...v1.9.1) (2023-04-21)
+
+
+### Bug Fixes
+
+* another regex relying on webkit incompatible regex lookback/lookup ([5f06a3d](https://github.com/geraldalewis/html-to-docx/commit/5f06a3d3e6b16033070fc2f353e33fa56dd26b64))
+* rely on fixed package handling webkit incompatible regex ([1acfbab](https://github.com/geraldalewis/html-to-docx/commit/1acfbabd48d3ed0fa70cd68323ff6247a83d413f))
+
 ## 1.9.0 (2023-04-06)
 
 
