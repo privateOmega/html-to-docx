@@ -850,6 +850,18 @@ const buildParagraphProperties = (attributes) => {
   return paragraphPropertiesFragment;
 };
 
+const calculateAbsoluteValues = (attribute, originalAttributeInEMU) => {
+  if (attribute !== 'auto') {
+    if (pixelRegex.test(attribute)) {
+      return pixelToEMU(attribute.match(pixelRegex)[1]);
+    } else if (percentageRegex.test(attribute)) {
+      const percentageValue = attribute.match(percentageRegex)[1];
+      return Math.round((percentageValue / 100) * originalAttributeInEMU);
+    }
+  }
+  return originalAttributeInEMU;
+};
+
 const computeImageDimensions = (vNode, attributes) => {
   const { maximumWidth, originalWidth, originalHeight } = attributes;
   const aspectRatio = originalWidth / originalHeight;
@@ -873,32 +885,18 @@ const computeImageDimensions = (vNode, attributes) => {
 
     // style - width
     if (styleWidth) {
-      if (styleWidth !== 'auto') {
-        if (pixelRegex.test(styleWidth)) {
-          modifiedWidth = pixelToEMU(styleWidth.match(pixelRegex)[1]);
-        } else if (percentageRegex.test(styleWidth)) {
-          const percentageValue = styleWidth.match(percentageRegex)[1];
-
-          modifiedWidth = Math.round((percentageValue / 100) * originalWidthInEMU);
-        }
-      } else {
-        // eslint-disable-next-line no-lonely-if
-        if (styleHeight === 'auto') {
-          modifiedWidth = originalWidthInEMU;
-          modifiedHeight = originalHeightInEMU;
-        }
+      modifiedWidth = calculateAbsoluteValues(styleWidth, originalWidthInEMU);
+      if (styleWidth === 'auto' && styleHeight === 'auto') {
+        modifiedHeight = originalHeightInEMU;
       }
     }
 
     // style - height
     if (styleHeight) {
-      if (styleHeight !== 'auto') {
-        if (pixelRegex.test(styleHeight)) {
-          modifiedHeight = pixelToEMU(styleHeight.match(pixelRegex)[1]);
-        } else if (percentageRegex.test(styleHeight)) {
-          const percentageValue = styleHeight.match(percentageRegex)[1];
+      modifiedHeight = calculateAbsoluteValues(styleHeight, originalHeightInEMU);
 
-          modifiedHeight = Math.round((percentageValue / 100) * originalHeightInEMU);
+      if (styleHeight !== 'auto') {
+        if (percentageRegex.test(styleHeight)) {
           if (!modifiedWidth) {
             modifiedWidth = Math.round(modifiedHeight * aspectRatio);
           }
@@ -910,7 +908,6 @@ const computeImageDimensions = (vNode, attributes) => {
             modifiedHeight = Math.round(modifiedWidth / aspectRatio);
           }
         } else {
-          modifiedHeight = originalHeightInEMU;
           modifiedWidth = originalWidthInEMU;
         }
       }
@@ -918,38 +915,13 @@ const computeImageDimensions = (vNode, attributes) => {
 
     // style - max width
     if (styleMaxWidth) {
-      if (styleMaxWidth !== 'auto') {
-        if (pixelRegex.test(styleMaxWidth)) {
-          modifiedMaxWidth = pixelToEMU(styleMaxWidth.match(pixelRegex)[1]);
-        } else if (percentageRegex.test(styleMaxWidth)) {
-          const percentageValue = styleMaxWidth.match(percentageRegex)[1];
-
-          modifiedMaxWidth = Math.round((percentageValue / 100) * originalWidthInEMU);
-        }
-      } else {
-        modifiedMaxWidth = originalWidthInEMU;
-      }
+      modifiedMaxWidth = calculateAbsoluteValues(styleMaxWidth, originalWidthInEMU);
+      modifiedWidth = modifiedWidth > modifiedMaxWidth ? modifiedMaxWidth : modifiedWidth;
     }
 
     // style - max height
     if (styleMaxHeight) {
-      if (styleMaxHeight !== 'auto') {
-        if (pixelRegex.test(styleMaxHeight)) {
-          modifiedMaxHeight = pixelToEMU(styleMaxHeight.match(pixelRegex)[1]);
-        } else if (percentageRegex.test(styleMaxHeight)) {
-          const percentageValue = styleMaxHeight.match(percentageRegex)[1];
-
-          modifiedMaxHeight = Math.round((percentageValue / 100) * originalHeightInEMU);
-        }
-      } else {
-        modifiedMaxHeight = originalHeightInEMU;
-      }
-    }
-
-    if (modifiedMaxWidth) {
-      modifiedWidth = modifiedWidth > modifiedMaxWidth ? modifiedMaxWidth : modifiedWidth;
-    }
-    if (modifiedMaxHeight) {
+      modifiedMaxHeight = calculateAbsoluteValues(styleMaxHeight, originalHeightInEMU);
       modifiedHeight = modifiedHeight > modifiedMaxHeight ? modifiedMaxHeight : modifiedHeight;
     }
     if (modifiedWidth && !modifiedHeight) {
