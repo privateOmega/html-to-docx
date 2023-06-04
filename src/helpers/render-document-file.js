@@ -99,6 +99,8 @@ export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
   while (vNodeObjects.length) {
     const tempVNodeObject = vNodeObjects.shift();
 
+    const parentVNodeProperties = tempVNodeObject.node.properties;
+
     if (
       isVText(tempVNodeObject.node) ||
       (isVNode(tempVNodeObject.node) && !['ul', 'ol', 'li'].includes(tempVNodeObject.node.tagName))
@@ -141,7 +143,19 @@ export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
           } else {
             const paragraphVNode = new VNode(
               'p',
-              null,
+              isVNode(childVNode) && childVNode.properties && parentVNodeProperties
+                ? {
+                    attributes: {
+                      ...(parentVNodeProperties.attributes || {}),
+                      ...(childVNode.properties.attributes || {}),
+                    },
+                    style: {
+                      ...(parentVNodeProperties.style || {}),
+                      ...(childVNode.properties.style || {}),
+                    },
+                  }
+                : null, // copy properties for styling purposes
+
               // eslint-disable-next-line no-nested-ternary
               isVText(childVNode)
                 ? [childVNode]

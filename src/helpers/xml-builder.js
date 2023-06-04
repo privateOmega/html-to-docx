@@ -357,6 +357,13 @@ const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes,
         modifiedAttributes.indentation = indentation;
       }
     }
+
+    // check to see if vNode tag is li and if so, check to see if there is a margin-bottom style. This usually happens in lists where we make a p node for each list item.
+    // and copy the margin-bottom (if applicable) to the p node. If there is a margin-bottom style, add it to the afterSpacing attribute
+    if (vNode.tagName === 'p' && vNode.properties.style['margin-bottom']) {
+      modifiedAttributes.afterSpacing = fixupMargin(vNode.properties.style['margin-bottom']);
+    }
+
     if (vNode.properties.style.display) {
       modifiedAttributes.display = vNode.properties.style.display;
     }
@@ -707,13 +714,13 @@ const buildNumberingInstances = () =>
 const buildSpacing = (lineSpacing, beforeSpacing, afterSpacing) => {
   const spacingFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'spacing');
 
-  if (lineSpacing) {
+  if (typeof lineSpacing === 'number' && lineSpacing >= 0) {
     spacingFragment.att('@w', 'line', lineSpacing);
   }
-  if (beforeSpacing) {
+  if (typeof beforeSpacing === 'number' && beforeSpacing >= 0) {
     spacingFragment.att('@w', 'before', beforeSpacing);
   }
-  if (afterSpacing) {
+  if (typeof afterSpacing === 'number' && afterSpacing >= 0) {
     spacingFragment.att('@w', 'after', afterSpacing);
   }
 
