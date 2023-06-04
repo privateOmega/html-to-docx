@@ -209,6 +209,26 @@ const htmlString = `<!DOCTYPE html>
             </tr>
           </tbody>
         </table>
+        <ul>
+            <li style="margin-bottom:10px">
+                <span style="font-size:10pt"><span style="color:#e28743">I am a teacup <strong><span style="color:#595959">A strong teacup</span></strong></span></span>
+            </li>
+            <li style="margin-bottom:15px">
+                <span style="font-size:10pt"><span style="color:#4d4f53">I am another teacup <strong><span style="color:#2596be">A blue</span></strong> Teacup</span></span>
+            </li>
+            <li style="margin-bottom:20px">
+                <span style="font-size:15pt"><span style="color:#cc1177">Stonks only go up if you turn the chart sometimes</span></span>
+            </li>
+            <li style="margin-bottom:30px">
+                <span style="font-size:15pt"><span style="color:#cc1177">One small step for man</span></span>
+            </li>
+            <li>
+                <span style="font-size:30pt"><span style="color:#cc1177">One giant leap for mankind</span></span>
+            </li>
+            <li>
+                <span style="font-size:30pt"><span style="color:#cc1177">Never surrender, no mercy, and never give up!</span></span>
+            </li>
+        </ul>
     </body>
 </html>`;
 
