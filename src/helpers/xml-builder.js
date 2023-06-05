@@ -358,8 +358,8 @@ const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes,
       }
     }
 
-    // check to see if vNode tag is li and if so, check to see if there is a margin-bottom style. This usually happens in lists where we make a p node for each list item.
-    // and copy the margin-bottom (if applicable) to the p node. If there is a margin-bottom style, add it to the afterSpacing attribute
+    // list elements might have margin-bottom style and happens in list where a p node exist for each list item
+    // copy the margin-bottom (if applicable) to the afterSpacing attribute
     if (vNode.tagName === 'p' && vNode.properties.style['margin-bottom']) {
       modifiedAttributes.afterSpacing = fixupMargin(vNode.properties.style['margin-bottom']);
     }
