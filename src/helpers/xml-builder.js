@@ -916,13 +916,21 @@ const computeImageDimensions = (vNode, attributes) => {
     // style - max width
     if (styleMaxWidth) {
       modifiedMaxWidth = calculateAbsoluteValues(styleMaxWidth, originalWidthInEMU);
-      modifiedWidth = modifiedWidth > modifiedMaxWidth ? modifiedMaxWidth : modifiedWidth;
+      if (modifiedWidth) {
+        modifiedWidth = modifiedWidth > modifiedMaxWidth ? modifiedMaxWidth : modifiedWidth;
+      } else {
+        modifiedWidth = modifiedMaxWidth;
+      }
     }
 
     // style - max height
     if (styleMaxHeight) {
       modifiedMaxHeight = calculateAbsoluteValues(styleMaxHeight, originalHeightInEMU);
-      modifiedHeight = modifiedHeight > modifiedMaxHeight ? modifiedMaxHeight : modifiedHeight;
+      if (modifiedHeight) {
+        modifiedHeight = modifiedHeight > modifiedMaxHeight ? modifiedMaxHeight : modifiedHeight;
+      } else {
+        modifiedHeight = modifiedMaxHeight;
+      }
     }
     if (modifiedWidth && !modifiedHeight) {
       modifiedHeight = Math.round(modifiedWidth / aspectRatio);
