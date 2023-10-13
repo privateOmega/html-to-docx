@@ -13,9 +13,9 @@ import {
   fontTableXML as fontTableXMLString,
   genericRelsXML as genericRelsXMLString,
   generateDocumentTemplate,
-} from './schemas';
-import { convertVTreeToXML } from './helpers';
-import namespaces from './namespaces';
+} from './schemas/index.js';
+import { convertVTreeToXML } from './helpers/index.js';
+import namespaces from './namespaces.js';
 import {
   footerType as footerFileType,
   headerType as headerFileType,
@@ -33,9 +33,9 @@ import {
   documentFileName,
   imageType,
   defaultDocumentOptions,
-} from './constants';
-import ListStyleBuilder from './utils/list';
-import { fontFamilyToTableObject } from './utils/font-family-conversion';
+} from './constants.js';
+import ListStyleBuilder from './utils/list.js';
+import { fontFamilyToTableObject } from './utils/font-family-conversion.js';
 
 function generateContentTypesFragments(contentTypesXML, type, objects) {
   if (objects && Array.isArray(objects)) {

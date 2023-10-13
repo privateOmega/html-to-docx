@@ -1,13 +1,13 @@
 import { create } from 'xmlbuilder2';
-import VNode from 'virtual-dom/vnode/vnode';
-import VText from 'virtual-dom/vnode/vtext';
+import VNode from 'virtual-dom/vnode/vnode.js';
+import VText from 'virtual-dom/vnode/vtext.js';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
 import { decode } from 'html-entities';
 
-import { relsXML } from './schemas';
-import DocxDocument from './docx-document';
-import { renderDocumentFile } from './helpers';
+import { relsXML } from './schemas/index.js';
+import DocxDocument from './docx-document.js';
+import { renderDocumentFile } from './helpers/index.js';
 import {
   pixelRegex,
   pixelToTWIP,
@@ -17,7 +17,7 @@ import {
   inchToTWIP,
   pointRegex,
   pointToHIP,
-} from './utils/unit-conversion';
+} from './utils/unit-conversion.js';
 import {
   defaultDocumentOptions,
   defaultHTMLString,
@@ -32,7 +32,7 @@ import {
   wordFolder,
   themeFolder,
   themeType,
-} from './constants';
+} from './constants.js';
 
 const convertHTML = HTMLToVDOM({
   VNode,

@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-const fs = require('fs');
+import fs from 'fs';
 // FIXME: Incase you have the npm package
-// const HTMLtoDOCX = require('html-to-docx');
-const HTMLtoDOCX = require('../dist/html-to-docx.umd');
+//import HTMLtoDOCX from 'html-to-docx';
+import HTMLtoDOCX from '../index.js';
 
 const filePath = './example.docx';
 
