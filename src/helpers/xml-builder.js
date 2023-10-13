@@ -5,15 +5,15 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import isVNode from 'virtual-dom/vnode/is-vnode';
-import isVText from 'virtual-dom/vnode/is-vtext';
+import isVNode from 'virtual-dom/vnode/is-vnode.js';
+import isVText from 'virtual-dom/vnode/is-vtext.js';
 import colorNames from 'color-name';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import imageToBase64 from 'image-to-base64';
 import mimeTypes from 'mime-types';
 import sizeOf from 'image-size';
 
-import namespaces from '../namespaces';
+import namespaces from '../namespaces.js';
 import {
   rgbToHex,
   hslToHex,
@@ -22,7 +22,7 @@ import {
   hexRegex,
   hex3Regex,
   hex3ToHex,
-} from '../utils/color-conversion';
+} from '../utils/color-conversion.js';
 import {
   pixelToEMU,
   pixelRegex,
@@ -40,10 +40,10 @@ import {
   cmRegex,
   inchRegex,
   inchToTWIP,
-} from '../utils/unit-conversion';
+} from '../utils/unit-conversion.js';
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
-import { buildImage, buildList } from './render-document-file';
+import { buildImage, buildList } from './render-document-file.js';
 import {
   defaultFont,
   hyperlinkType,
@@ -52,9 +52,9 @@ import {
   verticalAlignValues,
   imageType,
   internalRelationship,
-} from '../constants';
-import { vNodeHasChildren } from '../utils/vnode';
-import { isValidUrl } from '../utils/url';
+} from '../constants.js';
+import { vNodeHasChildren } from '../utils/vnode.js';
+import { isValidUrl } from '../utils/url.js';
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
