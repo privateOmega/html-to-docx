@@ -523,6 +523,7 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
             case 'b':
               tempAttributes.strong = true;
               break;
+            case 'em':
             case 'i':
               tempAttributes.i = true;
               break;
