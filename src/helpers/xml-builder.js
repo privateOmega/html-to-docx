@@ -914,6 +914,72 @@ const computeImageDimensions = (vNode, attributes) => {
   attributes.height = modifiedHeight;
 };
 
+const checkImgNode = async (n, paragraphFragment, modifiedAttributes, docxDocumentInstance) => {
+  // async function checkImgNode(n, paragraphFragment, modifiedAttributes, docxDocumentInstance) {
+  if (n.children && n.children.length > 0) {
+    for (let index = 0; index < n.children.length; index++) {
+      const childChildVNode = n.children[index];
+      await checkImgNode(
+        childChildVNode,
+        paragraphFragment,
+        modifiedAttributes,
+        docxDocumentInstance
+      );
+      if (childChildVNode.tagName === 'img') {
+        let base64String;
+        const imageSource = childChildVNode.properties.src;
+        if (isValidUrl(imageSource)) {
+          base64String = await imageToBase64(imageSource).catch((error) => {
+            // eslint-disable-next-line no-console
+            console.warning(`skipping image download and conversion due to ${error}`);
+          });
+
+          if (base64String && mimeTypes.lookup(imageSource)) {
+            childChildVNode.properties.src = `data:${mimeTypes.lookup(
+              imageSource
+            )};base64, ${base64String}`;
+          } else {
+            break;
+          }
+        } else {
+          // eslint-disable-next-line no-useless-escape, prefer-destructuring
+          base64String = imageSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)[2];
+        }
+        const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
+        const imageProperties = sizeOf(imageBuffer);
+
+        modifiedAttributes.maximumWidth =
+          modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
+        modifiedAttributes.originalWidth = imageProperties.width;
+        modifiedAttributes.originalHeight = imageProperties.height;
+
+        computeImageDimensions(childChildVNode, modifiedAttributes);
+      }
+      const runOrHyperlinkFragments = await buildRunOrHyperLink(
+        childChildVNode,
+        isVNode(childChildVNode) && childChildVNode.tagName === 'img'
+          ? { ...modifiedAttributes, type: 'picture', description: childChildVNode.properties.alt }
+          : modifiedAttributes,
+        docxDocumentInstance
+      );
+
+      if (Array.isArray(runOrHyperlinkFragments)) {
+        for (
+          let iteratorIndex = 0;
+          iteratorIndex < runOrHyperlinkFragments.length;
+          iteratorIndex++
+        ) {
+          const runOrHyperlinkFragment = runOrHyperlinkFragments[iteratorIndex];
+
+          paragraphFragment.import(runOrHyperlinkFragment);
+        }
+      } else {
+        paragraphFragment.import(runOrHyperlinkFragments);
+      }
+    }
+  }
+};
+
 const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
   const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
   const modifiedAttributes = modifiedStyleAttributesBuilder(
@@ -977,6 +1043,7 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
     } else {
       for (let index = 0; index < vNode.children.length; index++) {
         const childVNode = vNode.children[index];
+        await checkImgNode(childVNode, paragraphFragment, modifiedAttributes, docxDocumentInstance);
         if (childVNode.tagName === 'img') {
           let base64String;
           const imageSource = childVNode.properties.src;
