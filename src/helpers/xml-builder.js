@@ -1763,21 +1763,22 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
     tableBorders.stroke = borderStrike;
     tableBorders.color = borderColor;
 
-    if (tableStyles['border-collapse'] === 'collapse') {
-      tableBorders.insideV = borderSize;
-      tableBorders.insideH = borderSize;
-    } else {
-      tableBorders.insideV = 0;
-      tableBorders.insideH = 0;
-      tableCellBorders.top = 1;
-      tableCellBorders.bottom = 1;
-      tableCellBorders.left = 1;
-      tableCellBorders.right = 1;
+    if (tableStyles.border) {
+      if (tableStyles['border-collapse'] === 'collapse') {
+        tableBorders.insideV = borderSize;
+        tableBorders.insideH = borderSize;
+      } else {
+        tableBorders.insideV = 0;
+        tableBorders.insideH = 0;
+        tableCellBorders.top = 1;
+        tableCellBorders.bottom = 1;
+        tableCellBorders.left = 1;
+        tableCellBorders.right = 1;
+      }
+      modifiedAttributes.tableBorder = tableBorders;
     }
 
-    modifiedAttributes.tableBorder = tableBorders;
     modifiedAttributes.tableCellSpacing = 0;
-
     if (Object.keys(tableCellBorders).length) {
       modifiedAttributes.tableCellBorder = tableCellBorders;
     }
