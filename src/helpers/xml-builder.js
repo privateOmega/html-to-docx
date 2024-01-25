@@ -1689,22 +1689,48 @@ const buildTableProperties = (attributes) => {
 };
 
 const cssBorderParser = (borderString) => {
-  let [size, stroke, color] = borderString.split(' ');
+  const tokens = borderString.split(' ');
+  let size = 0,
+    stroke = 'solid',
+    color = '000000';
 
-  if (pointRegex.test(size)) {
-    const matchedParts = size.match(pointRegex);
-    // convert point to eighth of a point
-    size = pointToEIP(matchedParts[1]);
-  } else if (pixelRegex.test(size)) {
-    const matchedParts = size.match(pixelRegex);
-    // convert pixels to eighth of a point
-    size = pixelToEIP(matchedParts[1]);
+  for (let tokenIdx = 0; tokenIdx < tokens.length; tokenIdx++) {
+    const token = tokens[tokenIdx];
+    // Accepted HTML Values for border style: https://developer.mozilla.org/en-US/docs/Web/CSS/border-style
+    if (
+      [
+        'solid',
+        'dashed',
+        'dotted',
+        'double',
+        'groove',
+        'ridges',
+        'inset',
+        'outset',
+        'hidden',
+        'none',
+      ].includes(token)
+    ) {
+      // Accepted OOXML Values for border style: http://officeopenxml.com/WPtableBorders.php
+      stroke = ['dashed', 'dotted', 'double', 'inset', 'outset'].includes(token)
+        ? token
+        : ['hidden', 'none'].includes(token)
+        ? 'nil'
+        : 'single';
+    } else if (pointRegex.test(token)) {
+      const matchedParts = token.match(pointRegex);
+      // convert point to eighth of a point
+      size = pointToEIP(matchedParts[1]);
+    } else if (pixelRegex.test(token)) {
+      const matchedParts = token.match(pixelRegex);
+      // convert pixels to eighth of a point
+      size = pixelToEIP(matchedParts[1]);
+    } else {
+      color = fixupColorCode(token).toUpperCase();
+    }
+
+    return [size, stroke, color];
   }
-  stroke = stroke && ['dashed', 'dotted', 'double'].includes(stroke) ? stroke : 'single';
-
-  color = color && fixupColorCode(color).toUpperCase();
-
-  return [size, stroke, color];
 };
 
 const buildTable = async (vNode, attributes, docxDocumentInstance) => {
