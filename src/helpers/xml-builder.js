@@ -1728,9 +1728,8 @@ const cssBorderParser = (borderString) => {
     } else {
       color = fixupColorCode(token).toUpperCase();
     }
-
-    return [size, stroke, color];
   }
+  return [size, stroke, color];
 };
 
 const buildTable = async (vNode, attributes, docxDocumentInstance) => {
@@ -1775,9 +1774,9 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
         tableCellBorders.left = 1;
         tableCellBorders.right = 1;
       }
-      modifiedAttributes.tableBorder = tableBorders;
     }
-
+    
+    modifiedAttributes.tableBorder = tableBorders;
     modifiedAttributes.tableCellSpacing = 0;
     if (Object.keys(tableCellBorders).length) {
       modifiedAttributes.tableCellBorder = tableCellBorders;
