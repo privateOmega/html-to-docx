@@ -1179,8 +1179,11 @@ const buildTableCellProperties = (attributes) => {
           delete attributes.colSpan;
           break;
         case 'tableCellBorder':
-          const tableCellBorderFragment = buildTableCellBorders(attributes[key]);
-          tableCellPropertiesFragment.import(tableCellBorderFragment);
+          const { top, left, bottom, right } = attributes[key]
+          if (top || bottom || left || right) {
+            const tableCellBorderFragment = buildTableCellBorders(attributes[key]);
+            tableCellPropertiesFragment.import(tableCellBorderFragment);
+          }
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellBorder;
           break;
@@ -1486,12 +1489,12 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
     ) {
       modifiedAttributes.tableRowHeight = fixupRowHeight(
         (vNode.properties.style && vNode.properties.style.height) ||
-          (vNode.children[0] &&
+        (vNode.children[0] &&
           isVNode(vNode.children[0]) &&
           vNode.children[0].properties.style &&
           vNode.children[0].properties.style.height
-            ? vNode.children[0].properties.style.height
-            : undefined)
+          ? vNode.children[0].properties.style.height
+          : undefined)
       );
     }
     if (vNode.properties.style) {
@@ -1654,14 +1657,19 @@ const buildTableProperties = (attributes) => {
     Object.keys(attributes).forEach((key) => {
       switch (key) {
         case 'tableBorder':
-          const tableBordersFragment = buildTableBorders(attributes[key]);
-          tablePropertiesFragment.import(tableBordersFragment);
+          const { top, bottom, left, right } = attributes[key]
+          if (top || bottom || left || right) {
+            const tableBordersFragment = buildTableBorders(attributes[key]);
+            tablePropertiesFragment.import(tableBordersFragment);
+          }
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableBorder;
           break;
         case 'tableCellSpacing':
-          const tableCellSpacingFragment = buildTableCellSpacing(attributes[key]);
-          tablePropertiesFragment.import(tableCellSpacingFragment);
+          if (attributes[key]) {
+            const tableCellSpacingFragment = buildTableCellSpacing(attributes[key]);
+            tablePropertiesFragment.import(tableCellSpacingFragment);
+          }
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellSpacing;
           break;
@@ -1715,8 +1723,8 @@ const cssBorderParser = (borderString) => {
       stroke = ['dashed', 'dotted', 'double', 'inset', 'outset'].includes(token)
         ? token
         : ['hidden', 'none'].includes(token)
-        ? 'nil'
-        : 'single';
+          ? 'nil'
+          : 'single';
     } else if (pointRegex.test(token)) {
       const matchedParts = token.match(pointRegex);
       // convert point to eighth of a point
@@ -1775,7 +1783,7 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
         tableCellBorders.right = 1;
       }
     }
-    
+
     modifiedAttributes.tableBorder = tableBorders;
     modifiedAttributes.tableCellSpacing = 0;
     if (Object.keys(tableCellBorders).length) {
