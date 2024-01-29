@@ -310,10 +310,26 @@ const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes,
     }
 
     if (
+      vNode.properties.style['background'] &&
+      !colorlessColors.includes(vNode.properties.style['background'])
+    ) {
+      modifiedAttributes.backgroundColor = fixupColorCode(
+        vNode.properties.style['background']
+      );
+    }
+
+    if (
       vNode.properties.style['vertical-align'] &&
       verticalAlignValues.includes(vNode.properties.style['vertical-align'])
     ) {
       modifiedAttributes.verticalAlign = vNode.properties.style['vertical-align'];
+    }
+
+    if (
+      vNode.properties.attributes['valign'] &&
+      verticalAlignValues.includes(vNode.properties.attributes['valign'])
+    ) {
+      modifiedAttributes.verticalAlign = vNode.properties.attributes['valign']
     }
 
     if (
