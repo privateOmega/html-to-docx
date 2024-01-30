@@ -1132,10 +1132,10 @@ const buildTableCellBorders = (tableCellBorder) => {
     'tcBorders'
   );
 
-  const { color, stroke, ...borders } = tableCellBorder;
+  const { colors, strokes, ...borders } = tableCellBorder;
   Object.keys(borders).forEach((border) => {
     if (tableCellBorder[border]) {
-      const borderFragment = buildBorder(border, tableCellBorder[border], 0, color, stroke);
+      const borderFragment = buildBorder(border, tableCellBorder[border], 0, colors[border] || '000000', strokes[border] || 'nil');
       tableCellBordersFragment.import(borderFragment);
     }
   });
@@ -1179,8 +1179,11 @@ const buildTableCellProperties = (attributes) => {
           delete attributes.colSpan;
           break;
         case 'tableCellBorder':
-          const tableCellBorderFragment = buildTableCellBorders(attributes[key]);
-          tableCellPropertiesFragment.import(tableCellBorderFragment);
+          const { top, left, bottom, right } = attributes[key]
+          if (top || bottom || left || right) {
+            const tableCellBorderFragment = buildTableCellBorders(attributes[key]);
+            tableCellPropertiesFragment.import(tableCellBorderFragment);
+          }
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellBorder;
           break;
@@ -1206,7 +1209,10 @@ const buildTableCellProperties = (attributes) => {
 const fixupTableCellBorder = (vNode, attributes) => {
   if (Object.prototype.hasOwnProperty.call(vNode.properties.style, 'border')) {
     if (vNode.properties.style.border === 'none' || vNode.properties.style.border === 0) {
-      attributes.tableCellBorder = {};
+      attributes.tableCellBorder = {
+        strokes: {},
+        colors: {}
+      };
     } else {
       // eslint-disable-next-line no-use-before-define
       const [borderSize, borderStroke, borderColor] = cssBorderParser(
@@ -1218,10 +1224,23 @@ const fixupTableCellBorder = (vNode, attributes) => {
         left: borderSize,
         bottom: borderSize,
         right: borderSize,
-        color: borderColor,
-        stroke: borderStroke,
+        colors: {
+          top: borderColor,
+          bottom: borderColor,
+          left: borderColor,
+          right: borderColor
+        },
+        strokes: {
+          top: borderStroke,
+          bottom: borderStroke,
+          left: borderStroke,
+          right: borderStroke
+        }
       };
     }
+  }
+  if (!attributes.tableCellBorder) {
+    attributes.tableCellBorder = { strokes: {}, colors: {} }
   }
   if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] === '0') {
     attributes.tableCellBorder = {
@@ -1236,8 +1255,8 @@ const fixupTableCellBorder = (vNode, attributes) => {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       top: borderSize,
-      color: borderColor,
-      stroke: borderStroke,
+      colors: { ...attributes.tableCellBorder.colors, top: borderColor },
+      strokes: { ...attributes.tableCellBorder.strokes, top: borderStroke },
     };
   }
   if (vNode.properties.style['border-left'] && vNode.properties.style['border-left'] === '0') {
@@ -1256,8 +1275,8 @@ const fixupTableCellBorder = (vNode, attributes) => {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       left: borderSize,
-      color: borderColor,
-      stroke: borderStroke,
+      colors: { ...attributes.tableCellBorder.colors, left: borderColor },
+      strokes: { ...attributes.tableCellBorder.strokes, left: borderStroke },
     };
   }
   if (vNode.properties.style['border-bottom'] && vNode.properties.style['border-bottom'] === '0') {
@@ -1276,8 +1295,8 @@ const fixupTableCellBorder = (vNode, attributes) => {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       bottom: borderSize,
-      color: borderColor,
-      stroke: borderStroke,
+      colors: { ...attributes.tableCellBorder.colors, bottom: borderColor },
+      strokes: { ...attributes.tableCellBorder.strokes, bottom: borderStroke },
     };
   }
   if (vNode.properties.style['border-right'] && vNode.properties.style['border-right'] === '0') {
@@ -1296,8 +1315,8 @@ const fixupTableCellBorder = (vNode, attributes) => {
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
       right: borderSize,
-      color: borderColor,
-      stroke: borderStroke,
+      colors: { ...attributes.tableCellBorder.colors, right: borderColor },
+      strokes: { ...attributes.tableCellBorder.strokes, right: borderStroke },
     };
   }
 };
@@ -1308,17 +1327,47 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
   let modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
     if (vNode.properties.rowSpan) {
-      rowSpanMap.set(columnIndex.index, { rowSpan: vNode.properties.rowSpan - 1, colSpan: 0 });
+      // if rowSpan is happening, then there must be some border properties.
+      const spanObject = { rowSpan: vNode.properties.rowSpan - 1, colSpan: 0 }
+      const { style } = vNode.properties
+      if ('border-left' in style) {
+        spanObject['border-left'] = style['border-left']
+      }
+      if ('border-right' in style) {
+        spanObject['border-right'] = style['border-right']
+      }
+      if ('border-top' in style) {
+        spanObject['border-top'] = style['border-top']
+      }
+      if ('border-bottom' in style) {
+        spanObject['border-bottom'] = style['border-bottom']
+      }
+      rowSpanMap.set(columnIndex.index, spanObject);
       modifiedAttributes.rowSpan = 'restart';
     } else {
       const previousSpanObject = rowSpanMap.get(columnIndex.index);
+      const spanObject = {
+        rowSpan: 0,
+        colSpan: (previousSpanObject && previousSpanObject.colSpan) || 0,
+      }
+      if (previousSpanObject) {
+        if ('border-left' in previousSpanObject) {
+          spanObject['border-left'] = previousSpanObject['border-left']
+        }
+        if ('border-right' in previousSpanObject) {
+          spanObject['border-right'] = previousSpanObject['border-right']
+        }
+        if ('border-top' in previousSpanObject) {
+          spanObject['border-top'] = previousSpanObject['border-top']
+        }
+        if ('border-bottom' in previousSpanObject) {
+          spanObject['border-bottom'] = previousSpanObject['border-bottom']
+        }
+      }
       rowSpanMap.set(
         columnIndex.index,
         // eslint-disable-next-line prefer-object-spread
-        Object.assign({}, previousSpanObject, {
-          rowSpan: 0,
-          colSpan: (previousSpanObject && previousSpanObject.colSpan) || 0,
-        })
+        Object.assign({}, previousSpanObject, spanObject)
       );
     }
     if (
@@ -1410,12 +1459,51 @@ const buildRowSpanCell = (rowSpanMap, columnIndex, attributes) => {
   let spanObject = rowSpanMap.get(columnIndex.index);
   while (spanObject && spanObject.rowSpan) {
     const rowSpanCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
-
-    const tableCellPropertiesFragment = buildTableCellProperties({
+    const cellProperties = {
       ...attributes,
       rowSpan: 'continue',
       colSpan: spanObject.colSpan ? spanObject.colSpan : 0,
-    });
+      tableCellBorder: { strokes: {}, colors: {} }
+    }
+
+    if ('border-left' in spanObject) {
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(spanObject['border-left']);
+      cellProperties.tableCellBorder = {
+        ...cellProperties.tableCellBorder,
+        left: borderSize,
+        colors: { ...cellProperties.tableCellBorder.colors, left: borderColor },
+        strokes: { ...cellProperties.tableCellBorder.strokes, left: borderStroke },
+      }
+    }
+    if ('border-right' in spanObject) {
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(spanObject['border-right'])
+      cellProperties.tableCellBorder = {
+        ...cellProperties.tableCellBorder,
+        right: borderSize,
+        colors: { ...cellProperties.tableCellBorder.colors, right: borderColor },
+        strokes: { ...cellProperties.tableCellBorder.strokes, right: borderStroke },
+      }
+    }
+    if ('border-top' in spanObject) {
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(spanObject['border-top'])
+      cellProperties.tableCellBorder = {
+        ...cellProperties.tableCellBorder,
+        top: borderSize,
+        colors: { ...cellProperties.tableCellBorder.colors, top: borderColor },
+        strokes: { ...cellProperties.tableCellBorder.strokes, top: borderStroke },
+      }
+    }
+    if ('border-bottom' in spanObject) {
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(spanObject['border-bottom'])
+      cellProperties.tableCellBorder = {
+        ...cellProperties.tableCellBorder,
+        bottom: borderSize,
+        colors: { ...cellProperties.tableCellBorder.colors, bottom: borderColor },
+        strokes: { ...cellProperties.tableCellBorder.strokes, bottom: borderStroke },
+      }
+    }
+
+    const tableCellPropertiesFragment = buildTableCellProperties(cellProperties);
     rowSpanCellFragment.import(tableCellPropertiesFragment);
 
     const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
@@ -1429,10 +1517,23 @@ const buildRowSpanCell = (rowSpanMap, columnIndex, attributes) => {
     if (spanObject.rowSpan - 1 === 0) {
       rowSpanMap.delete(columnIndex.index);
     } else {
-      rowSpanMap.set(columnIndex.index, {
+      const updatedSpanObject = {
         rowSpan: spanObject.rowSpan - 1,
         colSpan: spanObject.colSpan || 0,
-      });
+      }
+      if ('border-left' in spanObject) {
+        updatedSpanObject['border-left'] = spanObject['border-left']
+      }
+      if ('border-right' in spanObject) {
+        updatedSpanObject['border-right'] = spanObject['border-right']
+      }
+      if ('border-bottom' in spanObject) {
+        updatedSpanObject['border-bottom'] = spanObject['border-bottom']
+      }
+      if ('border-top' in spanObject) {
+        updatedSpanObject['border-top'] = spanObject['border-top']
+      }
+      rowSpanMap.set(columnIndex.index, updatedSpanObject);
     }
     columnIndex.index += spanObject.colSpan || 1;
     spanObject = rowSpanMap.get(columnIndex.index);
@@ -1486,12 +1587,12 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
     ) {
       modifiedAttributes.tableRowHeight = fixupRowHeight(
         (vNode.properties.style && vNode.properties.style.height) ||
-          (vNode.children[0] &&
+        (vNode.children[0] &&
           isVNode(vNode.children[0]) &&
           vNode.children[0].properties.style &&
           vNode.children[0].properties.style.height
-            ? vNode.children[0].properties.style.height
-            : undefined)
+          ? vNode.children[0].properties.style.height
+          : undefined)
       );
     }
     if (vNode.properties.style) {
@@ -1598,11 +1699,11 @@ const buildTableBorders = (tableBorder) => {
     'tblBorders'
   );
 
-  const { color, stroke, ...borders } = tableBorder;
+  const { color, stroke, strokes, colors, ...borders } = tableBorder;
 
   Object.keys(borders).forEach((border) => {
     if (borders[border]) {
-      const borderFragment = buildBorder(border, borders[border], 0, color, stroke);
+      const borderFragment = buildBorder(border, borders[border], 0, colors[border] || '000000', strokes[border] || 'nil');
       tableBordersFragment.import(borderFragment);
     }
   });
@@ -1654,14 +1755,19 @@ const buildTableProperties = (attributes) => {
     Object.keys(attributes).forEach((key) => {
       switch (key) {
         case 'tableBorder':
-          const tableBordersFragment = buildTableBorders(attributes[key]);
-          tablePropertiesFragment.import(tableBordersFragment);
+          const { top, bottom, left, right } = attributes[key]
+          if (top || bottom || left || right) {
+            const tableBordersFragment = buildTableBorders(attributes[key]);
+            tablePropertiesFragment.import(tableBordersFragment);
+          }
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableBorder;
           break;
         case 'tableCellSpacing':
-          const tableCellSpacingFragment = buildTableCellSpacing(attributes[key]);
-          tablePropertiesFragment.import(tableCellSpacingFragment);
+          if (attributes[key]) {
+            const tableCellSpacingFragment = buildTableCellSpacing(attributes[key]);
+            tablePropertiesFragment.import(tableCellSpacingFragment);
+          }
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellSpacing;
           break;
@@ -1689,21 +1795,54 @@ const buildTableProperties = (attributes) => {
 };
 
 const cssBorderParser = (borderString) => {
-  let [size, stroke, color] = borderString.split(' ');
+  const tokens = borderString.split(' ');
+  let size = 0,
+    stroke = 'solid',
+    color = '000000';
 
-  if (pointRegex.test(size)) {
-    const matchedParts = size.match(pointRegex);
-    // convert point to eighth of a point
-    size = pointToEIP(matchedParts[1]);
-  } else if (pixelRegex.test(size)) {
-    const matchedParts = size.match(pixelRegex);
-    // convert pixels to eighth of a point
-    size = pixelToEIP(matchedParts[1]);
+  for (let tokenIdx = 0; tokenIdx < tokens.length; tokenIdx++) {
+    const token = tokens[tokenIdx];
+    // Accepted HTML Values for border style: https://developer.mozilla.org/en-US/docs/Web/CSS/border-style
+    if (
+      [
+        'solid',
+        'dashed',
+        'dotted',
+        'double',
+        'groove',
+        'ridges',
+        'inset',
+        'outset',
+        'hidden',
+        'none',
+        'windowtext' // tinyMCE has this border property
+      ].includes(token)
+    ) {
+      // Accepted OOXML Values for border style: http://officeopenxml.com/WPtableBorders.php
+      stroke = ['dashed', 'dotted', 'double', 'inset', 'outset'].includes(token)
+        ? token
+        : ['hidden', 'none'].includes(token)
+          ? 'nil'
+          : 'single';
+    } else if (pointRegex.test(token)) {
+      const matchedParts = token.match(pointRegex);
+      // convert point to eighth of a point
+      size = pointToEIP(matchedParts[1]);
+    } else if (pixelRegex.test(token)) {
+      const matchedParts = token.match(pixelRegex);
+      // convert pixels to eighth of a point
+      size = pixelToEIP(matchedParts[1]);
+    } else {
+      color = fixupColorCode(token).toUpperCase();
+    }
   }
-  stroke = stroke && ['dashed', 'dotted', 'double'].includes(stroke) ? stroke : 'single';
-
-  color = color && fixupColorCode(color).toUpperCase();
-
+  // Syntax used for border color is either hsl or rgb
+  if (tokens.length !== 3) {
+    const openingBracketIdx = borderString.indexOf('(')
+    const closingBracketIdx = borderString.indexOf(')')
+    color = borderString.substring(openingBracketIdx - 3, closingBracketIdx + 1)
+    color = fixupColorCode(color).toUpperCase()
+  }
   return [size, stroke, color];
 };
 
@@ -1713,9 +1852,10 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
   if (isVNode(vNode) && vNode.properties) {
     const tableAttributes = vNode.properties.attributes || {};
     const tableStyles = vNode.properties.style || {};
-    const tableBorders = {};
+    const tableBorders = { strokes: { top: 'nil', bottom: 'nil', left: 'nil', right: 'nil' }, colors: {} };
     const tableCellBorders = {};
-    let [borderSize, borderStrike, borderColor] = [2, 'single', '000000'];
+    // change the default border settings as its possible borders are not provided to table
+    let [borderSize, borderStrike, borderColor] = [0, 'nil', '000000'];
 
     // eslint-disable-next-line no-restricted-globals
     if (!isNaN(tableAttributes.border)) {
@@ -1734,24 +1874,44 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
     tableBorders.bottom = borderSize;
     tableBorders.left = borderSize;
     tableBorders.right = borderSize;
-    tableBorders.stroke = borderStrike;
-    tableBorders.color = borderColor;
 
-    if (tableStyles['border-collapse'] === 'collapse') {
-      tableBorders.insideV = borderSize;
-      tableBorders.insideH = borderSize;
-    } else {
-      tableBorders.insideV = 0;
-      tableBorders.insideH = 0;
-      tableCellBorders.top = 1;
-      tableCellBorders.bottom = 1;
-      tableCellBorders.left = 1;
-      tableCellBorders.right = 1;
+    if (tableStyles.border) {
+      if (tableStyles['border-collapse'] === 'collapse') {
+        tableBorders.insideV = borderSize;
+        tableBorders.insideH = borderSize;
+      } else {
+        tableBorders.insideV = 0;
+        tableBorders.insideH = 0;
+      }
+    }
+
+    if ('border-left' in tableStyles) {
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(tableStyles['border-left']);
+      tableBorders.left = borderSize
+      tableBorders.colors = { ...tableBorders.colors, left: borderColor }
+      tableBorders.strokes = { ...tableBorders.strokes, left: borderStroke }
+    }
+    if ('border-right' in tableStyles) {
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(tableStyles['border-right']);
+      tableBorders.right = borderSize
+      tableBorders.colors = { ...tableBorders.colors, right: borderColor }
+      tableBorders.strokes = { ...tableBorders.strokes, right: borderStroke }
+    }
+    if ('border-top' in tableStyles) {
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(tableStyles['border-top']);
+      tableBorders.top = borderSize
+      tableBorders.colors = { ...tableBorders.colors, top: borderColor }
+      tableBorders.strokes = { ...tableBorders.strokes, top: borderStroke }
+    }
+    if ('border-bottom' in tableStyles) {
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(tableStyles['border-bottom']);
+      tableBorders.bottom = borderSize
+      tableBorders.colors = { ...tableBorders.colors, bottom: borderColor }
+      tableBorders.strokes = { ...tableBorders.strokes, bottom: borderStroke }
     }
 
     modifiedAttributes.tableBorder = tableBorders;
     modifiedAttributes.tableCellSpacing = 0;
-
     if (Object.keys(tableCellBorders).length) {
       modifiedAttributes.tableCellBorder = tableCellBorders;
     }
