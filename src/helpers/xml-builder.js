@@ -52,9 +52,31 @@ import {
   verticalAlignValues,
   imageType,
   internalRelationship,
+  defaultBorderStyles,
 } from '../constants';
 import { vNodeHasChildren } from '../utils/vnode';
 import { isValidUrl } from '../utils/url';
+
+const setUpDirectionalBorderStroke = (borderStrike = 'nil') => ({
+  top: borderStrike,
+  bottom: borderStrike,
+  left: borderStrike,
+  right: borderStrike,
+});
+
+const setUpDirectionalBorderColor = (borderColor = 'nil') => ({
+  top: borderColor,
+  bottom: borderColor,
+  left: borderColor,
+  right: borderColor,
+});
+
+const setUpDirectionalBorderSize = (borderObject, borderSize = 1) => {
+  borderObject.top = borderSize;
+  borderObject.bottom = borderSize;
+  borderObject.left = borderSize;
+  borderObject.right = borderSize;
+};
 
 // eslint-disable-next-line consistent-return
 const fixupColorCode = (colorCodeString) => {
@@ -1207,8 +1229,8 @@ const buildTableCellBorders = (tableCellBorder) => {
         border,
         tableCellBorder[border],
         0,
-        colors[border] || '000000',
-        strokes[border] || 'nil'
+        colors[border],
+        strokes[border]
       );
       tableCellBordersFragment.import(borderFragment);
     }
@@ -1284,8 +1306,8 @@ const fixupTableCellBorder = (vNode, attributes) => {
   if (Object.prototype.hasOwnProperty.call(vNode.properties.style, 'border')) {
     if (vNode.properties.style.border === 'none' || vNode.properties.style.border === 0) {
       attributes.tableCellBorder = {
-        strokes: {},
-        colors: {},
+        strokes: { ...setUpDirectionalBorderStroke('nil') },
+        colors: { ...setUpDirectionalBorderColor('000000') },
       };
     } else {
       // eslint-disable-next-line no-use-before-define
@@ -1299,16 +1321,10 @@ const fixupTableCellBorder = (vNode, attributes) => {
         bottom: borderSize,
         right: borderSize,
         colors: {
-          top: borderColor,
-          bottom: borderColor,
-          left: borderColor,
-          right: borderColor,
+          ...setUpDirectionalBorderColor(borderColor),
         },
         strokes: {
-          top: borderStroke,
-          bottom: borderStroke,
-          left: borderStroke,
-          right: borderStroke,
+          ...setUpDirectionalBorderStroke(borderStroke),
         },
       };
     }
@@ -1787,8 +1803,8 @@ const buildTableBorders = (tableBorder) => {
         border,
         borders[border],
         0,
-        colors[border] || '000000',
-        strokes[border] || 'nil'
+        colors[border],
+        strokes[border]
       );
       tableBordersFragment.import(borderFragment);
     }
@@ -1887,14 +1903,12 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
     const tableAttributes = vNode.properties.attributes || {};
     const tableStyles = vNode.properties.style || {};
     const tableBorders = {
-      strokes: { top: 'nil', bottom: 'nil', left: 'nil', right: 'nil' },
-      colors: {},
+      strokes: { ...setUpDirectionalBorderStroke('nil') },
+      colors: { ...setUpDirectionalBorderColor('000000') },
     };
     const tableCellBorders = {};
-    // change the default border settings as its possible borders are not provided to table
-    let borderSize = 0;
-    let borderStrike = 'nil';
-    let borderColor = '000000';
+
+    let { borderSize, borderStrike, borderColor } = defaultBorderStyles;
 
     // eslint-disable-next-line no-restricted-globals
     if (!isNaN(tableAttributes.border)) {
@@ -1907,25 +1921,12 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
 
         // in such cases, the inner cells also get a border of size 1
         // these are not overwritten by the css border property of table tag
-        tableCellBorders.top = 1;
-        tableCellBorders.bottom = 1;
-        tableCellBorders.left = 1;
-        tableCellBorders.right = 1;
+        setUpDirectionalBorderSize(tableCellBorders, 1);
 
-        tableCellBorders.strokes = {
-          top: borderStrike,
-          bottom: borderStrike,
-          left: borderStrike,
-          right: borderStrike,
-        };
+        tableCellBorders.strokes = setUpDirectionalBorderStroke(borderStrike);
         // TODO: HTML generally gives color gray if only border attribute is present. Decide if we go with black or gray
         // assigning the 000000 color to borders
-        tableCellBorders.colors = {
-          top: borderColor,
-          botom: borderColor,
-          left: borderColor,
-          right: borderColor,
-        };
+        tableCellBorders.colors = setUpDirectionalBorderColor(borderColor);
       }
     }
 
@@ -1937,23 +1938,14 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
       borderStrike = cssStroke || borderStrike;
     }
 
-    tableBorders.top = borderSize;
-    tableBorders.bottom = borderSize;
-    tableBorders.left = borderSize;
-    tableBorders.right = borderSize;
+    setUpDirectionalBorderSize(tableBorders, borderSize);
     tableBorders.colors = {
       ...tableBorders.colors,
-      top: borderColor,
-      bottom: borderColor,
-      left: borderColor,
-      right: borderColor,
+      ...setUpDirectionalBorderColor(borderColor),
     };
     tableBorders.strokes = {
       ...tableBorders.strokes,
-      top: borderStrike,
-      left: borderStrike,
-      bottom: borderStrike,
-      right: borderStrike,
+      ...setUpDirectionalBorderStroke(borderStrike),
     };
 
     if (tableStyles.border) {
