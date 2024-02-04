@@ -105,6 +105,11 @@ const paragraphBordersObject = {
 };
 const colorlessColors = ['transparent', 'auto'];
 const verticalAlignValues = ['top', 'middle', 'bottom'];
+const defaultBorderStyles = {
+  borderSize: 0,
+  borderStrike: 'nil',
+  borderColor: '000000',
+};
 
 export {
   defaultDocumentOptions,
@@ -134,4 +139,5 @@ export {
   colorlessColors,
   verticalAlignValues,
   defaultLang,
+  defaultBorderStyles,
 };
