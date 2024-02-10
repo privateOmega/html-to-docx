@@ -701,12 +701,24 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
         internalRelationship
       );
 
+      const imageBuffer = Buffer.from(response.fileContent, 'base64');
+      const imageProperties = sizeOf(imageBuffer);
+
       attributes.inlineOrAnchored = true;
       attributes.relationshipId = documentRelsId;
       attributes.id = response.id;
       attributes.fileContent = response.fileContent;
       attributes.fileNameWithExtension = response.fileNameWithExtension;
+
+      attributes.maximumWidth =
+        attributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
+      attributes.originalWidth = imageProperties.width;
+      attributes.originalHeight = imageProperties.height
+
+      computeImageDimensions(vNode, attributes);
     }
+
+    console.log('attributes', attributes)
 
     const { type, inlineOrAnchored, ...otherAttributes } = attributes;
     // eslint-disable-next-line no-use-before-define
@@ -727,12 +739,16 @@ const buildRunOrRuns = async (vNode, attributes, docxDocumentInstance) => {
 
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
+      
       const modifiedAttributes = modifiedStyleAttributesBuilder(
         docxDocumentInstance,
         vNode,
         attributes
       );
-      const tempRunFragments = await buildRun(childVNode, modifiedAttributes, docxDocumentInstance);
+      const passedAttributes = isVNode(childVNode) && childVNode.tagName === 'img'
+        ? { ...modifiedAttributes, type: 'picture', description: childVNode.properties.alt }
+        : modifiedAttributes
+      const tempRunFragments = await buildRun(childVNode, passedAttributes, docxDocumentInstance);
       runFragments = runFragments.concat(
         Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments]
       );
@@ -777,8 +793,9 @@ const buildRunOrHyperLink = async (vNode, attributes, docxDocumentInstance) => {
 
     return hyperlinkFragment;
   }
-
-  const runFragments = await buildRunOrRuns(vNode, attributes, docxDocumentInstance);
+  // TODO: need to check if this case can occur somehow
+  const passedAttributes = isVNode(vNode) && vNode.tagName === 'img'? { ...attributes, type: 'picture', description: vNode.properties.alt } : attributes
+  const runFragments = await buildRunOrRuns(vNode, passedAttributes, docxDocumentInstance);
 
   return runFragments;
 };
