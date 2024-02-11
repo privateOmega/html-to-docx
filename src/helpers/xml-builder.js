@@ -765,7 +765,7 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
 };
 
 const buildRunOrRuns = async (vNode, attributes, docxDocumentInstance) => {
-  if ((isVNode(vNode) || vNode.isCoveringNode) && vNode.tagName === 'span') {
+  if ((isVNode(vNode) || vNode?.isCoveringNode) && vNode.tagName === 'span') {
     let runFragments = [];
 
     for (let index = 0; index < vNode.children.length; index++) {
