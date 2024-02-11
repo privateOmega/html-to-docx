@@ -658,6 +658,39 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
           // do not slice and concat children since this is already accounted for in the buildRunOrRuns function
           // eslint-disable-next-line no-continue
           continue;
+        } else if (tempVNode.tagName === 'img') {
+          // Handles the cases like
+          // <strong>Inside strong <img src=""/></strong>
+          // <strong><img src=""/></strong>
+          // <pre>Inside Pre<img src=""/></pre>
+          // <pre><img src=""/></pre>
+
+          // Wrap the image node in a lookalike span node to render the image
+          const coveringNode = {
+            tagName: 'span',
+            children: [tempVNode],
+            // add this property to indicate that this is a covering node and not a real span node
+            // also ensure that this node can also be used treated as isVNode in buildRunOrRuns
+            isCoveringNode: true,
+            properties: {
+              style: {}, // to avoid undefined error
+              attributes: {}
+            }
+          }
+
+          // Now we follow the same logic as the span node conversion
+          const spanFragment = await buildRunOrRuns(coveringNode, { ...attributes, ...tempAttributes }, docxDocumentInstance)
+
+          if (Array.isArray(spanFragment)) {
+            spanFragment.flat(Infinity);
+            runFragmentsArray.push(...spanFragment);
+          } else {
+            runFragmentsArray.push(spanFragment);
+          }
+
+          // do not slice and concat children since this is already accounted for in the buildRunOrRuns function
+          // eslint-disable-next-line no-continue
+          continue;
         }
       }
 
@@ -701,11 +734,21 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
         internalRelationship
       );
 
+      const imageBuffer = Buffer.from(response.fileContent, 'base64');
+      const imageProperties = sizeOf(imageBuffer);
+
       attributes.inlineOrAnchored = true;
       attributes.relationshipId = documentRelsId;
       attributes.id = response.id;
       attributes.fileContent = response.fileContent;
       attributes.fileNameWithExtension = response.fileNameWithExtension;
+
+      attributes.maximumWidth =
+        attributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
+      attributes.originalWidth = imageProperties.width;
+      attributes.originalHeight = imageProperties.height
+
+      computeImageDimensions(vNode, attributes);
     }
 
     const { type, inlineOrAnchored, ...otherAttributes } = attributes;
@@ -722,17 +765,21 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
 };
 
 const buildRunOrRuns = async (vNode, attributes, docxDocumentInstance) => {
-  if (isVNode(vNode) && vNode.tagName === 'span') {
+  if ((isVNode(vNode) || vNode?.isCoveringNode) && vNode.tagName === 'span') {
     let runFragments = [];
 
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = vNode.children[index];
+
       const modifiedAttributes = modifiedStyleAttributesBuilder(
         docxDocumentInstance,
         vNode,
         attributes
       );
-      const tempRunFragments = await buildRun(childVNode, modifiedAttributes, docxDocumentInstance);
+
+      const tempRunFragments = await buildRun(childVNode, isVNode(childVNode) && childVNode.tagName === 'img'
+        ? { ...modifiedAttributes, type: 'picture', description: childVNode.properties.alt }
+        : modifiedAttributes, docxDocumentInstance);
       runFragments = runFragments.concat(
         Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments]
       );
@@ -777,8 +824,9 @@ const buildRunOrHyperLink = async (vNode, attributes, docxDocumentInstance) => {
 
     return hyperlinkFragment;
   }
-
-  const runFragments = await buildRunOrRuns(vNode, attributes, docxDocumentInstance);
+  // TODO: need to check if this case can occur somehow
+  const modifiedAttributes = isVNode(vNode) && vNode.tagName === 'img' ? { ...attributes, type: 'picture', description: vNode.properties.alt } : attributes
+  const runFragments = await buildRunOrRuns(vNode, modifiedAttributes, docxDocumentInstance);
 
   return runFragments;
 };
@@ -1683,12 +1731,12 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
     ) {
       modifiedAttributes.tableRowHeight = fixupRowHeight(
         (vNode.properties.style && vNode.properties.style.height) ||
-          (vNode.children[0] &&
+        (vNode.children[0] &&
           isVNode(vNode.children[0]) &&
           vNode.children[0].properties.style &&
           vNode.children[0].properties.style.height
-            ? vNode.children[0].properties.style.height
-            : undefined)
+          ? vNode.children[0].properties.style.height
+          : undefined)
       );
     }
     if (vNode.properties.style) {
