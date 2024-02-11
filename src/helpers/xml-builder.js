@@ -711,7 +711,7 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
   if (isVText(vNode)) {
     const textFragment = buildTextElement(vNode.text);
     runFragment.import(textFragment);
-  } else if ((attributes && attributes.type === 'picture')) {
+  } else if (attributes && attributes.type === 'picture') {
     let response = null;
 
     const base64Uri = decodeURIComponent(vNode.properties.src);
