@@ -718,8 +718,6 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
       computeImageDimensions(vNode, attributes);
     }
 
-    console.log('attributes', attributes)
-
     const { type, inlineOrAnchored, ...otherAttributes } = attributes;
     // eslint-disable-next-line no-use-before-define
     const imageFragment = buildDrawing(inlineOrAnchored, type, otherAttributes);
@@ -745,10 +743,10 @@ const buildRunOrRuns = async (vNode, attributes, docxDocumentInstance) => {
         vNode,
         attributes
       );
-      const passedAttributes = isVNode(childVNode) && childVNode.tagName === 'img'
+      
+      const tempRunFragments = await buildRun(childVNode, isVNode(childVNode) && childVNode.tagName === 'img'
         ? { ...modifiedAttributes, type: 'picture', description: childVNode.properties.alt }
-        : modifiedAttributes
-      const tempRunFragments = await buildRun(childVNode, passedAttributes, docxDocumentInstance);
+        : modifiedAttributes, docxDocumentInstance);
       runFragments = runFragments.concat(
         Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments]
       );
@@ -794,8 +792,8 @@ const buildRunOrHyperLink = async (vNode, attributes, docxDocumentInstance) => {
     return hyperlinkFragment;
   }
   // TODO: need to check if this case can occur somehow
-  const passedAttributes = isVNode(vNode) && vNode.tagName === 'img'? { ...attributes, type: 'picture', description: vNode.properties.alt } : attributes
-  const runFragments = await buildRunOrRuns(vNode, passedAttributes, docxDocumentInstance);
+  const modifiedAttributes = isVNode(vNode) && vNode.tagName === 'img'? { ...attributes, type: 'picture', description: vNode.properties.alt } : attributes
+  const runFragments = await buildRunOrRuns(vNode, modifiedAttributes, docxDocumentInstance);
 
   return runFragments;
 };
