@@ -1015,22 +1015,110 @@ const htmlString = `<!DOCTYPE html>
             Inside i tag
             <img style="width: 512px; height: 400px;" src="data:image/png;base64,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" />
         </i>
+
+        <br/>
+        <p>Now we check for images in Link forms</p>
+        <p>
+            Inside p tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </p>
+
+        <span>
+            Inside span tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </span>
+
+        <strong>
+            Inside strong tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </strong>
+
+        <b>
+            Inside b tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </b>
+
+        <i>
+            Inside i tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </i>
+
+        <em>
+            Inside em tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </em>
+
+        <pre>
+            Inside pre tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </pre>
+
+        <code>
+            Inside code tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </code>
+
+        <a>
+            Inside a tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </a>
+
+        <del>
+            Inside del tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </del>
+
+        <sub>
+            Inside sub tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </sub>
+
+        <strike>
+            Inside strike tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </strike>
+
+        <s>
+            Inside s tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </s>
+
+        <sub>
+            Inside sub tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </sub>
+
+        <sup>
+            Inside sup tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </sup>
+
+        <mark>
+            Inside mark tag
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" />
+        </mark>
+
+        <p>Here we check for multiple elements inside anchor tag</p>
+        <a>
+            <span>Inside a and span</span>
+            <strong> Inside a and strong</strong>
+            <i>Inside italics and a</i>
+        </a>
     </body>
 </html>`;
 
-
 (async () => {
-    const fileBuffer = await HTMLtoDOCX(htmlString, null, {
-        table: { row: { cantSplit: true } },
-        footer: true,
-        pageNumber: true,
-    });
+  const fileBuffer = await HTMLtoDOCX(htmlString, null, {
+    table: { row: { cantSplit: true } },
+    footer: true,
+    pageNumber: true,
+  });
 
-    fs.writeFile(filePath, fileBuffer, (error) => {
-        if (error) {
-            console.log('Docx file creation failed');
-            return;
-        }
-        console.log('Docx file created successfully');
-    });
+  fs.writeFile(filePath, fileBuffer, (error) => {
+    if (error) {
+      console.log('Docx file creation failed');
+      return;
+    }
+    console.log('Docx file created successfully');
+  });
 })();

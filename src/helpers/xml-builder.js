@@ -712,49 +712,70 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
     const textFragment = buildTextElement(vNode.text);
     runFragment.import(textFragment);
   } else if (attributes && attributes.type === 'picture') {
-    let response = null;
 
-    const base64Uri = decodeURIComponent(vNode.properties.src);
-    if (base64Uri) {
-      response = docxDocumentInstance.createMediaFile(base64Uri);
+    const imageSource = vNode.properties.src;
+    let requiresConversion = false;
+    let isConverted = false;
+
+    if(isValidUrl(imageSource)){
+      requiresConversion = true
+      const base64String = await imageToBase64(imageSource).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.warning(`skipping image download and conversion due to ${error}`);
+      });
+      if (base64String) {
+        isConverted = true;
+        vNode.properties.src = `data:${mimeTypes.lookup(imageSource)};base64, ${base64String}`;
+      }
     }
-
-    if (response) {
-      docxDocumentInstance.zip
-        .folder('word')
-        .folder('media')
-        .file(response.fileNameWithExtension, Buffer.from(response.fileContent, 'base64'), {
-          createFolders: false,
-        });
-
-      const documentRelsId = docxDocumentInstance.createDocumentRelationships(
-        docxDocumentInstance.relationshipFilename,
-        imageType,
-        `media/${response.fileNameWithExtension}`,
-        internalRelationship
-      );
-
-      const imageBuffer = Buffer.from(response.fileContent, 'base64');
-      const imageProperties = sizeOf(imageBuffer);
-
-      attributes.inlineOrAnchored = true;
-      attributes.relationshipId = documentRelsId;
-      attributes.id = response.id;
-      attributes.fileContent = response.fileContent;
-      attributes.fileNameWithExtension = response.fileNameWithExtension;
-
-      attributes.maximumWidth =
-        attributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
-      attributes.originalWidth = imageProperties.width;
-      attributes.originalHeight = imageProperties.height
-
-      computeImageDimensions(vNode, attributes);
+    
+    // we add this check because if the image is not converted, we should not proceed with the conversion
+    const shouldProceed = requiresConversion && !isConverted ? false : true;
+    if(shouldProceed){
+      let response = null;
+  
+      const base64Uri = decodeURIComponent(vNode.properties.src);
+      if (base64Uri) {
+        response = docxDocumentInstance.createMediaFile(base64Uri);
+      }
+  
+      if (response) {
+        docxDocumentInstance.zip
+          .folder('word')
+          .folder('media')
+          .file(response.fileNameWithExtension, Buffer.from(response.fileContent, 'base64'), {
+            createFolders: false,
+          });
+  
+        const documentRelsId = docxDocumentInstance.createDocumentRelationships(
+          docxDocumentInstance.relationshipFilename,
+          imageType,
+          `media/${response.fileNameWithExtension}`,
+          internalRelationship
+        );
+  
+        const imageBuffer = Buffer.from(response.fileContent, 'base64');
+        const imageProperties = sizeOf(imageBuffer);
+  
+        attributes.inlineOrAnchored = true;
+        attributes.relationshipId = documentRelsId;
+        attributes.id = response.id;
+        attributes.fileContent = response.fileContent;
+        attributes.fileNameWithExtension = response.fileNameWithExtension;
+  
+        attributes.maximumWidth =
+          attributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
+        attributes.originalWidth = imageProperties.width;
+        attributes.originalHeight = imageProperties.height
+  
+        computeImageDimensions(vNode, attributes);
+      }
+  
+      const { type, inlineOrAnchored, ...otherAttributes } = attributes;
+      // eslint-disable-next-line no-use-before-define
+      const imageFragment = buildDrawing(inlineOrAnchored, type, otherAttributes);
+      runFragment.import(imageFragment);
     }
-
-    const { type, inlineOrAnchored, ...otherAttributes } = attributes;
-    // eslint-disable-next-line no-use-before-define
-    const imageFragment = buildDrawing(inlineOrAnchored, type, otherAttributes);
-    runFragment.import(imageFragment);
   } else if (isVNode(vNode) && vNode.tagName === 'br') {
     const lineBreakFragment = buildLineBreak();
     runFragment.import(lineBreakFragment);
@@ -803,23 +824,29 @@ const buildRunOrHyperLink = async (vNode, attributes, docxDocumentInstance) => {
       .ele('@w', 'hyperlink')
       .att('@r', 'id', `rId${relationshipId}`);
 
-    const modifiedAttributes = { ...attributes };
-    modifiedAttributes.hyperlink = true;
+    for (let idx = 0; idx < vNode.children.length; idx++) {
+      const childVNode = vNode.children[idx];
+      const modifiedAttributes =
+        isVNode(childVNode) && childVNode.tagName === 'img'
+          ? { ...attributes, type: 'picture', description: childVNode.properties.alt } : { ...attributes };
+      modifiedAttributes.hyperlink = true;
 
-    const runFragments = await buildRunOrRuns(
-      vNode.children[0],
-      modifiedAttributes,
-      docxDocumentInstance
-    );
-    if (Array.isArray(runFragments)) {
-      for (let index = 0; index < runFragments.length; index++) {
-        const runFragment = runFragments[index];
+      const runFragments = await buildRunOrRuns(
+        childVNode,
+        modifiedAttributes,
+        docxDocumentInstance
+      );
+      if (Array.isArray(runFragments)) {
+        for (let index = 0; index < runFragments.length; index++) {
+          const runFragment = runFragments[index];
 
-        hyperlinkFragment.import(runFragment);
+          hyperlinkFragment.import(runFragment);
+        }
+      } else {
+        hyperlinkFragment.import(runFragments);
       }
-    } else {
-      hyperlinkFragment.import(runFragments);
     }
+
     hyperlinkFragment.up();
 
     return hyperlinkFragment;
