@@ -50,6 +50,22 @@ class ListStyleBuilder {
         return `%${lvl + 1}.`;
     }
   }
+
+  getUnorderedListPrefixSuffix(style) {
+    let listType = '';
+
+    if (style && style['list-style-type']) {
+      listType = style['list-style-type'];
+    }
+    switch (listType) {
+      case 'square':
+        return '';
+      case 'circle':
+        return 'o';
+      default:
+        return '';
+    }
+  }
 }
 
 export default ListStyleBuilder;

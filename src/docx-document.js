@@ -130,8 +130,8 @@ class DocxDocument {
       marginsObject && Object.keys(marginsObject).length
         ? marginsObject
         : isPortraitOrientation
-        ? portraitMargins
-        : landscapeMargins;
+          ? portraitMargins
+          : landscapeMargins;
 
     this.availableDocumentSpace = this.width - this.margins.left - this.margins.right;
     this.title = properties.title || '';
@@ -325,12 +325,25 @@ class DocxDocument {
     const abstractNumberingFragments = fragment();
     const numberingFragments = fragment();
 
+    // The way we generate the numbering Objects is a bit different from the original implementation
+    // If there are nested lists in original document or html, instead of providing the start value for the lists
+    // we generate a new list for each ul or ol tag we encounter.
+    // FIXME: This is not the best way to handle nested lists, we should find a better way to handle this
+    // The current implementation is a quick fix to handle nested lists
+    // For every ul or ol encountered, all levels have the same startValue
+    // This helps in handling the indentation for that particular level in the transformation
     this.numberingObjects.forEach(({ numberingId, type, properties }) => {
       const abstractNumberingFragment = fragment({ namespaceAlias: { w: namespaces.w } })
         .ele('@w', 'abstractNum')
         .att('@w', 'abstractNumId', String(numberingId));
 
-      [...Array(8).keys()].forEach((level) => {
+      let startValue = 1
+      if (properties.attributes && properties.attributes['data-start']) {
+        startValue = properties.attributes['data-start']
+      } else if (properties.start) {
+        startValue = properties.start
+      }
+      [...Array(9).keys()].forEach((level, idx) => {
         const levelFragment = fragment({ namespaceAlias: { w: namespaces.w } })
           .ele('@w', 'lvl')
           .att('@w', 'ilvl', level)
@@ -339,7 +352,7 @@ class DocxDocument {
             '@w',
             'val',
             type === 'ol'
-              ? (properties.attributes && properties.attributes['data-start']) || 1
+              ? startValue
               : '1'
           )
           .up()
@@ -349,8 +362,8 @@ class DocxDocument {
             'val',
             type === 'ol'
               ? this.ListStyleBuilder.getListStyleType(
-                  properties.style && properties.style['list-style-type']
-                )
+                properties.style && properties.style['list-style-type']
+              )
               : 'bullet'
           )
           .up()
@@ -358,7 +371,7 @@ class DocxDocument {
           .att(
             '@w',
             'val',
-            type === 'ol' ? this.ListStyleBuilder.getListPrefixSuffix(properties.style, level) : ''
+            type === 'ol' ? this.ListStyleBuilder.getListPrefixSuffix(properties.style, level) : this.ListStyleBuilder.getUnorderedListPrefixSuffix(properties.style)
           )
           .up()
           .ele('@w', 'lvlJc')
@@ -442,7 +455,7 @@ class DocxDocument {
   }
 
   createNumbering(type, properties) {
-    this.lastNumberingId += 1;
+        this.lastNumberingId += 1;
     this.numberingObjects.push({ numberingId: this.lastNumberingId, type, properties });
 
     return this.lastNumberingId;

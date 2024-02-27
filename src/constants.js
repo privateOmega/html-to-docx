@@ -110,6 +110,7 @@ const defaultBorderStyles = {
   borderStrike: 'nil',
   borderColor: '000000',
 };
+const defaultPercentageMarginValue = 0
 
 export {
   defaultDocumentOptions,
@@ -140,4 +141,5 @@ export {
   verticalAlignValues,
   defaultLang,
   defaultBorderStyles,
+  defaultPercentageMarginValue
 };

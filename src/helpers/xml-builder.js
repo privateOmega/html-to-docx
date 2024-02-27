@@ -53,6 +53,7 @@ import {
   imageType,
   internalRelationship,
   defaultBorderStyles,
+  defaultPercentageMarginValue
 } from '../constants';
 import { vNodeHasChildren } from '../utils/vnode';
 import { isValidUrl } from '../utils/url';
@@ -310,7 +311,17 @@ const fixupMargin = (marginString) => {
     const matchedParts = marginString.match(pixelRegex);
     // convert pixels to half point
     return pixelToTWIP(matchedParts[1]);
+  } else if (cmRegex.test(marginString)) {
+    const matchedParts = marginString.match(cmRegex);
+    return cmToTWIP(matchedParts[1]);
+  } else if (inchRegex.test(marginString)) {
+    const matchedParts = marginString.match(inchRegex);
+    return inchToTWIP(matchedParts[1]);
   }
+
+  // else we are provided margins in percentage form
+  // TODO: Decide what to do with percentage margins
+  return defaultPercentageMarginValue;
 };
 
 const cssBorderParser = (borderString) => {
@@ -433,6 +444,50 @@ const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes,
           : null
       );
     }
+    
+    if (vNode.properties.style['margin']) {
+      const marginParts = vNode.properties.style['margin'].split(' ');
+      const margins = {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0
+      }
+      if (marginParts.length === 1) {
+        const fixedUpMargin = fixupMargin(marginParts[0]);
+        margins.top = fixedUpMargin;
+        margins.bottom = fixedUpMargin;
+        margins.left = fixedUpMargin;
+        margins.right = fixedUpMargin;
+      } else if (marginParts.length === 2) {
+        const fixedUpMarginVertical = fixupMargin(marginParts[0]);
+        const fixedUpMarginHorizontal = fixupMargin(marginParts[1]);
+        margins.top = fixedUpMarginVertical;
+        margins.bottom = fixedUpMarginVertical;
+        margins.left = fixedUpMarginHorizontal;
+        margins.right = fixedUpMarginHorizontal
+      } else if (marginParts.length === 3) {
+        margins.top = fixupMargin(marginParts[0]);
+        margins.bottom = fixupMargin(marginParts[2]);
+        margins.right = fixupMargin(marginParts[1]);
+        margins.left = fixupMargin(marginParts[1]);
+      } else if (marginParts.length === 4) {
+        margins.top = fixupMargin(marginParts[0]);
+        margins.right = fixupMargin(marginParts[1]);
+        margins.bottom = fixupMargin(marginParts[2]);
+        margins.left = fixupMargin(marginParts[3]);
+      }
+
+      const { left, right, bottom } = margins
+      const indentation = { left, right }
+      if (left || right) {
+        modifiedAttributes.indentation = indentation;
+      }
+      if (bottom) {
+        modifiedAttributes.afterSpacing = bottom;
+      }
+    }
+
     if (vNode.properties.style['margin-left'] || vNode.properties.style['margin-right']) {
       const leftMargin = fixupMargin(vNode.properties.style['margin-left']);
       const rightMargin = fixupMargin(vNode.properties.style['margin-right']);
