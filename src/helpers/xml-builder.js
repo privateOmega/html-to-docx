@@ -1089,7 +1089,7 @@ const buildTableCellSpacing = (cellSpacing = 0) =>
   fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'tblCellSpacing')
     .att('@w', 'w', cellSpacing)
-    .att('@w', 'type', 'dxa')
+    .att('@w', 'type', 'auto')
     .up();
 
 const buildTableCellBorders = (tableCellBorder) => {
