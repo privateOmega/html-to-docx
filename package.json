@@ -1,6 +1,6 @@
 {
-  "name": "html-to-docx",
-  "version": "1.8.0",
+  "name": "@xlsft/html-docx-v2",
+  "version": "1.8.1",
   "description": "HTML to DOCX converter",
   "keywords": [
     "html",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/privateOmega/html-to-docx.git"
+    "url": "git+https://github.com/xlsft/html-docx-v2.git"
   },
   "author": "privateOmega <privateOmega@protonmail.com>",
   "contributors": [
@@ -43,9 +43,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/privateOmega/html-to-docx/issues"
+    "url": "https://github.com/xlsft/html-docx-v2/issues"
   },
-  "homepage": "https://github.com/privateOmega/html-to-docx#readme",
+  "homepage": "https://github.com/xlsft/html-docx-v2#readme",
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
     "@commitlint/config-conventional": "^13.1.0",
