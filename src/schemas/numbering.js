@@ -1,4 +1,4 @@
-import namespaces from '../namespaces';
+import namespaces from '../namespaces.js';
 
 const generateNumberingXMLTemplate = () => `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>

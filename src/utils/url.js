@@ -4,5 +4,4 @@ const isValidUrl = (urlString) => {
   return Boolean(urlRegex.test(urlString));
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { isValidUrl };

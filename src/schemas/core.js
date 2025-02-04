@@ -1,5 +1,5 @@
-import namespaces from '../namespaces';
-import { applicationName } from '../constants';
+import namespaces from '../namespaces.js';
+import { applicationName } from '../constants.js';
 
 const generateCoreXML = (
   title = '',
@@ -10,7 +10,7 @@ const generateCoreXML = (
   lastModifiedBy = applicationName,
   revision = 1,
   createdAt = new Date(),
-  modifiedAt = new Date()
+  modifiedAt = new Date(),
 ) => `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 

@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-escape */
 import JSZip from 'jszip';
-import addFilesToContainer from './src/html-to-docx';
+import addFilesToContainer from './src/html-to-docx.js';
 
 const minifyHTMLString = (htmlString) => {
   try {
@@ -18,6 +18,7 @@ const minifyHTMLString = (htmlString) => {
 
     throw new Error('invalid html string');
   } catch (error) {
+    console.error(error);
     return null;
   }
 };
@@ -26,7 +27,7 @@ async function generateContainer(
   htmlString,
   headerHTMLString,
   documentOptions = {},
-  footerHTMLString
+  footerHTMLString,
 ) {
   const zip = new JSZip();
 
@@ -50,13 +51,12 @@ async function generateContainer(
     return Buffer.from(new Uint8Array(buffer));
   }
   if (Object.prototype.hasOwnProperty.call(global, 'Blob')) {
-    // eslint-disable-next-line no-undef
     return new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     });
   }
   throw new Error(
-    'Add blob support using a polyfill eg https://github.com/bjornstar/blob-polyfill'
+    'Add blob support using a polyfill eg https://github.com/bjornstar/blob-polyfill',
   );
 }
 

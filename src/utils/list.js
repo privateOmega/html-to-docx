@@ -5,7 +5,6 @@ class ListStyleBuilder {
     this.defaults = defaults || { defaultOrderedListStyleType: 'decimal' };
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getListStyleType(listType) {
     switch (listType) {
       case 'upper-roman':

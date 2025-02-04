@@ -10,17 +10,18 @@
     "office",
     "word"
   ],
-  "main": "dist/html-to-docx.umd.js",
+  "type": "module",
+  "main": "index.js",
   "module": "dist/html-to-docx.esm.js",
   "scripts": {
-    "test": "npm run build && node example/example-node.js",
+    "test": "npm run build && npm run test-unit",
+    "test-unit": "node tests/main.js",
     "prerelease": "rollup -c",
     "release": "standard-version",
     "lint": "eslint --fix .",
     "prettier:check": "prettier --check '**/*.{js}'",
     "validate": "run-s lint prettier:check",
-    "build": "rollup -c",
-    "prepare": "husky install"
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -47,39 +48,43 @@
   },
   "homepage": "https://github.com/privateOmega/html-to-docx#readme",
   "devDependencies": {
-    "@commitlint/cli": "^13.1.0",
-    "@commitlint/config-conventional": "^13.1.0",
-    "@rollup/plugin-commonjs": "^12.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.1.1",
-    "eslint": "^7.32.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.0",
-    "lint-staged": "^11.1.2",
-    "prettier": "^2.4.1",
-    "rollup": "^2.62.0",
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@eslint/js": "^9.19.0",
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@types/virtual-dom": "^2.1.4",
+    "canvas": "^3.1.0",
+    "eslint": "^9.19.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.4.2",
+    "rollup": "^4.32.1",
     "rollup-plugin-cleaner": "^1.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-terser": "^7.0.2",
-    "standard-version": "^9.3.1"
+    "standard-version": "^9.5.0"
   },
   "dependencies": {
-    "@oozcitak/util": "8.3.4",
-    "@oozcitak/dom": "1.15.6",
-    "color-name": "^1.1.4",
-    "html-entities": "^2.3.3",
+    "@oozcitak/dom": "1.15.10",
+    "@oozcitak/util": "8.3.9",
+    "color-name": "^2.0.0",
+    "html-entities": "^2.5.2",
     "html-to-vdom": "^0.7.0",
-    "image-size": "^1.0.0",
+    "image-size": "^1.2.0",
     "image-to-base64": "^2.2.0",
-    "jszip": "^3.7.1",
+    "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",
-    "nanoid": "^3.1.25",
+    "nanoid": "^5.0.9",
     "virtual-dom": "^2.1.1",
-    "xmlbuilder2": "2.1.2"
+    "xmlbuilder2": "3.1.1"
   },
   "lint-staged": {
     "src/**/*.js": [
@@ -92,7 +97,7 @@
     "@oozcitak/dom": "1.15.6"
   },
   "overrides": {
-    "@oozcitak/util": "8.3.4",
-    "@oozcitak/dom": "1.15.6"
+    "@oozcitak/util": "8.3.9",
+    "@oozcitak/dom": "1.15.10"
   }
 }
