@@ -1465,6 +1465,16 @@ const buildTableRowProperties = (attributes) => {
             delete attributes.rowCantSplit;
           }
           break;
+        case 'repeatTableHeader':
+          if (attributes.repeatTableHeader) {
+            const headerFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+              .ele('@w', 'tblHeader')
+              .up();
+            tableRowPropertiesFragment.import(headerFragment);
+            // eslint-disable-next-line no-param-reassign
+            delete attributes.repeatTableHeader;
+          }
+          break;
       }
     });
   }
