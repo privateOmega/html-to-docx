@@ -72,7 +72,7 @@
     "color-name": "^1.1.4",
     "html-entities": "^2.3.3",
     "html-to-vdom": "^0.7.0",
-    "image-size": "^1.0.0",
+    "image-size": "npm:image-size-next@1.2.2",
     "image-to-base64": "^2.2.0",
     "jszip": "^3.7.1",
     "lodash": "^4.17.21",
