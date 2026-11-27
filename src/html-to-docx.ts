@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 import { create } from 'xmlbuilder2';
 import VNode from 'virtual-dom/vnode/vnode.js';
 import VText from 'virtual-dom/vnode/vtext.js';

@@ -2,7 +2,7 @@ import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   // Switches to src/index.ts (with dts) once the entry is converted to TypeScript.
-  entry: ['index.js'],
+  entry: ['src/index.ts'],
   format: ['esm', 'cjs'],
   platform: 'node',
   target: 'node22',
