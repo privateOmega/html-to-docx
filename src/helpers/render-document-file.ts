@@ -395,7 +395,9 @@ export async function convertVTreeToXML(
 }
 
 async function renderDocumentFile(docxDocumentInstance: DocxDocument) {
-  const vTree = convertHTML(docxDocumentInstance.htmlString);
+  // html-to-vdom throws on input without any nodes; an empty body renders
+  // as an empty tree.
+  const vTree = docxDocumentInstance.htmlString ? convertHTML(docxDocumentInstance.htmlString) : [];
 
   const xmlFragment = fragment({ namespaceAlias: { w: namespaces.w } });
 

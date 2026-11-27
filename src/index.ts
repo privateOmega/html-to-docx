@@ -37,6 +37,9 @@ async function generateContainer(
   documentOptions: generateContainer.DocumentOptions = {},
   footerHTMLString?: string | null,
 ): Promise<Buffer | Blob> {
+  if (typeof htmlString !== 'string' && !((htmlString as unknown) instanceof String)) {
+    throw new TypeError('HTMLtoDOCX: htmlString must be a string');
+  }
   const zip = new JSZip();
 
   let contentHTML: string | null = htmlString;
