@@ -131,7 +131,17 @@ declare namespace generateContainer {
     fontSize?: number | string;
     /** Complex-script font size in half-points (HIP), or a string in `pt`. */
     complexScriptFontSize?: number | string;
-    table?: { row?: { cantSplit?: boolean } };
+    table?: {
+      row?: {
+        /** Prevent table rows from breaking across pages. Defaults to `false`. */
+        cantSplit?: boolean;
+        /**
+         * Repeat the rows of the table's `<thead>` at the top of every page the
+         * table spans. Defaults to `false`.
+         */
+        repeatTableHeader?: boolean;
+      };
+    };
     pageNumber?: boolean;
     skipFirstHeaderFooter?: boolean;
     lineNumber?: boolean;

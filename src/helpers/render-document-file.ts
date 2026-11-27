@@ -293,6 +293,7 @@ async function findXMLEquivalent(
               {
                 maximumWidth: docxDocumentInstance.availableDocumentSpace,
                 rowCantSplit: docxDocumentInstance.tableRowCantSplit,
+                repeatTableHeader: docxDocumentInstance.tableRowRepeatHeader,
               },
               docxDocumentInstance,
             );
@@ -319,6 +320,7 @@ async function findXMLEquivalent(
         {
           maximumWidth: docxDocumentInstance.availableDocumentSpace,
           rowCantSplit: docxDocumentInstance.tableRowCantSplit,
+          repeatTableHeader: docxDocumentInstance.tableRowRepeatHeader,
         },
         docxDocumentInstance,
       );

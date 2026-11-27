@@ -128,6 +128,7 @@ Full examples can be found under `example/`.
   - `table` <?[Object]>
     - `row` <?[Object]>
       - `cantSplit` <?[Boolean]> flag to allow table row to split across pages. Defaults to `false`.
+      - `repeatTableHeader` <?[Boolean]> flag to repeat the rows of a table's `<thead>` at the top of every page the table spans. Defaults to `false`.
   - `pageNumber` <?[Boolean]> flag to enable page number in footer. Defaults to `false`. Page number works only if footer flag is set as `true`.
   - `skipFirstHeaderFooter` <?[Boolean]> flag to skip first page header and footer. Defaults to `false`.
   - `lineNumber` <?[Boolean]> flag to enable line numbering. Defaults to `false`.
