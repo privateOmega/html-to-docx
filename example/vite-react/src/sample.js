@@ -1,9 +1,5 @@
-import HTMLtoDOCX from 'html-to-docx';
-import { saveAs } from 'file-saver';
-
-import './App.css';
-
-const htmlString = `<!DOCTYPE html>
+// Sample document: headings, formatting, lists, tables and images.
+export const sampleHTML = `<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -231,28 +227,3 @@ const htmlString = `<!DOCTYPE html>
         </ul>
     </body>
 </html>`;
-
-function App() {
-  async function downloadDocx(params) {
-    const fileBuffer = await HTMLtoDOCX(htmlString, null, {
-      table: { row: { cantSplit: true } },
-      footer: true,
-      pageNumber: true,
-    });
-
-    saveAs(fileBuffer, 'html-to-docx.docx');
-  }
-
-  return (
-    <div className="App">
-      <header className="App-header">
-        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-        <a className="App-link" href="#" onClick={downloadDocx}>
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
-
-export default App;

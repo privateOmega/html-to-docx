@@ -10,5 +10,5 @@
     "node": true,
     "es2022": true
   },
-  "ignorePatterns": ["dist/**", "example/react-example/**", "tests/__snapshots__/**"]
+  "ignorePatterns": ["dist/**", "tests/__snapshots__/**"]
 }

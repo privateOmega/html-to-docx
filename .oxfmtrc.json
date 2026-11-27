@@ -3,11 +3,5 @@
   "printWidth": 100,
   "singleQuote": true,
   "sortPackageJson": false,
-  "ignorePatterns": [
-    "dist/**",
-    "CHANGELOG.md",
-    "example/react-example/**",
-    "tests/fixtures/**",
-    "tests/__snapshots__/**"
-  ]
+  "ignorePatterns": ["dist/**", "CHANGELOG.md", "tests/fixtures/**", "tests/__snapshots__/**"]
 }
