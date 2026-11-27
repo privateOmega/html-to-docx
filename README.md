@@ -13,14 +13,21 @@ html-to-docx earlier used to use [libtidy] to clean up the html before parsing, 
 
 Even though there is an instance of html-to-docx running in production, please ensure that it covers all the cases that you might be encountering usually, since this is not a complete solution.
 
-Currently it doesn't work with browser directly, but it was tested against React.
+## Requirements
+
+- Node.js 22 or newer, or
+- a browser, through a bundler (Vite, webpack, esbuild, …). No Node polyfills are needed.
+
+Upgrading from 1.x? See [MIGRATION.md](./MIGRATION.md).
 
 ## Installation
 
-Use the npm to install foobar.
-
 ```bash
 npm install html-to-docx
+# or
+pnpm add html-to-docx
+# or
+yarn add html-to-docx
 ```
 
 ## Usage
@@ -29,7 +36,61 @@ npm install html-to-docx
 await HTMLtoDOCX(htmlString, headerHTMLString, documentOptions, footerHTMLString);
 ```
 
-full fledged examples can be found under `example/`
+### ES modules
+
+```js
+import { writeFile } from 'node:fs/promises';
+import HTMLtoDOCX from 'html-to-docx';
+
+const docx = await HTMLtoDOCX('<h1>Hello</h1><p>World</p>', null, {
+  orientation: 'landscape',
+  margins: { top: '2cm', bottom: '2cm' },
+});
+await writeFile('hello.docx', docx);
+```
+
+### CommonJS
+
+```js
+const HTMLtoDOCX = require('html-to-docx');
+
+HTMLtoDOCX('<p>Hello</p>').then((docx) => require('node:fs').writeFileSync('hello.docx', docx));
+```
+
+### TypeScript
+
+Type definitions are included.
+
+```ts
+import HTMLtoDOCX, { type DocumentOptions } from 'html-to-docx';
+
+const options: DocumentOptions = {
+  font: 'Arial',
+  fontSize: '12pt',
+  pageNumber: true,
+  footer: true,
+};
+const docx = await HTMLtoDOCX('<p>Hello</p>', null, options);
+```
+
+With CommonJS (`require`), the option types are available on the function: `HTMLtoDOCX.DocumentOptions`.
+
+### Browser
+
+Bundle the package with your app. In the browser the result is a `Blob`:
+
+```js
+import HTMLtoDOCX from 'html-to-docx';
+
+const blob = await HTMLtoDOCX(document.querySelector('#content').innerHTML);
+const link = document.createElement('a');
+link.href = URL.createObjectURL(blob);
+link.download = 'document.docx';
+link.click();
+URL.revokeObjectURL(link.href);
+```
+
+Full examples can be found under `example/`.
 
 ### Parameters
 
@@ -82,7 +143,7 @@ full fledged examples can be found under `example/`
 
 ### Returns
 
-<[Promise]<[Buffer]|[Blob]>>
+<[Promise]<[Buffer]|[Blob]>>: a [Buffer] in Node.js, or a [Blob] (type `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) where `Buffer` is not available, such as in browsers.
 
 ## Notes
 
