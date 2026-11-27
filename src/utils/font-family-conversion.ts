@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 export const removeSimpleOrDoubleQuotes = /(["'])(.*?)\1/;
 
 export const fontFamilyToTableObject = (fontFamilyString, fallbackFont) => {

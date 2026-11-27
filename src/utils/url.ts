@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 const isValidUrl = (urlString) => {
   const urlRegex = /http(s)?:\/\/(\w+:?\w*@)?(\S+)(:\d+)?((?<=\.)\w+)+(\/([\w#!:.?+=&%@!\-/])*)?/gi;
 
