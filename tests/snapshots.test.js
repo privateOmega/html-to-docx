@@ -17,9 +17,9 @@ vi.stubGlobal(
 );
 
 // Deterministic ids for embedded media file names.
-vi.mock('nanoid', () => {
+vi.mock('../src/utils/id', () => {
   let counter = 0;
-  return { nanoid: () => `id${(counter += 1)}` };
+  return { randomId: () => `id${(counter += 1)}` };
 });
 
 const FIXED_DATE = new Date('2020-01-01T00:00:00.000Z');
