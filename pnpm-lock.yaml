@@ -235,12 +235,21 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^21.2.4
         version: 21.2.4
+      '@types/image-to-base64':
+        specifier: ^2.1.2
+        version: 2.1.2
       '@types/lodash':
         specifier: ^4.17.27
         version: 4.17.27
+      '@types/mime-types':
+        specifier: ^2.1.4
+        version: 2.1.4
       '@types/node':
         specifier: ^22.20.7
         version: 22.20.7
+      '@types/virtual-dom':
+        specifier: ^2.1.4
+        version: 2.1.4
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -794,11 +803,20 @@ packages:
   '@types/estree@1.0.11':
     resolution: {integrity: sha512-YBdNe5JcjYR0sPhJW1QIeRCmI11YhYvaRuGCs9+WCeTTb+Yhb2BE2XMe5/wAqF10FK5g3+q1PDhQABfT7aX0gg==}
 
+  '@types/image-to-base64@2.1.2':
+    resolution: {integrity: sha512-SD9M2pVsB5N67IbeTS9VBy6ojoXnj1Nh1VwigkYKtUbjAVEiFHjWygb2Y8NlMQM889APRqekZIRpSdYkmQ9rsQ==}
+
   '@types/lodash@4.17.27':
     resolution: {integrity: sha512-VenMRv/eKNrspX9v3H4dbmjsrnCOYdYBG3kxXKk3dG6X+urBGcj2Prww3xw1U5K4FV/mE4h5GbWd0szEKf+9ew==}
 
+  '@types/mime-types@2.1.4':
+    resolution: {integrity: sha512-lfU4b34HOri+kAY5UheuFMWPDOI+OPceBSHZKp69gEyTL/mmJ4cnU6Y/rlme3UL3GyOn6Y42hyIEw0/q8sWx5w==}
+
   '@types/node@22.20.7':
     resolution: {integrity: sha512-F/Mcc4pD3YwXQCG50hb8BjB5RmrOere6hge7n2XHf0V8tpkZOVEjwYv9Ql7n0MpMn8Bv7+q12P9w6UHsBm0Sfw==}
+
+  '@types/virtual-dom@2.1.4':
+    resolution: {integrity: sha512-Y7L/frVydXRd16MevczslJZQu+QWsrqZlj6ytk7mST3xen0fkx7Ollw31By/89A8Wq+nfNWm/IoTR1ac/0fRhA==}
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
@@ -2205,11 +2223,17 @@ snapshots:
 
   '@types/estree@1.0.11': {}
 
+  '@types/image-to-base64@2.1.2': {}
+
   '@types/lodash@4.17.27': {}
+
+  '@types/mime-types@2.1.4': {}
 
   '@types/node@22.20.7':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/virtual-dom@2.1.4': {}
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
