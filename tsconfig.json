@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+
+    // Transitional: JS files are part of the program but not type-checked.
+    // Each file is type-checked strictly once it is converted to .ts.
+    // Remove both once the migration is complete.
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": ["src", "index.js", "tests", "*.config.mjs"],
+  "exclude": ["dist", "tests/__snapshots__", "tests/fixtures/**/*.html"]
+}
