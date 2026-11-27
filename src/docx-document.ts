@@ -1,7 +1,6 @@
 import { create, fragment } from 'xmlbuilder2';
 import type { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import type JSZip from 'jszip';
-import { nanoid } from 'nanoid';
 
 import {
   generateCoreXML,
@@ -39,6 +38,7 @@ import {
 import ListStyleBuilder, { type NumberingDefaults } from './utils/list';
 import { fontFamilyToTableObject, type FontTableObject } from './utils/font-family-conversion';
 import { attr } from './utils/xml';
+import { randomId } from './utils/id';
 import type {
   DocumentOptions,
   FooterObject,
@@ -584,7 +584,7 @@ class DocxDocument {
         ? 'png'
         : matches[1]!.match(/\/(.*?)$/)![1];
 
-    const fileNameWithExtension = `image-${nanoid()}.${fileExtension}`;
+    const fileNameWithExtension = `image-${randomId()}.${fileExtension}`;
 
     this.lastMediaId += 1;
 
