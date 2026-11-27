@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "2ae805da708e2b3c332cacfe63d0fc55b1c06c89",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "html-to-docx",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false,
+      "versioning": "prerelease",
+      "prerelease-type": "beta",
+      "prerelease": true,
+      "release-as": "2.0.0-beta.1"
+    }
+  }
+}
