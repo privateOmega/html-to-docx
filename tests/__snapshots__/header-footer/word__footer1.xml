@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ftr xmlns="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <p>
+    <pPr>
+      <spacing xmlns:ns1="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ns1:lineRule="auto"/>
+    </pPr>
+    <r>
+      <rPr/>
+      <t xml:space="preserve">Footer text</t>
+    </r>
+    <fldSimple xmlns:ns2="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ns2:instr="PAGE">
+      <r/>
+    </fldSimple>
+  </p>
+</ftr>
