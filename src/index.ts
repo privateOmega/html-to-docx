@@ -1,7 +1,6 @@
 /* eslint-disable no-useless-escape */
 import JSZip from 'jszip';
 import addFilesToContainer from './html-to-docx';
-import type { DocumentOptions } from './types';
 
 const minifyHTMLString = (htmlString: unknown): string | null => {
   try {
@@ -35,7 +34,7 @@ const minifyHTMLString = (htmlString: unknown): string | null => {
 async function generateContainer(
   htmlString: string,
   headerHTMLString?: string | null,
-  documentOptions: DocumentOptions = {},
+  documentOptions: generateContainer.DocumentOptions = {},
   footerHTMLString?: string | null,
 ): Promise<Buffer | Blob> {
   const zip = new JSZip();
@@ -70,13 +69,82 @@ async function generateContainer(
   );
 }
 
+// The public option types are declared on a namespace merged into the
+// function. CommonJS declarations use `export =` (require() returns the
+// function), so the types must hang off it there, e.g.
+// `HTMLtoDOCX.DocumentOptions`. ESM consumers can also import them by name.
+// The namespace is type-only and emits no JavaScript.
+declare namespace generateContainer {
+  /** Page orientation of the document section. */
+  export type Orientation = 'portrait' | 'landscape';
+
+  /** Page margins, in TWIP. */
+  export interface PageMargins {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+    header: number;
+    footer: number;
+    gutter: number;
+  }
+
+  /** Which pages a header or footer applies to. */
+  export type HeaderFooterType = 'default' | 'first' | 'even';
+
+  /** A length in TWIP, or a string with a unit: `px`, `cm` or `in`. */
+  export type Length = number | string;
+
+  export interface LineNumberOptions {
+    /** Start of the numbering - 1. Defaults to `0`. */
+    start: number;
+    /** Number every n-th line. Defaults to `1`. */
+    countBy: number;
+    restart: 'continuous' | 'newPage' | 'newSection';
+  }
+
+  /**
+   * Options accepted by `HTMLtoDOCX`. Every option is optional; see the README
+   * for defaults.
+   */
+  export interface DocumentOptions {
+    orientation?: Orientation;
+    pageSize?: { width?: Length; height?: Length };
+    margins?: Partial<Record<keyof PageMargins, Length>>;
+    title?: string;
+    subject?: string;
+    creator?: string;
+    keywords?: string[];
+    description?: string;
+    lastModifiedBy?: string;
+    revision?: number;
+    createdAt?: Date;
+    modifiedAt?: Date;
+    headerType?: HeaderFooterType;
+    header?: boolean;
+    footerType?: HeaderFooterType;
+    footer?: boolean;
+    font?: string;
+    /** Font size in half-points (HIP), or a string in `pt`. */
+    fontSize?: number | string;
+    /** Complex-script font size in half-points (HIP), or a string in `pt`. */
+    complexScriptFontSize?: number | string;
+    table?: { row?: { cantSplit?: boolean } };
+    pageNumber?: boolean;
+    skipFirstHeaderFooter?: boolean;
+    lineNumber?: boolean;
+    lineNumberOptions?: Partial<LineNumberOptions>;
+    numbering?: { defaultOrderedListStyleType?: string };
+    decodeUnicode?: boolean;
+    lang?: string;
+  }
+}
+
 export default generateContainer;
 
-export type {
-  DocumentOptions,
-  HeaderFooterType,
-  Length,
-  LineNumberOptions,
-  Orientation,
-  PageMargins,
-} from './types';
+export type Orientation = generateContainer.Orientation;
+export type PageMargins = generateContainer.PageMargins;
+export type HeaderFooterType = generateContainer.HeaderFooterType;
+export type Length = generateContainer.Length;
+export type LineNumberOptions = generateContainer.LineNumberOptions;
+export type DocumentOptions = generateContainer.DocumentOptions;
