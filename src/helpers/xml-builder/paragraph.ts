@@ -5,9 +5,8 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import { fetchImageAsBase64 } from '../../utils/image';
+import { fetchImageAsBase64, measureImage } from '../../utils/image';
 import mimeTypes from 'mime-types';
-import { imageSize } from 'image-size';
 import namespaces from '../../namespaces';
 import { pixelToEMU, pixelRegex, TWIPToEMU, percentageRegex } from '../../utils/unit-conversion';
 import { paragraphBordersObject } from '../../constants';
@@ -365,14 +364,20 @@ export const buildParagraph = async (
                 imageSource,
               )};base64, ${base64String}`;
             } else {
-              break;
+              // Skip this image but keep the rest of the paragraph.
+              continue;
             }
           } else {
             // eslint-disable-next-line no-useless-escape, prefer-destructuring
             base64String = imageSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)![2];
           }
-          const imageBuffer = base64ToBytes(decodeURIComponent(base64String as string));
-          const imageProperties = imageSize(imageBuffer);
+          const imageProperties = measureImage(
+            base64ToBytes(decodeURIComponent(base64String as string)),
+          );
+          if (!imageProperties) {
+            warnImageSkipped(`unsupported image data (${imageSource})`);
+            continue;
+          }
 
           modifiedAttributes.maximumWidth =
             modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
@@ -424,8 +429,14 @@ export const buildParagraph = async (
         base64String = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)[2];
       }
 
-      const imageBuffer = base64ToBytes(decodeURIComponent(base64String));
-      const imageProperties = imageSize(imageBuffer);
+      const imageProperties = measureImage(base64ToBytes(decodeURIComponent(base64String)));
+      if (!imageProperties) {
+        // Same as a failed download: an empty paragraph without the image.
+        warnImageSkipped(`unsupported image data (${imageSource})`);
+        paragraphFragment.up();
+
+        return paragraphFragment;
+      }
 
       modifiedAttributes.maximumWidth =
         modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;

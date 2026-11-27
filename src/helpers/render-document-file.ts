@@ -8,8 +8,8 @@ import isVNode from 'virtual-dom/vnode/is-vnode.js';
 import isVText from 'virtual-dom/vnode/is-vtext.js';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
-import { imageSize } from 'image-size';
-import { fetchImageAsBase64 } from '../utils/image';
+import { fetchImageAsBase64, measureImage } from '../utils/image';
+import { warnImageSkipped } from './xml-builder/shared';
 import mimeTypes from 'mime-types';
 
 // FIXME: remove the cyclic dependency
@@ -54,14 +54,7 @@ export const buildImage = async (
   try {
     const imageSource = vNode.properties.src;
     if (isValidUrl(imageSource)) {
-      const base64String = await fetchImageAsBase64(imageSource).catch((error) => {
-        // FIXME: console.warning does not exist, so this throws and the outer
-        // catch silently skips the image. Kept as-is to preserve behaviour.
-        // eslint-disable-next-line no-console
-        (console as unknown as { warning: (message: string) => void }).warning(
-          `skipping image download and conversion due to ${error}`,
-        );
-      });
+      const base64String = await fetchImageAsBase64(imageSource).catch(warnImageSkipped);
 
       if (base64String) {
         base64Uri = `data:${mimeTypes.lookup(imageSource)};base64, ${base64String}`;
@@ -75,7 +68,13 @@ export const buildImage = async (
   } catch {
     // NOOP
   }
-  if (response) {
+  // Measure before writing anything, so unreadable data (e.g. an HTML error
+  // page served for an image URL) is skipped without leaving a media file.
+  const imageProperties = response ? measureImage(base64ToBytes(response.fileContent)) : null;
+  if (response && !imageProperties) {
+    warnImageSkipped(`unsupported image data (${vNode.properties.src})`);
+  }
+  if (response && imageProperties) {
     docxDocumentInstance.zip
       .folder('word')!
       .folder('media')!
@@ -89,9 +88,6 @@ export const buildImage = async (
       `media/${response.fileNameWithExtension}`,
       internalRelationship,
     );
-
-    const imageBuffer = base64ToBytes(response.fileContent);
-    const imageProperties = imageSize(imageBuffer);
 
     const imageFragment = await xmlBuilder.buildParagraph(
       vNode,
