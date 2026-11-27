@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-beta.1](https://github.com/privateOmega/html-to-docx/compare/v1.8.0...v2.0.0-beta.1) (2026-11-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* requires a runtime with global structuredClone (Node.js 17+, all current browsers); Node.js 22+ is already required.
+* the UMD build (dist/html-to-docx.umd.js) is removed and Node.js 22+ is required. Use the package entry point (`import` / `require('html-to-docx')`); browser bundlers automatically use the new self-contained browser build, so remove any Node polyfills added for 1.x. See [MIGRATION.md](./MIGRATION.md).
+
+### Features
+
+* TypeScript type definitions, ES module and CommonJS builds, and a self-contained browser build selected through the `browser` export condition (fixes `Class extends value undefined is not a constructor or null`, [#128](https://github.com/privateOmega/html-to-docx/issues/128), [#242](https://github.com/privateOmega/html-to-docx/issues/242))
+* add Buffer-free base64 helpers ([19d06d2](https://github.com/privateOmega/html-to-docx/commit/19d06d28eac8b2f13b2faed2502952e133f062ef))
+* test cases ([712c887](https://github.com/privateOmega/html-to-docx/commit/712c88704d1ad0f663f0d2ab490b50433e6e94e8))
+
+
+### Bug Fixes
+
+* apply max width and height style to img tag correctly ([e17a3f3](https://github.com/privateOmega/html-to-docx/commit/e17a3f3aafead2201759750fa603315178d1121a))
+* calculate max width and max height absolute values and then do comparison ([4dd20e8](https://github.com/privateOmega/html-to-docx/commit/4dd20e825f341529e78b06858bf999ff788668f7))
+* detect Buffer and Blob via globalThis ([34d69ee](https://github.com/privateOmega/html-to-docx/commit/34d69eef196c186ba49d64105f5a85f691435615))
+* handle max check handle properly ([cb31fe1](https://github.com/privateOmega/html-to-docx/commit/cb31fe1f7afa8f4d40314f7affc2f9f28b9b84b3))
+* list styling to support adding different list padding ([230dd84](https://github.com/privateOmega/html-to-docx/commit/230dd840d5a7b140c63250ab09c58f543edb355d))
+* produce an empty document for empty HTML, reject non-strings ([068c836](https://github.com/privateOmega/html-to-docx/commit/068c836dfbb92b009b9432daccbc06115c6ae0df))
+* refator common code to a separate function ([13aaaf9](https://github.com/privateOmega/html-to-docx/commit/13aaaf95aa0313979c1e9d4cc17db994fe64d282))
+* skip images that cannot be loaded or read instead of failing ([751dccb](https://github.com/privateOmega/html-to-docx/commit/751dccb481f401ec4868ccb77108301faf000609))
+
+
+### Code Refactoring
+
+* replace lodash cloneDeep with structuredClone ([ac4cde9](https://github.com/privateOmega/html-to-docx/commit/ac4cde9689cb52aba49f719a0069fcc467fd826d))
+
+
+### Build System
+
+* replace Rollup with tsdown and ship dual ESM/CJS ([703e22d](https://github.com/privateOmega/html-to-docx/commit/703e22d95ac6e9c4add22d1a2b38043bdd4a5a93))
+
 ## [1.8.0](https://github.com/privateOmega/html-to-docx/compare/v1.7.0...v1.8.0) (2023-03-26)
 
 
