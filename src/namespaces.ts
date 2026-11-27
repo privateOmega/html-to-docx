@@ -1,4 +1,3 @@
-// @ts-nocheck -- removed in the typing commit
 const namespaces = {
   a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
   b: 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography',
