@@ -16,7 +16,7 @@
     "test": "vitest run",
     "prerelease": "rollup -c",
     "release": "standard-version",
-    "lint": "eslint --fix .",
+    "lint": "oxlint",
     "prettier:check": "prettier --check '**/*.{js}'",
     "validate": "run-s lint prettier:check",
     "build": "rollup -c",
@@ -53,13 +53,9 @@
     "@rollup/plugin-commonjs": "^12.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.1.1",
-    "eslint": "^7.32.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-prettier": "^4.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.2",
+    "oxlint": "^1.95.0",
     "prettier": "^2.4.1",
     "rollup": "^2.62.0",
     "rollup-plugin-cleaner": "^1.0.0",
@@ -85,8 +81,8 @@
   },
   "lint-staged": {
     "src/**/*.js": [
-      "prettier --write",
-      "eslint --fix"
+      "oxlint --fix",
+      "prettier --write"
     ]
   },
   "resolutions": {

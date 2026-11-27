@@ -22,8 +22,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # Scoped to library sources until the oxlint switch replaces ESLint.
-      - run: npx eslint src index.js
+      - run: npm run lint
 
   test:
     runs-on: ubuntu-latest
