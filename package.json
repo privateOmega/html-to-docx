@@ -19,7 +19,8 @@
     "example": "pnpm build && node example/example.js && node example/example-node.cjs",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "check:package": "pnpm build && attw --pack . && publint"
   },
   "repository": {
     "type": "git",
@@ -53,6 +54,7 @@
   },
   "homepage": "https://github.com/privateOmega/html-to-docx#readme",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@types/color-name": "^1.1.5",

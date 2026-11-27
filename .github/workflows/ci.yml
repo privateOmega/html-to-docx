@@ -27,6 +27,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm typecheck
+      # Types and exports as consumers see them (ESM, CJS, node10, bundlers).
+      - run: pnpm check:package
 
   test:
     runs-on: ubuntu-latest
