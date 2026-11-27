@@ -1,5 +1,3 @@
-import cloneDeep from 'lodash/cloneDeep.js';
-
 const applicationName = 'html-to-docx';
 const defaultOrientation = 'portrait';
 const landscapeWidth = 15840;
@@ -27,7 +25,7 @@ const defaultFontSize = 22;
 const defaultLang = 'en-US';
 const defaultDocumentOptions = {
   orientation: defaultOrientation,
-  margins: cloneDeep(portraitMargins),
+  margins: structuredClone(portraitMargins),
   title: '',
   subject: '',
   creator: applicationName,

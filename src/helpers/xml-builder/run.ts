@@ -5,7 +5,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import cloneDeep from 'lodash/cloneDeep.js';
 import namespaces from '../../namespaces';
 import { hyperlinkType, imageType, internalRelationship } from '../../constants';
 import type { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
@@ -27,7 +26,7 @@ export const buildRun = async (
   docxDocumentInstance: DocxDocument,
 ): Promise<XMLBuilder | XMLBuilder[]> => {
   const runFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
-  const runPropertiesFragment = buildRunProperties(cloneDeep(attributes));
+  const runPropertiesFragment = buildRunProperties(structuredClone(attributes));
 
   // case where we have recursive spans representing font changes
   if (isVNode(vNode) && vNode.tagName === 'span') {
@@ -59,7 +58,7 @@ export const buildRun = async (
 
     let vNodes: VTree[] = [vNode];
     // create temp run fragments to split the paragraph into different runs
-    let tempAttributes: BuilderAttributes = cloneDeep(attributes);
+    let tempAttributes: BuilderAttributes = structuredClone(attributes);
     let tempRunFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
     while (vNodes.length) {
       const tempVNode = vNodes.shift()!;
@@ -71,7 +70,7 @@ export const buildRun = async (
         runFragmentsArray.push(tempRunFragment);
 
         // re initialize temp run fragments with new fragment
-        tempAttributes = cloneDeep(attributes);
+        tempAttributes = structuredClone(attributes);
         tempRunFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
       } else if (isVNode(tempVNode)) {
         if (
