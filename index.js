@@ -26,7 +26,7 @@ async function generateContainer(
   htmlString,
   headerHTMLString,
   documentOptions = {},
-  footerHTMLString
+  footerHTMLString,
 ) {
   const zip = new JSZip();
 
@@ -56,7 +56,7 @@ async function generateContainer(
     });
   }
   throw new Error(
-    'Add blob support using a polyfill eg https://github.com/bjornstar/blob-polyfill'
+    'Add blob support using a polyfill eg https://github.com/bjornstar/blob-polyfill',
   );
 }
 

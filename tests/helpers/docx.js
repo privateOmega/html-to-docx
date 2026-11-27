@@ -21,7 +21,7 @@ export async function readDocx(buffer) {
       .filter((name) => XML_PART.test(name))
       .map(async (name) => {
         parts[name] = prettyXML(await zip.file(name).async('string'));
-      })
+      }),
   );
 
   return { files, parts };

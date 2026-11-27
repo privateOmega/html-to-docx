@@ -60,7 +60,7 @@ export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = nul
       docxDocumentInstance.relationshipFilename,
       imageType,
       `media/${response.fileNameWithExtension}`,
-      internalRelationship
+      internalRelationship,
     );
 
     const imageBuffer = Buffer.from(response.fileContent, 'base64');
@@ -78,7 +78,7 @@ export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = nul
         originalWidth: imageProperties.width,
         originalHeight: imageProperties.height,
       },
-      docxDocumentInstance
+      docxDocumentInstance,
     );
 
     return imageFragment;
@@ -110,7 +110,7 @@ export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
         {
           numbering: { levelId: tempVNodeObject.level, numberingId: tempVNodeObject.numberingId },
         },
-        docxDocumentInstance
+        docxDocumentInstance,
       );
 
       xmlFragment.import(paragraphFragment);
@@ -129,7 +129,7 @@ export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
             type: childVNode.tagName,
             numberingId: docxDocumentInstance.createNumbering(
               childVNode.tagName,
-              childVNode.properties
+              childVNode.properties,
             ),
           });
         } else {
@@ -160,11 +160,11 @@ export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
               isVText(childVNode)
                 ? [childVNode]
                 : // eslint-disable-next-line no-nested-ternary
-                isVNode(childVNode)
-                ? childVNode.tagName.toLowerCase() === 'li'
-                  ? [...childVNode.children]
-                  : [childVNode]
-                : []
+                  isVNode(childVNode)
+                  ? childVNode.tagName.toLowerCase() === 'li'
+                    ? [...childVNode.children]
+                    : [childVNode]
+                  : [],
             );
             accumulator.push({
               // eslint-disable-next-line prettier/prettier, no-nested-ternary
@@ -173,8 +173,8 @@ export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
                   childVNode.tagName.toLowerCase() === 'li'
                   ? childVNode
                   : childVNode.tagName.toLowerCase() !== 'p'
-                  ? paragraphVNode
-                  : childVNode
+                    ? paragraphVNode
+                    : childVNode
                 : // eslint-disable-next-line prettier/prettier
                   paragraphVNode,
               level: tempVNodeObject.level,
@@ -224,7 +224,7 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
         {
           paragraphStyle: `Heading${vNode.tagName[1]}`,
         },
-        docxDocumentInstance
+        docxDocumentInstance,
       );
       xmlFragment.import(headingFragment);
       return;
@@ -261,7 +261,7 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
                 maximumWidth: docxDocumentInstance.availableDocumentSpace,
                 rowCantSplit: docxDocumentInstance.tableRowCantSplit,
               },
-              docxDocumentInstance
+              docxDocumentInstance,
             );
             xmlFragment.import(tableFragment);
             // Adding empty paragraph for space after table
@@ -283,7 +283,7 @@ async function findXMLEquivalent(docxDocumentInstance, vNode, xmlFragment) {
           maximumWidth: docxDocumentInstance.availableDocumentSpace,
           rowCantSplit: docxDocumentInstance.tableRowCantSplit,
         },
-        docxDocumentInstance
+        docxDocumentInstance,
       );
       xmlFragment.import(tableFragment);
       // Adding empty paragraph for space after table

@@ -36,15 +36,15 @@ describe('docx snapshots', () => {
       html,
       headerHTML,
       { createdAt: FIXED_DATE, modifiedAt: FIXED_DATE, ...options },
-      footerHTML
+      footerHTML,
     );
     const { files, parts } = await readDocx(buffer);
 
     await expect(files.join('\n')).toMatchFileSnapshot(`__snapshots__/${name}/files.txt`);
     await Promise.all(
       Object.entries(parts).map(([part, xml]) =>
-        expect(xml).toMatchFileSnapshot(`__snapshots__/${name}/${part.replace(/\//g, '__')}`)
-      )
+        expect(xml).toMatchFileSnapshot(`__snapshots__/${name}/${part.replace(/\//g, '__')}`),
+      ),
     );
   });
 });

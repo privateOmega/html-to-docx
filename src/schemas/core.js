@@ -10,7 +10,7 @@ const generateCoreXML = (
   lastModifiedBy = applicationName,
   revision = 1,
   createdAt = new Date(),
-  modifiedAt = new Date()
+  modifiedAt = new Date(),
 ) => `
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 

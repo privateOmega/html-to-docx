@@ -193,7 +193,7 @@ const buildBorder = (
   borderSize = 0,
   borderSpacing = 0,
   borderColor = fixupColorCode('black'),
-  borderStroke = 'single'
+  borderStroke = 'single',
 ) =>
   fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', borderSide)
@@ -305,7 +305,7 @@ const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes,
       !colorlessColors.includes(vNode.properties.style['background-color'])
     ) {
       modifiedAttributes.backgroundColor = fixupColorCode(
-        vNode.properties.style['background-color']
+        vNode.properties.style['background-color'],
       );
     }
 
@@ -329,7 +329,7 @@ const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes,
     }
     if (vNode.properties.style['font-family']) {
       modifiedAttributes.font = docxDocumentInstance.createFont(
-        vNode.properties.style['font-family']
+        vNode.properties.style['font-family'],
       );
     }
     if (vNode.properties.style['font-size']) {
@@ -340,7 +340,7 @@ const modifiedStyleAttributesBuilder = (docxDocumentInstance, vNode, attributes,
         vNode.properties.style['line-height'],
         vNode.properties.style['font-size']
           ? fixupFontSize(vNode.properties.style['font-size'])
-          : null
+          : null,
       );
     }
     if (vNode.properties.style['margin-left'] || vNode.properties.style['margin-right']) {
@@ -554,7 +554,7 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
           const spanFragment = await buildRunOrRuns(
             tempVNode,
             { ...attributes, ...tempAttributes },
-            docxDocumentInstance
+            docxDocumentInstance,
           );
 
           // if spanFragment is an array, we need to add each fragment to the runFragmentsArray. If the fragment is an array, perform a depth first search on the array to add each fragment to the runFragmentsArray
@@ -608,7 +608,7 @@ const buildRun = async (vNode, attributes, docxDocumentInstance) => {
         docxDocumentInstance.relationshipFilename,
         imageType,
         `media/${response.fileNameWithExtension}`,
-        internalRelationship
+        internalRelationship,
       );
 
       attributes.inlineOrAnchored = true;
@@ -640,11 +640,11 @@ const buildRunOrRuns = async (vNode, attributes, docxDocumentInstance) => {
       const modifiedAttributes = modifiedStyleAttributesBuilder(
         docxDocumentInstance,
         vNode,
-        attributes
+        attributes,
       );
       const tempRunFragments = await buildRun(childVNode, modifiedAttributes, docxDocumentInstance);
       runFragments = runFragments.concat(
-        Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments]
+        Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments],
       );
     }
 
@@ -660,7 +660,7 @@ const buildRunOrHyperLink = async (vNode, attributes, docxDocumentInstance) => {
     const relationshipId = docxDocumentInstance.createDocumentRelationships(
       docxDocumentInstance.relationshipFilename,
       hyperlinkType,
-      vNode.properties && vNode.properties.href ? vNode.properties.href : ''
+      vNode.properties && vNode.properties.href ? vNode.properties.href : '',
     );
     const hyperlinkFragment = fragment({ namespaceAlias: { w: namespaces.w, r: namespaces.r } })
       .ele('@w', 'hyperlink')
@@ -672,7 +672,7 @@ const buildRunOrHyperLink = async (vNode, attributes, docxDocumentInstance) => {
     const runFragments = await buildRunOrRuns(
       vNode.children[0],
       modifiedAttributes,
-      docxDocumentInstance
+      docxDocumentInstance,
     );
     if (Array.isArray(runFragments)) {
       for (let index = 0; index < runFragments.length; index++) {
@@ -765,7 +765,7 @@ const buildHorizontalAlignment = (horizontalAlignment) => {
 const buildParagraphBorder = () => {
   const paragraphBorderFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
-    'pBdr'
+    'pBdr',
   );
   const bordersObject = cloneDeep(paragraphBordersObject);
 
@@ -786,7 +786,7 @@ const buildParagraphBorder = () => {
 const buildParagraphProperties = (attributes) => {
   const paragraphPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
-    'pPr'
+    'pPr',
   );
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
@@ -834,7 +834,7 @@ const buildParagraphProperties = (attributes) => {
     const spacingFragment = buildSpacing(
       attributes.lineHeight,
       attributes.beforeSpacing,
-      attributes.afterSpacing
+      attributes.afterSpacing,
     );
     // eslint-disable-next-line no-param-reassign
     delete attributes.lineHeight;
@@ -956,7 +956,7 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
     attributes,
     {
       isParagraph: true,
-    }
+    },
   );
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
@@ -984,7 +984,7 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
       const runOrHyperlinkFragments = await buildRunOrHyperLink(
         vNode,
         modifiedAttributes,
-        docxDocumentInstance
+        docxDocumentInstance,
       );
       if (Array.isArray(runOrHyperlinkFragments)) {
         for (
@@ -1022,7 +1022,7 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
 
             if (base64String && mimeTypes.lookup(imageSource)) {
               childVNode.properties.src = `data:${mimeTypes.lookup(
-                imageSource
+                imageSource,
               )};base64, ${base64String}`;
             } else {
               break;
@@ -1046,7 +1046,7 @@ const buildParagraph = async (vNode, attributes, docxDocumentInstance) => {
           isVNode(childVNode) && childVNode.tagName === 'img'
             ? { ...modifiedAttributes, type: 'picture', description: childVNode.properties.alt }
             : modifiedAttributes,
-          docxDocumentInstance
+          docxDocumentInstance,
         );
         if (Array.isArray(runOrHyperlinkFragments)) {
           for (
@@ -1129,7 +1129,7 @@ const buildTableCellSpacing = (cellSpacing = 0) =>
 const buildTableCellBorders = (tableCellBorder) => {
   const tableCellBordersFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
-    'tcBorders'
+    'tcBorders',
   );
 
   const { color, stroke, ...borders } = tableCellBorder;
@@ -1155,7 +1155,7 @@ const buildTableCellWidth = (tableCellWidth) =>
 const buildTableCellProperties = (attributes) => {
   const tableCellPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
-    'tcPr'
+    'tcPr',
   );
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
@@ -1210,7 +1210,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
     } else {
       // eslint-disable-next-line no-use-before-define
       const [borderSize, borderStroke, borderColor] = cssBorderParser(
-        vNode.properties.style.border
+        vNode.properties.style.border,
       );
 
       attributes.tableCellBorder = {
@@ -1231,7 +1231,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
   } else if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] !== '0') {
     // eslint-disable-next-line no-use-before-define
     const [borderSize, borderStroke, borderColor] = cssBorderParser(
-      vNode.properties.style['border-top']
+      vNode.properties.style['border-top'],
     );
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
@@ -1251,7 +1251,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
   ) {
     // eslint-disable-next-line no-use-before-define
     const [borderSize, borderStroke, borderColor] = cssBorderParser(
-      vNode.properties.style['border-left']
+      vNode.properties.style['border-left'],
     );
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
@@ -1271,7 +1271,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
   ) {
     // eslint-disable-next-line no-use-before-define
     const [borderSize, borderStroke, borderColor] = cssBorderParser(
-      vNode.properties.style['border-bottom']
+      vNode.properties.style['border-bottom'],
     );
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
@@ -1291,7 +1291,7 @@ const fixupTableCellBorder = (vNode, attributes) => {
   ) {
     // eslint-disable-next-line no-use-before-define
     const [borderSize, borderStroke, borderColor] = cssBorderParser(
-      vNode.properties.style['border-right']
+      vNode.properties.style['border-right'],
     );
     attributes.tableCellBorder = {
       ...attributes.tableCellBorder,
@@ -1318,7 +1318,7 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
         Object.assign({}, previousSpanObject, {
           rowSpan: 0,
           colSpan: (previousSpanObject && previousSpanObject.colSpan) || 0,
-        })
+        }),
       );
     }
     if (
@@ -1334,7 +1334,7 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
         // eslint-disable-next-line prefer-object-spread
         Object.assign({}, previousSpanObject, {
           colSpan: parseInt(modifiedAttributes.colSpan) || 0,
-        })
+        }),
       );
       columnIndex.index += parseInt(modifiedAttributes.colSpan) - 1;
     }
@@ -1356,7 +1356,7 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
         const imageFragment = await buildImage(
           docxDocumentInstance,
           childVNode,
-          modifiedAttributes.maximumWidth
+          modifiedAttributes.maximumWidth,
         );
         if (imageFragment) {
           tableCellFragment.import(imageFragment);
@@ -1370,7 +1370,7 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
               const imageFragment = await buildImage(
                 docxDocumentInstance,
                 grandChildVNode,
-                modifiedAttributes.maximumWidth
+                modifiedAttributes.maximumWidth,
               );
               if (imageFragment) {
                 tableCellFragment.import(imageFragment);
@@ -1387,7 +1387,7 @@ const buildTableCell = async (vNode, attributes, rowSpanMap, columnIndex, docxDo
         const paragraphFragment = await buildParagraph(
           childVNode,
           modifiedAttributes,
-          docxDocumentInstance
+          docxDocumentInstance,
         );
 
         tableCellFragment.import(paragraphFragment);
@@ -1444,7 +1444,7 @@ const buildRowSpanCell = (rowSpanMap, columnIndex, attributes) => {
 const buildTableRowProperties = (attributes) => {
   const tableRowPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
-    'trPr'
+    'trPr',
   );
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
@@ -1491,7 +1491,7 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
           vNode.children[0].properties.style &&
           vNode.children[0].properties.style.height
             ? vNode.children[0].properties.style.height
-            : undefined)
+            : undefined),
       );
     }
     if (vNode.properties.style) {
@@ -1506,7 +1506,7 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
 
   if (vNodeHasChildren(vNode)) {
     const tableColumns = vNode.children.filter((childVNode) =>
-      ['td', 'th'].includes(childVNode.tagName)
+      ['td', 'th'].includes(childVNode.tagName),
     );
     const maximumColumnWidth = docxDocumentInstance.availableDocumentSpace / tableColumns.length;
 
@@ -1525,7 +1525,7 @@ const buildTableRow = async (vNode, attributes, rowSpanMap, docxDocumentInstance
         { ...modifiedAttributes, maximumWidth: maximumColumnWidth },
         rowSpanMap,
         columnIndex,
-        docxDocumentInstance
+        docxDocumentInstance,
       );
       columnIndex.index++;
 
@@ -1595,7 +1595,7 @@ const buildTableGridFromTableRow = (vNode, attributes) => {
 const buildTableBorders = (tableBorder) => {
   const tableBordersFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
-    'tblBorders'
+    'tblBorders',
   );
 
   const { color, stroke, ...borders } = tableBorder;
@@ -1629,7 +1629,7 @@ const buildCellMargin = (side, margin) =>
 const buildTableCellMargins = (margin) => {
   const tableCellMarFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
-    'tblCellMar'
+    'tblCellMar',
   );
 
   ['top', 'bottom'].forEach((side) => {
@@ -1647,7 +1647,7 @@ const buildTableCellMargins = (margin) => {
 const buildTableProperties = (attributes) => {
   const tablePropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
-    'tblPr'
+    'tblPr',
   );
 
   if (attributes && attributes.constructor === Object) {
@@ -1821,7 +1821,7 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
             if (iteratorIndex === 0) {
               const tableGridFragment = buildTableGridFromTableRow(
                 grandChildVNode,
-                modifiedAttributes
+                modifiedAttributes,
               );
               tableFragment.import(tableGridFragment);
             }
@@ -1829,7 +1829,7 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
               grandChildVNode,
               modifiedAttributes,
               rowSpanMap,
-              docxDocumentInstance
+              docxDocumentInstance,
             );
             tableFragment.import(tableRowFragment);
           }
@@ -1841,7 +1841,7 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
             if (iteratorIndex === 0) {
               const tableGridFragment = buildTableGridFromTableRow(
                 grandChildVNode,
-                modifiedAttributes
+                modifiedAttributes,
               );
               tableFragment.import(tableGridFragment);
             }
@@ -1849,7 +1849,7 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
               grandChildVNode,
               modifiedAttributes,
               rowSpanMap,
-              docxDocumentInstance
+              docxDocumentInstance,
             );
             tableFragment.import(tableRowFragment);
           }
@@ -1863,7 +1863,7 @@ const buildTable = async (vNode, attributes, docxDocumentInstance) => {
           childVNode,
           modifiedAttributes,
           rowSpanMap,
-          docxDocumentInstance
+          docxDocumentInstance,
         );
         tableFragment.import(tableRowFragment);
       }
@@ -1897,7 +1897,7 @@ const buildOffset = () =>
 const buildGraphicFrameTransform = (attributes) => {
   const graphicFrameTransformFragment = fragment({ namespaceAlias: { a: namespaces.a } }).ele(
     '@a',
-    'xfrm'
+    'xfrm',
   );
 
   const offsetFragment = buildOffset();
@@ -1982,7 +1982,7 @@ const buildNonVisualPictureDrawingProperties = () =>
 const buildNonVisualDrawingProperties = (
   pictureId,
   pictureNameWithExtension,
-  pictureDescription = ''
+  pictureDescription = '',
 ) =>
   fragment({ namespaceAlias: { pic: namespaces.pic } })
     .ele('@pic', 'cNvPr')
@@ -1994,7 +1994,7 @@ const buildNonVisualDrawingProperties = (
 const buildNonVisualPictureProperties = (
   pictureId,
   pictureNameWithExtension,
-  pictureDescription
+  pictureDescription,
 ) => {
   const nonVisualPicturePropertiesFragment = fragment({
     namespaceAlias: { pic: namespaces.pic },
@@ -2003,7 +2003,7 @@ const buildNonVisualPictureProperties = (
   const nonVisualDrawingPropertiesFragment = buildNonVisualDrawingProperties(
     pictureId,
     pictureNameWithExtension,
-    pictureDescription
+    pictureDescription,
   );
   nonVisualPicturePropertiesFragment.import(nonVisualDrawingPropertiesFragment);
   const nonVisualPictureDrawingPropertiesFragment = buildNonVisualPictureDrawingProperties();
@@ -2025,7 +2025,7 @@ const buildPicture = ({
   const nonVisualPicturePropertiesFragment = buildNonVisualPictureProperties(
     id,
     fileNameWithExtension,
-    description
+    description,
   );
   pictureFragment.import(nonVisualPicturePropertiesFragment);
   const binaryLargeImageOrPictureFill = buildBinaryLargeImageOrPictureFill(relationshipId);
@@ -2152,7 +2152,7 @@ const buildAnchoredDrawing = (graphicType, attributes) => {
   anchoredDrawingFragment.import(wrapSquareFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
-    attributes.fileNameWithExtension
+    attributes.fileNameWithExtension,
   );
   anchoredDrawingFragment.import(drawingObjectNonVisualPropertiesFragment);
   const graphicFragment = buildGraphic(graphicType, attributes);
@@ -2177,7 +2177,7 @@ const buildInlineDrawing = (graphicType, attributes) => {
   inlineDrawingFragment.import(effectExtentFragment);
   const drawingObjectNonVisualPropertiesFragment = buildDrawingObjectNonVisualProperties(
     attributes.id,
-    attributes.fileNameWithExtension
+    attributes.fileNameWithExtension,
   );
   inlineDrawingFragment.import(drawingObjectNonVisualPropertiesFragment);
   const graphicFragment = buildGraphic(graphicType, attributes);

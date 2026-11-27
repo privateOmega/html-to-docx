@@ -45,7 +45,7 @@ function generateContentTypesFragments(contentTypesXML, type, objects) {
         .att('PartName', `/word/${type}${object[`${type}Id`]}.xml`)
         .att(
           'ContentType',
-          `application/vnd.openxmlformats-officedocument.wordprocessingml.${type}+xml`
+          `application/vnd.openxmlformats-officedocument.wordprocessingml.${type}+xml`,
         )
         .up();
 
@@ -99,7 +99,7 @@ async function generateSectionXML(vTree, type = 'header') {
         .att('@w', 'instr', 'PAGE')
         .ele('@w', 'r')
         .up()
-        .up()
+        .up(),
     );
   }
   sectionXML.root().import(XMLFragment);
@@ -130,8 +130,8 @@ class DocxDocument {
       marginsObject && Object.keys(marginsObject).length
         ? marginsObject
         : isPortraitOrientation
-        ? portraitMargins
-        : landscapeMargins;
+          ? portraitMargins
+          : landscapeMargins;
 
     this.availableDocumentSpace = this.width - this.margins.left - this.margins.right;
     this.title = properties.title || '';
@@ -202,7 +202,7 @@ class DocxDocument {
   generateDocumentXML() {
     const documentXML = create(
       { encoding: 'UTF-8', standalone: true },
-      generateDocumentTemplate(this.width, this.height, this.orientation, this.margins)
+      generateDocumentTemplate(this.width, this.height, this.orientation, this.margins),
     );
     documentXML.root().first().import(this.documentXML);
 
@@ -227,7 +227,7 @@ class DocxDocument {
             .ele('@w', 'lnNumType')
             .att('@w', 'countBy', countBy)
             .att('@w', 'start', start)
-            .att('@w', 'restart', restart)
+            .att('@w', 'restart', restart),
         );
     }
 
@@ -245,8 +245,8 @@ class DocxDocument {
         this.lastModifiedBy,
         this.revision,
         this.createdAt,
-        this.modifiedAt
-      )
+        this.modifiedAt,
+      ),
     );
   }
 
@@ -262,7 +262,7 @@ class DocxDocument {
 
   generateStylesXML() {
     return generateXMLString(
-      generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize, this.lang)
+      generateStylesXML(this.font, this.fontSize, this.complexScriptFontSize, this.lang),
     );
   }
 
@@ -319,7 +319,7 @@ class DocxDocument {
   generateNumberingXML() {
     const numberingXML = create(
       { encoding: 'UTF-8', standalone: true },
-      generateNumberingXMLTemplate()
+      generateNumberingXMLTemplate(),
     );
 
     const abstractNumberingFragments = fragment();
@@ -340,7 +340,7 @@ class DocxDocument {
             'val',
             type === 'ol'
               ? (properties.attributes && properties.attributes['data-start']) || 1
-              : '1'
+              : '1',
           )
           .up()
           .ele('@w', 'numFmt')
@@ -349,16 +349,18 @@ class DocxDocument {
             'val',
             type === 'ol'
               ? this.ListStyleBuilder.getListStyleType(
-                  properties.style && properties.style['list-style-type']
+                  properties.style && properties.style['list-style-type'],
                 )
-              : 'bullet'
+              : 'bullet',
           )
           .up()
           .ele('@w', 'lvlText')
           .att(
             '@w',
             'val',
-            type === 'ol' ? this.ListStyleBuilder.getListPrefixSuffix(properties.style, level) : ''
+            type === 'ol'
+              ? this.ListStyleBuilder.getListPrefixSuffix(properties.style, level)
+              : '',
           )
           .up()
           .ele('@w', 'lvlJc')
@@ -387,7 +389,7 @@ class DocxDocument {
               .att('@w', 'hAnsi', 'Symbol')
               .att('@w', 'hint', 'default')
               .up()
-              .up()
+              .up(),
           );
         }
         abstractNumberingFragment.import(levelFragment);
@@ -402,7 +404,7 @@ class DocxDocument {
           .ele('@w', 'abstractNumId')
           .att('@w', 'val', String(numberingId))
           .up()
-          .up()
+          .up(),
       );
     });
 
@@ -422,7 +424,7 @@ class DocxDocument {
           .att('Type', type)
           .att('Target', target)
           .att('TargetMode', targetMode)
-          .up()
+          .up(),
       );
     });
   }
@@ -431,7 +433,7 @@ class DocxDocument {
     const relationshipXMLStrings = this.relationships.map(({ fileName, rels }) => {
       const xmlFragment = create(
         { encoding: 'UTF-8', standalone: true },
-        fileName === documentFileName ? documentRelsXMLString : genericRelsXMLString
+        fileName === documentFileName ? documentRelsXMLString : genericRelsXMLString,
       );
       this.appendRelationships(xmlFragment.root(), rels);
 
@@ -475,7 +477,7 @@ class DocxDocument {
 
   createDocumentRelationships(fileName = 'document', type, target, targetMode = 'External') {
     let relationshipObject = this.relationships.find(
-      (relationship) => relationship.fileName === fileName
+      (relationship) => relationship.fileName === fileName,
     );
     let lastRelsId = 1;
     if (relationshipObject) {
