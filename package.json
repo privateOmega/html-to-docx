@@ -20,7 +20,8 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "typecheck": "tsc",
-    "check:package": "pnpm build && attw --pack . && publint"
+    "check:package": "pnpm build && attw --pack . && publint",
+    "test:browser": "node scripts/browser-test.mjs"
   },
   "repository": {
     "type": "git",
@@ -65,6 +66,7 @@
     "lint-staged": "^17.6.2",
     "oxfmt": "0.80.0",
     "oxlint": "^1.95.0",
+    "playwright": "^1.65.1",
     "publint": "^0.3.25",
     "punycode": "^2.3.1",
     "tsdown": "0.23.7",
