@@ -38,6 +38,7 @@ import {
 } from './constants';
 import ListStyleBuilder, { type NumberingDefaults } from './utils/list';
 import { fontFamilyToTableObject, type FontTableObject } from './utils/font-family-conversion';
+import { attr } from './utils/xml';
 import type {
   DocumentOptions,
   FooterObject,
@@ -72,13 +73,6 @@ export interface DocxDocumentProperties extends Omit<
 }
 
 type SectionType = 'header' | 'footer';
-
-/**
- * xmlbuilder2 types attribute values as strings but stringifies values itself,
- * and treats null/undefined specially. Passing values through unchanged keeps
- * the generated XML identical while satisfying its types.
- */
-const attr = (value: string | number | null | undefined) => value as string;
 
 function generateContentTypesFragments(
   contentTypesXML: XMLBuilder,
