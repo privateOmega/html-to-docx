@@ -211,8 +211,8 @@ importers:
         specifier: ^3.10.2
         version: 3.10.2
       mime-types:
-        specifier: ^2.1.35
-        version: 2.1.35
+        specifier: ^3.0.2
+        version: 3.0.2
       virtual-dom:
         specifier: ^2.1.1
         version: 2.1.1
@@ -233,8 +233,8 @@ importers:
         specifier: ^1.1.5
         version: 1.1.5
       '@types/mime-types':
-        specifier: ^2.1.4
-        version: 2.1.4
+        specifier: ^3.0.1
+        version: 3.0.1
       '@types/node':
         specifier: ^22.20.7
         version: 22.20.7
@@ -823,8 +823,8 @@ packages:
   '@types/estree@1.0.11':
     resolution: {integrity: sha512-YBdNe5JcjYR0sPhJW1QIeRCmI11YhYvaRuGCs9+WCeTTb+Yhb2BE2XMe5/wAqF10FK5g3+q1PDhQABfT7aX0gg==}
 
-  '@types/mime-types@2.1.4':
-    resolution: {integrity: sha512-lfU4b34HOri+kAY5UheuFMWPDOI+OPceBSHZKp69gEyTL/mmJ4cnU6Y/rlme3UL3GyOn6Y42hyIEw0/q8sWx5w==}
+  '@types/mime-types@3.0.1':
+    resolution: {integrity: sha512-xRMsfuQbnRq1Ef+C+RKaENOxXX87Ygl38W1vDfPHRku02TgQr+Qd8iivLtAMcR0KF5/29xlnFihkTlbqFrGOVQ==}
 
   '@types/node@22.20.7':
     resolution: {integrity: sha512-F/Mcc4pD3YwXQCG50hb8BjB5RmrOere6hge7n2XHf0V8tpkZOVEjwYv9Ql7n0MpMn8Bv7+q12P9w6UHsBm0Sfw==}
@@ -1477,13 +1477,13 @@ packages:
     engines: {node: '>= 16'}
     hasBin: true
 
-  mime-db@1.52.0:
-    resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
+  mime-db@1.54.0:
+    resolution: {integrity: sha512-aU5EJuIN2WDemCcAp2vFBfp/m4EAhWJnUNSSw0ixs7/kXbd6Pg64EmwJkNdFhB8aWt1sH2CTXrLxo/iAGV3oPQ==}
     engines: {node: '>= 0.6'}
 
-  mime-types@2.1.35:
-    resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
-    engines: {node: '>= 0.6'}
+  mime-types@3.0.2:
+    resolution: {integrity: sha512-Lbgzdk0h4juoQ9fCKXW4by0UJqj+nOOrI9MJ1sSj4nI8aI2eo1qmvQEie4VD1glsS250n15LsWsYtCugiStS5A==}
+    engines: {node: '>=18'}
 
   min-document@2.19.0:
     resolution: {integrity: sha512-9Wy1B3m3f66bPPmU5hdA4DR4PB2OfDU/+GS3yAB7IQozE3tqXaVv2zOjgla7MEGSRv95+ILmOuvhLkOK6wJtCQ==}
@@ -2411,7 +2411,7 @@ snapshots:
 
   '@types/estree@1.0.11': {}
 
-  '@types/mime-types@2.1.4': {}
+  '@types/mime-types@3.0.1': {}
 
   '@types/node@22.20.7':
     dependencies:
@@ -2901,11 +2901,11 @@ snapshots:
 
   marked@9.1.6: {}
 
-  mime-db@1.52.0: {}
+  mime-db@1.54.0: {}
 
-  mime-types@2.1.35:
+  mime-types@3.0.2:
     dependencies:
-      mime-db: 1.52.0
+      mime-db: 1.54.0
 
   min-document@2.19.0:
     dependencies:
