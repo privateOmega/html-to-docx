@@ -1,6 +1,6 @@
 # Migrating from 1.x to 2.0
 
-2.0 modernizes the package: it is written in TypeScript, ships ES module and CommonJS builds with type definitions, and runs in browsers without polyfills. **The documents it generates are unchanged** for the same input and options, apart from the small differences listed under [Behaviour](#behaviour).
+2.0 modernizes the package: it is written in TypeScript, ships ES module, CommonJS and browser builds with type definitions, and runs in browsers without polyfills. **The documents it generates are unchanged** for the same input and options, apart from the small differences listed under [Behaviour](#behaviour).
 
 The `HTMLtoDOCX(htmlString, headerHTMLString, documentOptions, footerHTMLString)` API and all options are the same.
 
@@ -21,9 +21,11 @@ Node.js 20 reached end of life in April 2026. 2.0 requires Node.js 22+ (`engines
 
 `require('html-to-docx')` still returns the function directly. Deep imports into `dist/` are no longer supported. To use it from a `<script>` tag, bundle it or load it from an ES-module CDN (for example `https://esm.sh/html-to-docx`).
 
-### Browsers: remove the Buffer polyfill
+### Browsers: remove Node polyfills
 
-1.x needed Node's `Buffer` in the browser (the UMD build bundled polyfills; bundlers needed a `buffer` polyfill). 2.0 uses no Node built-ins in the conversion, so you can remove those polyfills. In the browser the result is a `Blob`, as before.
+1.x needed Node built-ins in the browser: the UMD build bundled polyfills, and with a bundler you had to add polyfills for modules such as `buffer` and `events` (otherwise loading failed with errors like `Class extends value undefined is not a constructor or null`).
+
+2.0 ships a self-contained browser build, `dist/index.browser.mjs`, that bundlers pick automatically through the `browser` condition of the `exports` map. Remove any polyfills or aliases you added for html-to-docx. In the browser the result is a `Blob`, as before.
 
 ### TypeScript
 
