@@ -8,9 +8,8 @@ import isVNode from 'virtual-dom/vnode/is-vnode.js';
 import isVText from 'virtual-dom/vnode/is-vtext.js';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
-import { fetchImageAsBase64, measureImage } from '../utils/image';
+import { fetchImageAsDataUri, measureImage } from '../utils/image';
 import { warnImageSkipped } from './xml-builder/shared';
-import mimeTypes from 'mime-types';
 
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
@@ -54,11 +53,7 @@ export const buildImage = async (
   try {
     const imageSource = vNode.properties.src;
     if (isValidUrl(imageSource)) {
-      const base64String = await fetchImageAsBase64(imageSource).catch(warnImageSkipped);
-
-      if (base64String) {
-        base64Uri = `data:${mimeTypes.lookup(imageSource)};base64, ${base64String}`;
-      }
+      base64Uri = (await fetchImageAsDataUri(imageSource).catch(warnImageSkipped)) || null;
     } else {
       base64Uri = decodeURIComponent(vNode.properties.src);
     }
