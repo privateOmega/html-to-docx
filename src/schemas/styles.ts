@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 import { defaultFont, defaultFontSize, defaultLang } from '../constants';
 import namespaces from '../namespaces';
 

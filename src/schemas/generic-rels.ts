@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 const genericRelsXML = `
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
