@@ -20,7 +20,7 @@
     "prettier:check": "prettier --check '**/*.{js}'",
     "validate": "run-s lint prettier:check",
     "build": "rollup -c",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -57,7 +57,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.0",
+    "husky": "^9.1.7",
     "lint-staged": "^11.1.2",
     "prettier": "^2.4.1",
     "rollup": "^2.62.0",
@@ -67,8 +67,8 @@
     "standard-version": "^9.3.1"
   },
   "dependencies": {
-    "@oozcitak/util": "8.3.4",
     "@oozcitak/dom": "1.15.6",
+    "@oozcitak/util": "8.3.4",
     "color-name": "^1.1.4",
     "html-entities": "^2.3.3",
     "html-to-vdom": "^0.7.0",
