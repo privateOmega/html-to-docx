@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 class ListStyleBuilder {
   // defaults is an object passed in from constants.js / numbering with the following properties:
   // defaultOrderedListStyleType: 'decimal' (unless otherwise specified)

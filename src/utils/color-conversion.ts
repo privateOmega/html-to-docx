@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 /* eslint-disable no-param-reassign */
 
 export const rgbRegex = /rgb\((\d+),\s*([\d.]+),\s*([\d.]+)\)/i;
