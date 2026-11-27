@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import HTMLtoDOCX from '../index';
+import HTMLtoDOCX from '../src/index';
 
 // Current behaviour that is wrong but recorded so the safety net notices
 // when it changes. When a fix lands, flip the assertion to the correct one.

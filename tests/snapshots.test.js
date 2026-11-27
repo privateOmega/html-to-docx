@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
-import HTMLtoDOCX from '../index';
+import HTMLtoDOCX from '../src/index';
 import { readDocx } from './helpers/docx';
 import fixtureOptions from './fixtures/options';
 
