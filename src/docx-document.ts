@@ -132,7 +132,7 @@ function generateXMLString(xmlString: string) {
 
 async function generateSectionXML(
   this: DocxDocument,
-  vTree: unknown,
+  vTree: VirtualDOM.VTree | VirtualDOM.VTree[],
   type: SectionType = 'header',
 ): Promise<{ id: number; xml: XMLBuilder }> {
   const sectionXML = create({
@@ -643,12 +643,12 @@ class DocxDocument {
     return lastRelsId;
   }
 
-  async generateHeaderXML(vTree: unknown) {
+  async generateHeaderXML(vTree: VirtualDOM.VTree | VirtualDOM.VTree[]) {
     const { id, xml } = await this.generateSectionXML(vTree, 'header');
     return { headerId: id, headerXML: xml };
   }
 
-  async generateFooterXML(vTree: unknown) {
+  async generateFooterXML(vTree: VirtualDOM.VTree | VirtualDOM.VTree[]) {
     const { id, xml } = await this.generateSectionXML(vTree, 'footer');
     return { footerId: id, footerXML: xml };
   }
