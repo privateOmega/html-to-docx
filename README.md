@@ -16,7 +16,7 @@ Even though there is an instance of html-to-docx running in production, please e
 ## Requirements
 
 - Node.js 22 or newer, or
-- a browser, through a bundler (Vite, webpack, esbuild, …). No Node polyfills are needed.
+- a browser, through a bundler (Vite, webpack, esbuild, …) or as an ES module. No Node polyfills or bundler configuration are needed: bundlers automatically use a self-contained browser build (`dist/index.browser.mjs`) through the `browser` export condition.
 
 Upgrading from 1.x? See [MIGRATION.md](./MIGRATION.md).
 
@@ -77,7 +77,7 @@ With CommonJS (`require`), the option types are available on the function: `HTML
 
 ### Browser
 
-Bundle the package with your app. In the browser the result is a `Blob`:
+Import the package as usual and let your bundler include it; the browser build is selected automatically. In the browser the result is a `Blob`:
 
 ```js
 import HTMLtoDOCX from 'html-to-docx';
