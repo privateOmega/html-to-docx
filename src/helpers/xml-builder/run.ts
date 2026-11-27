@@ -15,7 +15,6 @@ import {
   buildLineBreak,
   buildTextElement,
   modifiedStyleAttributesBuilder,
-  buildFormatting,
   buildRunProperties,
 } from './formatting';
 import { buildDrawing } from './drawing';
@@ -92,33 +91,10 @@ export const buildRun = async (
             'pre',
           ].includes(tempVNode.tagName)
         ) {
-          tempAttributes = {};
-          switch (tempVNode.tagName) {
-            case 'strong':
-            case 'b':
-              tempAttributes.strong = true;
-              break;
-            case 'i':
-              tempAttributes.i = true;
-              break;
-            case 'u':
-              tempAttributes.u = true;
-              break;
-            case 'sub':
-              tempAttributes.sub = true;
-              break;
-            case 'sup':
-              tempAttributes.sup = true;
-              break;
-          }
-          // FIXME: passes the VNode instead of its tagName, so this never matches
-          // and returns null; formatting comes from tempAttributes instead. Kept
-          // as-is to preserve output.
-          const formattingFragment = buildFormatting(tempVNode as unknown as string);
-
-          if (formattingFragment) {
-            runPropertiesFragment.import(formattingFragment);
-          }
+          // Every tag in this list is a formatting key that buildRunProperties
+          // understands (see buildFormatting): strong/b, em/i, u/ins,
+          // s/del/strike, sub/sup, mark, code and pre.
+          tempAttributes = { [tempVNode.tagName]: true };
           // go a layer deeper if there is a span somewhere in the children
         } else if (tempVNode.tagName === 'span') {
           // eslint-disable-next-line no-use-before-define
