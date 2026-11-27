@@ -19,6 +19,7 @@ import {
   buildRunProperties,
 } from './formatting';
 import { buildDrawing } from './drawing';
+import { base64ToBytes } from '../../utils/base64';
 
 export const buildRun = async (
   vNode: VTree | null,
@@ -170,7 +171,7 @@ export const buildRun = async (
       docxDocumentInstance.zip
         .folder('word')!
         .folder('media')!
-        .file(response.fileNameWithExtension, Buffer.from(response.fileContent, 'base64'), {
+        .file(response.fileNameWithExtension, base64ToBytes(response.fileContent), {
           createFolders: false,
         });
 

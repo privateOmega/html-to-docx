@@ -19,6 +19,7 @@ import { isVNode, asVNode, warnImageSkipped } from './shared';
 import type { VTree, VNodeType, BuilderAttributes } from './shared';
 import { buildShading, buildBorder, modifiedStyleAttributesBuilder } from './formatting';
 import { buildRun, buildRunOrRuns, buildRunOrHyperLink } from './run';
+import { base64ToBytes } from '../../utils/base64';
 
 export const buildNumberingProperties = (levelId: number, numberingId: number) =>
   fragment({ namespaceAlias: { w: namespaces.w } })
@@ -370,7 +371,7 @@ export const buildParagraph = async (
             // eslint-disable-next-line no-useless-escape, prefer-destructuring
             base64String = imageSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)![2];
           }
-          const imageBuffer = Buffer.from(decodeURIComponent(base64String as string), 'base64');
+          const imageBuffer = base64ToBytes(decodeURIComponent(base64String as string));
           const imageProperties = imageSize(imageBuffer);
 
           modifiedAttributes.maximumWidth =
@@ -423,7 +424,7 @@ export const buildParagraph = async (
         base64String = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)[2];
       }
 
-      const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
+      const imageBuffer = base64ToBytes(decodeURIComponent(base64String));
       const imageProperties = imageSize(imageBuffer);
 
       modifiedAttributes.maximumWidth =

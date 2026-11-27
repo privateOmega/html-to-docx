@@ -21,6 +21,7 @@ import { vNodeHasChildren } from '../utils/vnode';
 import { isValidUrl } from '../utils/url';
 import type DocxDocument from '../docx-document';
 import type { NumberingObject } from '../types';
+import { base64ToBytes } from '../utils/base64';
 
 type VTree = VirtualDOM.VTree;
 type VNodeType = VirtualDOM.VNode;
@@ -78,7 +79,7 @@ export const buildImage = async (
     docxDocumentInstance.zip
       .folder('word')!
       .folder('media')!
-      .file(response.fileNameWithExtension, Buffer.from(response.fileContent, 'base64'), {
+      .file(response.fileNameWithExtension, base64ToBytes(response.fileContent), {
         createFolders: false,
       });
 
@@ -89,7 +90,7 @@ export const buildImage = async (
       internalRelationship,
     );
 
-    const imageBuffer = Buffer.from(response.fileContent, 'base64');
+    const imageBuffer = base64ToBytes(response.fileContent);
     const imageProperties = imageSize(imageBuffer);
 
     const imageFragment = await xmlBuilder.buildParagraph(
