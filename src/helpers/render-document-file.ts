@@ -387,7 +387,11 @@ export async function convertVTreeToXML(
   } else if (isVNode(vTree as VTree)) {
     await findXMLEquivalent(docxDocumentInstance, vTree as VNodeType, xmlFragment);
   } else if (isVText(vTree as VTree)) {
-    const paragraphFragment = await xmlBuilder.buildParagraph(vTree, {}, docxDocumentInstance);
+    const paragraphFragment = await xmlBuilder.buildParagraph(
+      vTree as VTree,
+      {},
+      docxDocumentInstance,
+    );
     xmlFragment.import(paragraphFragment);
   }
   return xmlFragment;
