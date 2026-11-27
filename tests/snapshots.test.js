@@ -10,9 +10,11 @@ import fixtureOptions from './fixtures/options';
 const PIXEL_PNG_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
-vi.mock('image-to-base64', () => ({
-  default: vi.fn(async () => PIXEL_PNG_BASE64),
-}));
+// Remote images: every fetch returns the same pixel.
+vi.stubGlobal(
+  'fetch',
+  vi.fn(async () => new Response(Buffer.from(PIXEL_PNG_BASE64, 'base64'))),
+);
 
 // Deterministic ids for embedded media file names.
 vi.mock('nanoid', () => {

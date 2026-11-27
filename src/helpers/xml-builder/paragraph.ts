@@ -5,7 +5,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import imageToBase64 from 'image-to-base64';
+import { fetchImageAsBase64 } from '../../utils/image';
 import mimeTypes from 'mime-types';
 import sizeOf from 'image-size';
 import namespaces from '../../namespaces';
@@ -357,7 +357,7 @@ export const buildParagraph = async (
           let base64String: string | void;
           const imageSource = asVNode(childVNode).properties.src;
           if (isValidUrl(imageSource)) {
-            base64String = await imageToBase64(imageSource).catch(warnImageSkipped);
+            base64String = await fetchImageAsBase64(imageSource).catch(warnImageSkipped);
 
             if (base64String && mimeTypes.lookup(imageSource)) {
               asVNode(childVNode).properties.src = `data:${mimeTypes.lookup(
@@ -409,7 +409,7 @@ export const buildParagraph = async (
       const imageSource = vNode.properties.src;
       let base64String = imageSource;
       if (isValidUrl(imageSource)) {
-        base64String = await imageToBase64(imageSource).catch(warnImageSkipped);
+        base64String = await fetchImageAsBase64(imageSource).catch(warnImageSkipped);
 
         if (base64String && mimeTypes.lookup(imageSource)) {
           vNode.properties.src = `data:${mimeTypes.lookup(imageSource)};base64, ${base64String}`;
