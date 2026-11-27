@@ -306,7 +306,11 @@ async function findXMLEquivalent(
             );
             xmlFragment.import(tableFragment);
             // Adding empty paragraph for space after table
-            const emptyParagraphFragment = await xmlBuilder.buildParagraph(null, {});
+            const emptyParagraphFragment = await xmlBuilder.buildParagraph(
+              null,
+              {},
+              docxDocumentInstance,
+            );
             xmlFragment.import(emptyParagraphFragment);
           } else if (childVNode.tagName === 'img') {
             const imageFragment = await buildImage(docxDocumentInstance, childVNode);
@@ -328,7 +332,11 @@ async function findXMLEquivalent(
       );
       xmlFragment.import(tableFragment);
       // Adding empty paragraph for space after table
-      const emptyParagraphFragment = await xmlBuilder.buildParagraph(null, {});
+      const emptyParagraphFragment = await xmlBuilder.buildParagraph(
+        null,
+        {},
+        docxDocumentInstance,
+      );
       xmlFragment.import(emptyParagraphFragment);
       return;
     case 'ol':
@@ -342,7 +350,7 @@ async function findXMLEquivalent(
       }
       return;
     case 'br':
-      const linebreakFragment = await xmlBuilder.buildParagraph(null, {});
+      const linebreakFragment = await xmlBuilder.buildParagraph(null, {}, docxDocumentInstance);
       xmlFragment.import(linebreakFragment);
       return;
     case 'head':
