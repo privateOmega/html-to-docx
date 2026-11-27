@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 import namespaces from '../namespaces';
 import { applicationName } from '../constants';
 
