@@ -1,4 +1,3 @@
-// @ts-nocheck -- removed in the typing commit
 export { default as contentTypesXML } from './content-types';
 export { default as generateCoreXML } from './core';
 export { default as documentRelsXML } from './document-rels';

@@ -1,7 +1,12 @@
-// @ts-nocheck -- removed in the typing commit
 import namespaces from '../namespaces';
+import type { Orientation, PageMargins } from '../types';
 
-const generateDocumentTemplate = (width, height, orientation, margins) => `
+const generateDocumentTemplate = (
+  width: number,
+  height: number,
+  orientation: Orientation,
+  margins: PageMargins,
+): string => `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
     <w:document
