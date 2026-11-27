@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<w:document xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:cdr="http://schemas.openxmlformats.org/drawingml/2006/chartDrawing" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:ve="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml">
+  <w:body>
+    <w:sectPr>
+      <w:pgSz w:w="12240" w:h="15840" w:orient="portrait"/>
+      <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="720" w:footer="720" w:gutter="0"/>
+    </w:sectPr>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:lineRule="auto"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:lineRule="auto"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve">Visit </w:t>
+      </w:r>
+      <w:hyperlink r:id="rId6">
+        <w:r>
+          <w:rPr>
+            <w:rStyle w:val="Hyperlink"/>
+          </w:rPr>
+          <w:t xml:space="preserve">example.com</w:t>
+        </w:r>
+      </w:hyperlink>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"> or </w:t>
+      </w:r>
+      <w:hyperlink r:id="rId7">
+        <w:r>
+          <w:rPr>
+            <w:rStyle w:val="Hyperlink"/>
+          </w:rPr>
+          <w:t xml:space="preserve">mail</w:t>
+        </w:r>
+      </w:hyperlink>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve">.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:lineRule="auto"/>
+      </w:pPr>
+      <w:hyperlink r:id="rId8">
+        <w:r>
+          <w:rPr>
+            <w:rStyle w:val="Hyperlink"/>
+            <w:b/>
+          </w:rPr>
+          <w:t xml:space="preserve">bold link</w:t>
+        </w:r>
+      </w:hyperlink>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:lineRule="auto"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve">before break</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:br w:type="page"/>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:lineRule="auto"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve">after break</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:lineRule="auto"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve">&amp;amp; &amp;lt; &amp;gt; "   © €</w:t>
+      </w:r>
+    </w:p>
+  </w:body>
+</w:document>

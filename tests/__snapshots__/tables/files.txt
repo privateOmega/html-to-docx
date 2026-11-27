@@ -1,0 +1,11 @@
+[Content_Types].xml
+_rels/.rels
+docProps/core.xml
+word/_rels/document.xml.rels
+word/document.xml
+word/fontTable.xml
+word/numbering.xml
+word/settings.xml
+word/styles.xml
+word/theme/theme1.xml
+word/webSettings.xml

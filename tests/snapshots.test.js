@@ -30,13 +30,13 @@ describe('docx snapshots', () => {
   it.each(fixtures)('%s', async (fixture) => {
     const name = fixture.replace(/\.html$/, '');
     const html = readFileSync(join(fixturesDir, fixture), 'utf8');
-    const { header, footer, ...options } = fixtureOptions[name] || {};
+    const { headerHTML, footerHTML, ...options } = fixtureOptions[name] || {};
 
     const buffer = await HTMLtoDOCX(
       html,
-      header,
+      headerHTML,
       { createdAt: FIXED_DATE, modifiedAt: FIXED_DATE, ...options },
-      footer
+      footerHTML
     );
     const { files, parts } = await readDocx(buffer);
 
