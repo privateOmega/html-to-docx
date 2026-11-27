@@ -213,9 +213,6 @@ importers:
       jszip:
         specifier: ^3.7.1
         version: 3.10.1
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
       mime-types:
         specifier: ^2.1.35
         version: 2.1.35
@@ -244,9 +241,6 @@ importers:
       '@types/image-to-base64':
         specifier: ^2.1.2
         version: 2.1.2
-      '@types/lodash':
-        specifier: ^4.17.27
-        version: 4.17.27
       '@types/mime-types':
         specifier: ^2.1.4
         version: 2.1.4
@@ -840,9 +834,6 @@ packages:
 
   '@types/image-to-base64@2.1.2':
     resolution: {integrity: sha512-SD9M2pVsB5N67IbeTS9VBy6ojoXnj1Nh1VwigkYKtUbjAVEiFHjWygb2Y8NlMQM889APRqekZIRpSdYkmQ9rsQ==}
-
-  '@types/lodash@4.17.27':
-    resolution: {integrity: sha512-VenMRv/eKNrspX9v3H4dbmjsrnCOYdYBG3kxXKk3dG6X+urBGcj2Prww3xw1U5K4FV/mE4h5GbWd0szEKf+9ew==}
 
   '@types/mime-types@2.1.4':
     resolution: {integrity: sha512-lfU4b34HOri+kAY5UheuFMWPDOI+OPceBSHZKp69gEyTL/mmJ4cnU6Y/rlme3UL3GyOn6Y42hyIEw0/q8sWx5w==}
@@ -1482,9 +1473,6 @@ packages:
     resolution: {integrity: sha512-c/JaXaXmleubmKUwwp4OAcq55RV9Z3HTUNdqdqPh2srtmP9Of3bcR6o00GoWDUye+9JhMuoYkhYqAVPIOZKcsw==}
     engines: {node: '>=22.22.1'}
     hasBin: true
-
-  lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
   lru-cache@11.5.3:
     resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
@@ -2461,8 +2449,6 @@ snapshots:
 
   '@types/image-to-base64@2.1.2': {}
 
-  '@types/lodash@4.17.27': {}
-
   '@types/mime-types@2.1.4': {}
 
   '@types/node@22.20.7':
@@ -2941,8 +2927,6 @@ snapshots:
       tinyexec: 1.4.0
     optionalDependencies:
       yaml: 2.9.1
-
-  lodash@4.17.21: {}
 
   lru-cache@11.5.3: {}
 

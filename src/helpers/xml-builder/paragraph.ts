@@ -5,7 +5,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import cloneDeep from 'lodash/cloneDeep.js';
 import imageToBase64 from 'image-to-base64';
 import mimeTypes from 'mime-types';
 import sizeOf from 'image-size';
@@ -100,7 +99,7 @@ export const buildParagraphBorder = () => {
     'pBdr',
   );
   const bordersObject: Record<string, { size: number; spacing: number; color: string }> =
-    cloneDeep(paragraphBordersObject);
+    structuredClone(paragraphBordersObject);
 
   Object.keys(bordersObject).forEach((borderName) => {
     if (bordersObject[borderName]) {
