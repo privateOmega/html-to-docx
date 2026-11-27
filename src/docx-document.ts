@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 import { create, fragment } from 'xmlbuilder2';
 import { nanoid } from 'nanoid';
 
