@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<hdr xmlns="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <p>
+    <pPr>
+      <spacing xmlns:ns1="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ns1:lineRule="auto"/>
+    </pPr>
+    <r>
+      <rPr/>
+      <t xml:space="preserve">Header text</t>
+    </r>
+  </p>
+</hdr>

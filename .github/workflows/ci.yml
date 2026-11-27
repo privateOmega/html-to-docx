@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  SMOKE_HTML: '<h1>ok</h1><p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="/></p><table><tr><td>cell</td></tr></table>'
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Version comes from the `packageManager` field in package.json.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      # Types and exports as consumers see them (ESM, CJS, node10, bundlers).
+      - run: pnpm check:package
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm build
+      # Exercise images and tables too: they pull in dependencies (image-size)
+      # whose CJS/ESM interop only shows up in the built output.
+      - name: Smoke-test CJS build
+        run: node -e "require('./dist/index.cjs')(process.env.SMOKE_HTML).then((b) => console.log('cjs', b.length))"
+        env:
+          SMOKE_HTML: ${{ env.SMOKE_HTML }}
+      - name: Smoke-test ESM build
+        run: node --input-type=module -e "import h from './dist/index.mjs'; console.log('esm', (await h(process.env.SMOKE_HTML)).length)"
+        env:
+          SMOKE_HTML: ${{ env.SMOKE_HTML }}
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium-headless-shell
+      # Converts a document in headless Chromium with the browser build.
+      - run: pnpm test:browser

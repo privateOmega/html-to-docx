@@ -10,17 +10,18 @@
     "office",
     "word"
   ],
-  "main": "dist/html-to-docx.umd.js",
-  "module": "dist/html-to-docx.esm.js",
   "scripts": {
-    "test": "npm run build && node example/example-node.js",
-    "prerelease": "rollup -c",
-    "release": "standard-version",
-    "lint": "eslint --fix .",
-    "prettier:check": "prettier --check '**/*.{js}'",
-    "validate": "run-s lint prettier:check",
-    "build": "rollup -c",
-    "prepare": "husky install"
+    "test": "vitest run",
+    "lint": "oxlint",
+    "validate": "pnpm lint && pnpm format:check",
+    "build": "tsdown",
+    "prepare": "husky",
+    "example": "pnpm build && node example/example.js && node example/example-node.cjs",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "typecheck": "tsc",
+    "check:package": "pnpm build && attw --pack . && publint",
+    "test:browser": "node scripts/browser-test.mjs"
   },
   "repository": {
     "type": "git",
@@ -42,57 +43,70 @@
     "tasola"
   ],
   "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "bugs": {
     "url": "https://github.com/privateOmega/html-to-docx/issues"
   },
   "homepage": "https://github.com/privateOmega/html-to-docx#readme",
   "devDependencies": {
-    "@commitlint/cli": "^13.1.0",
-    "@commitlint/config-conventional": "^13.1.0",
-    "@rollup/plugin-commonjs": "^12.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.1.1",
-    "eslint": "^7.32.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.0",
-    "lint-staged": "^11.1.2",
-    "prettier": "^2.4.1",
-    "rollup": "^2.62.0",
-    "rollup-plugin-cleaner": "^1.0.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-terser": "^7.0.2",
-    "standard-version": "^9.3.1"
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@types/color-name": "^1.1.5",
+    "@types/node": "^22.20.7",
+    "@types/virtual-dom": "^2.1.4",
+    "events": "^3.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.2",
+    "oxfmt": "0.80.0",
+    "oxlint": "^1.95.0",
+    "playwright": "^1.65.1",
+    "publint": "^0.3.25",
+    "punycode": "^2.3.1",
+    "tsdown": "0.23.7",
+    "typescript": "7.0.2",
+    "vitest": "^5.1.2"
   },
   "dependencies": {
-    "@oozcitak/util": "8.3.4",
-    "@oozcitak/dom": "1.15.6",
     "color-name": "^1.1.4",
-    "html-entities": "^2.3.3",
+    "html-entities": "^2.6.0",
     "html-to-vdom": "^0.7.0",
-    "image-size": "^1.0.0",
-    "image-to-base64": "^2.2.0",
-    "jszip": "^3.7.1",
-    "lodash": "^4.17.21",
-    "mime-types": "^2.1.35",
-    "nanoid": "^3.1.25",
+    "image-size": "^2.2.0",
+    "jszip": "^3.10.2",
     "virtual-dom": "^2.1.1",
-    "xmlbuilder2": "2.1.2"
+    "xmlbuilder2": "^4.0.3"
   },
   "lint-staged": {
     "src/**/*.js": [
-      "prettier --write",
-      "eslint --fix"
+      "oxlint --fix",
+      "oxfmt --no-error-on-unmatched-pattern"
     ]
   },
-  "resolutions": {
-    "@oozcitak/util": "8.3.4",
-    "@oozcitak/dom": "1.15.6"
+  "packageManager": "pnpm@12.23.0",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "browser": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.browser.mjs"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
   },
-  "overrides": {
-    "@oozcitak/util": "8.3.4",
-    "@oozcitak/dom": "1.15.6"
-  }
+  "types": "./dist/index.d.cts"
 }

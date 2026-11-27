@@ -13,23 +13,84 @@ html-to-docx earlier used to use [libtidy] to clean up the html before parsing, 
 
 Even though there is an instance of html-to-docx running in production, please ensure that it covers all the cases that you might be encountering usually, since this is not a complete solution.
 
-Currently it doesn't work with browser directly, but it was tested against React.
+## Requirements
+
+- Node.js 22 or newer, or
+- a browser, through a bundler (Vite, webpack, esbuild, …) or as an ES module. No Node polyfills or bundler configuration are needed: bundlers automatically use a self-contained browser build (`dist/index.browser.mjs`) through the `browser` export condition.
+
+Upgrading from 1.x? See [MIGRATION.md](./MIGRATION.md).
 
 ## Installation
 
-Use the npm to install foobar.
-
 ```bash
 npm install html-to-docx
+# or
+pnpm add html-to-docx
+# or
+yarn add html-to-docx
 ```
 
 ## Usage
 
 ```js
-await HTMLtoDOCX(htmlString, headerHTMLString, documentOptions, footerHTMLString)
+await HTMLtoDOCX(htmlString, headerHTMLString, documentOptions, footerHTMLString);
 ```
 
-full fledged examples can be found under `example/`
+### ES modules
+
+```js
+import { writeFile } from 'node:fs/promises';
+import HTMLtoDOCX from 'html-to-docx';
+
+const docx = await HTMLtoDOCX('<h1>Hello</h1><p>World</p>', null, {
+  orientation: 'landscape',
+  margins: { top: '2cm', bottom: '2cm' },
+});
+await writeFile('hello.docx', docx);
+```
+
+### CommonJS
+
+```js
+const HTMLtoDOCX = require('html-to-docx');
+
+HTMLtoDOCX('<p>Hello</p>').then((docx) => require('node:fs').writeFileSync('hello.docx', docx));
+```
+
+### TypeScript
+
+Type definitions are included.
+
+```ts
+import HTMLtoDOCX, { type DocumentOptions } from 'html-to-docx';
+
+const options: DocumentOptions = {
+  font: 'Arial',
+  fontSize: '12pt',
+  pageNumber: true,
+  footer: true,
+};
+const docx = await HTMLtoDOCX('<p>Hello</p>', null, options);
+```
+
+With CommonJS (`require`), the option types are available on the function: `HTMLtoDOCX.DocumentOptions`.
+
+### Browser
+
+Import the package as usual and let your bundler include it; the browser build is selected automatically. In the browser the result is a `Blob`:
+
+```js
+import HTMLtoDOCX from 'html-to-docx';
+
+const blob = await HTMLtoDOCX(document.querySelector('#content').innerHTML);
+const link = document.createElement('a');
+link.href = URL.createObjectURL(blob);
+link.download = 'document.docx';
+link.click();
+URL.revokeObjectURL(link.href);
+```
+
+Full examples can be found under `example/`.
 
 ### Parameters
 
@@ -82,21 +143,23 @@ full fledged examples can be found under `example/`
 
 ### Returns
 
-<[Promise]<[Buffer]|[Blob]>>
+<[Promise]<[Buffer]|[Blob]>>: a [Buffer] in Node.js, or a [Blob] (type `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) where `Buffer` is not available, such as in browsers.
 
 ## Notes
 
 Currently page break can be implemented by having div with classname "page-break" or style "page-break-after" despite the values of the "page-break-after", and contents inside the div element will be ignored. `<div class="page-break" style="page-break-after: always;"></div>`
 
-
 CSS list-style-type for `<ol>` element are now supported. Just do something like this in the HTML:
+
 ```
   <ol style="list-style-type:lower-alpha;">
     <li>List item</li>
     ...
   </ol>
 ```
+
 List of supported list-style-types:
+
 - upper-alpha, will result in `A. List item`
 - lower-alpha, will result in `a. List item`
 - upper-roman, will result in `I. List item`
@@ -110,7 +173,6 @@ Also you could add attribute `data-start="n"` to start the numbering from the n-
 
 `<ol data-start="2">` will start the numbering from ( B. b. II. ii. 2. )
 
-
 Font family doesnt work consistently for all word processor softwares
 
 - Word Desktop work as intended
@@ -123,6 +185,15 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to branch new branches off of develop for contribution.
 
+This project uses [pnpm](https://pnpm.io). The required version is pinned in the `packageManager` field of `package.json`; run `corepack enable` (or install pnpm 12+) and then:
+
+```sh
+pnpm install
+pnpm test
+```
+
+Node.js 22 or newer is required for development.
+
 ## Support
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/privateOmega)
@@ -133,23 +204,23 @@ MIT
 
 [npm-image]: https://img.shields.io/npm/v/html-to-docx.svg
 [npm-url]: https://npmjs.org/package/html-to-docx
-[html-docx-js]: https://github.com/evidenceprime/html-docx-js "html-docx-js"
-[altchunks]: https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.altchunk?view=openxml-2.8.1 "altchunks"
-[libtidy]: https://github.com/jure/node-libtidy "libtidy"
-[String]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type "String"
-[Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object "Object"
-[Number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
-[TWIP]: https://en.wikipedia.org/wiki/Twip "TWIP"
-[Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array "Array"
-[Date]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date "Date"
-[Boolean]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type "Boolean"
-[Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise"
-[Buffer]: https://nodejs.org/api/buffer.html#buffer_buffer "Buffer"
-[Blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob "Blob"
-[pixel]: https://en.wikipedia.org/wiki/Pixel#:~:text=Pixels%2C%20abbreviated%20as%20%22px%22,what%20screen%20resolution%20views%20it. "pixel"
-[cm]: https://en.wikipedia.org/wiki/Centimetre "cm"
-[inch]: https://en.wikipedia.org/wiki/Inch "inch"
-[pt]: https://en.wikipedia.org/wiki/Point_(typography) "pt"
+[html-docx-js]: https://github.com/evidenceprime/html-docx-js 'html-docx-js'
+[altchunks]: https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.altchunk?view=openxml-2.8.1 'altchunks'
+[libtidy]: https://github.com/jure/node-libtidy 'libtidy'
+[String]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type 'String'
+[Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object 'Object'
+[Number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type 'Number'
+[TWIP]: https://en.wikipedia.org/wiki/Twip 'TWIP'
+[Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array 'Array'
+[Date]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date 'Date'
+[Boolean]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type 'Boolean'
+[Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise 'Promise'
+[Buffer]: https://nodejs.org/api/buffer.html#buffer_buffer 'Buffer'
+[Blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob 'Blob'
+[pixel]: https://en.wikipedia.org/wiki/Pixel#:~:text=Pixels%2C%20abbreviated%20as%20%22px%22,what%20screen%20resolution%20views%20it. 'pixel'
+[cm]: https://en.wikipedia.org/wiki/Centimetre 'cm'
+[inch]: https://en.wikipedia.org/wiki/Inch 'inch'
+[pt]: https://en.wikipedia.org/wiki/Point_(typography) 'pt'
 
 ## Contributors
 

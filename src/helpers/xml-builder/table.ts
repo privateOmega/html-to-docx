@@ -1,0 +1,815 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable radix */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-else-return */
+import { fragment } from 'xmlbuilder2';
+import namespaces from '../../namespaces';
+import { pixelRegex, percentageRegex, pixelToTWIP } from '../../utils/unit-conversion';
+// FIXME: remove the cyclic dependency
+// eslint-disable-next-line import/no-cycle
+import { buildImage, buildList } from '../render-document-file';
+import { vNodeHasChildren } from '../../utils/vnode';
+import { attr } from '../../utils/xml';
+import type DocxDocument from '../../docx-document';
+import { isVNode, asVNode } from './shared';
+import type { VNodeType, BorderSpec, RowSpanMap, ColumnIndex, BuilderAttributes } from './shared';
+import { fixupRowHeight, fixupColumnWidth, cssBorderParser } from './fixups';
+import { buildShading, buildBorder, modifiedStyleAttributesBuilder } from './formatting';
+import { buildHorizontalAlignment, buildParagraph } from './paragraph';
+
+export const buildTableRowHeight = (tableRowHeight: number) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'trHeight')
+    .att('@w', 'val', attr(tableRowHeight))
+    .att('@w', 'hRule', attr('atLeast'))
+    .up();
+
+export const buildVerticalAlignment = (verticalAlignment: string) => {
+  if (verticalAlignment.toLowerCase() === 'middle') {
+    verticalAlignment = 'center';
+  }
+
+  return fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'vAlign')
+    .att('@w', 'val', attr(verticalAlignment))
+    .up();
+};
+
+export const buildVerticalMerge = (verticalMerge: string = 'continue') =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'vMerge')
+    .att('@w', 'val', attr(verticalMerge))
+    .up();
+
+export const buildGridSpanFragment = (spanValue: number) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'gridSpan')
+    .att('@w', 'val', attr(spanValue))
+    .up();
+
+export const buildTableCellSpacing = (cellSpacing = 0) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'tblCellSpacing')
+    .att('@w', 'w', attr(cellSpacing))
+    .att('@w', 'type', attr('dxa'))
+    .up();
+
+export const buildTableCellBorders = (tableCellBorder: BorderSpec) => {
+  const tableCellBordersFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tcBorders',
+  );
+
+  const { color, stroke, ...borders } = tableCellBorder;
+  Object.keys(borders).forEach((border) => {
+    if (tableCellBorder[border]) {
+      const borderFragment = buildBorder(border, tableCellBorder[border], 0, color, stroke);
+      tableCellBordersFragment.import(borderFragment);
+    }
+  });
+
+  tableCellBordersFragment.up();
+
+  return tableCellBordersFragment;
+};
+
+export const buildTableCellWidth = (tableCellWidth: number | string) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'tcW')
+    .att('@w', 'w', attr(fixupColumnWidth(tableCellWidth)))
+    .att('@w', 'type', attr('dxa'))
+    .up();
+
+export const buildTableCellProperties = (attributes: BuilderAttributes) => {
+  const tableCellPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tcPr',
+  );
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      switch (key) {
+        case 'backgroundColor':
+          const shadingFragment = buildShading(attributes[key]!);
+          tableCellPropertiesFragment.import(shadingFragment);
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.backgroundColor;
+          break;
+        case 'verticalAlign':
+          const verticalAlignmentFragment = buildVerticalAlignment(attributes[key]!);
+          tableCellPropertiesFragment.import(verticalAlignmentFragment);
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.verticalAlign;
+          break;
+        case 'colSpan':
+          const gridSpanFragment = buildGridSpanFragment(attributes[key]!);
+          tableCellPropertiesFragment.import(gridSpanFragment);
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.colSpan;
+          break;
+        case 'tableCellBorder':
+          const tableCellBorderFragment = buildTableCellBorders(attributes[key]!);
+          tableCellPropertiesFragment.import(tableCellBorderFragment);
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.tableCellBorder;
+          break;
+        case 'rowSpan':
+          const verticalMergeFragment = buildVerticalMerge(attributes[key] as string | undefined);
+          tableCellPropertiesFragment.import(verticalMergeFragment);
+
+          delete attributes.rowSpan;
+          break;
+        case 'width':
+          const widthFragment = buildTableCellWidth(attributes[key]!);
+          tableCellPropertiesFragment.import(widthFragment);
+          delete attributes.width;
+          break;
+      }
+    });
+  }
+  tableCellPropertiesFragment.up();
+
+  return tableCellPropertiesFragment;
+};
+
+export const fixupTableCellBorder = (vNode: VNodeType, attributes: BuilderAttributes) => {
+  if (Object.prototype.hasOwnProperty.call(vNode.properties.style, 'border')) {
+    if (vNode.properties.style.border === 'none' || vNode.properties.style.border === 0) {
+      attributes.tableCellBorder = {};
+    } else {
+      // eslint-disable-next-line no-use-before-define
+      const [borderSize, borderStroke, borderColor] = cssBorderParser(
+        vNode.properties.style.border,
+      );
+
+      attributes.tableCellBorder = {
+        top: borderSize,
+        left: borderSize,
+        bottom: borderSize,
+        right: borderSize,
+        color: borderColor,
+        stroke: borderStroke,
+      };
+    }
+  }
+  if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] === '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      top: 0,
+    };
+  } else if (vNode.properties.style['border-top'] && vNode.properties.style['border-top'] !== '0') {
+    // eslint-disable-next-line no-use-before-define
+    const [borderSize, borderStroke, borderColor] = cssBorderParser(
+      vNode.properties.style['border-top'],
+    );
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      top: borderSize,
+      color: borderColor,
+      stroke: borderStroke,
+    };
+  }
+  if (vNode.properties.style['border-left'] && vNode.properties.style['border-left'] === '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      left: 0,
+    };
+  } else if (
+    vNode.properties.style['border-left'] &&
+    vNode.properties.style['border-left'] !== '0'
+  ) {
+    // eslint-disable-next-line no-use-before-define
+    const [borderSize, borderStroke, borderColor] = cssBorderParser(
+      vNode.properties.style['border-left'],
+    );
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      left: borderSize,
+      color: borderColor,
+      stroke: borderStroke,
+    };
+  }
+  if (vNode.properties.style['border-bottom'] && vNode.properties.style['border-bottom'] === '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      bottom: 0,
+    };
+  } else if (
+    vNode.properties.style['border-bottom'] &&
+    vNode.properties.style['border-bottom'] !== '0'
+  ) {
+    // eslint-disable-next-line no-use-before-define
+    const [borderSize, borderStroke, borderColor] = cssBorderParser(
+      vNode.properties.style['border-bottom'],
+    );
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      bottom: borderSize,
+      color: borderColor,
+      stroke: borderStroke,
+    };
+  }
+  if (vNode.properties.style['border-right'] && vNode.properties.style['border-right'] === '0') {
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      right: 0,
+    };
+  } else if (
+    vNode.properties.style['border-right'] &&
+    vNode.properties.style['border-right'] !== '0'
+  ) {
+    // eslint-disable-next-line no-use-before-define
+    const [borderSize, borderStroke, borderColor] = cssBorderParser(
+      vNode.properties.style['border-right'],
+    );
+    attributes.tableCellBorder = {
+      ...attributes.tableCellBorder,
+      right: borderSize,
+      color: borderColor,
+      stroke: borderStroke,
+    };
+  }
+};
+
+export const buildTableCell = async (
+  vNode: VNodeType,
+  attributes: BuilderAttributes,
+  rowSpanMap: RowSpanMap,
+  columnIndex: ColumnIndex,
+  docxDocumentInstance: DocxDocument,
+) => {
+  const tableCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
+
+  let modifiedAttributes = { ...attributes };
+  if (isVNode(vNode) && vNode.properties) {
+    if (vNode.properties.rowSpan) {
+      rowSpanMap.set(columnIndex.index, { rowSpan: vNode.properties.rowSpan - 1, colSpan: 0 });
+      modifiedAttributes.rowSpan = 'restart';
+    } else {
+      const previousSpanObject = rowSpanMap.get(columnIndex.index);
+      rowSpanMap.set(
+        columnIndex.index,
+        // eslint-disable-next-line prefer-object-spread
+        Object.assign({}, previousSpanObject, {
+          rowSpan: 0,
+          colSpan: (previousSpanObject && previousSpanObject.colSpan) || 0,
+        }),
+      );
+    }
+    if (
+      vNode.properties.colSpan ||
+      (vNode.properties.style && vNode.properties.style['column-span'])
+    ) {
+      modifiedAttributes.colSpan =
+        vNode.properties.colSpan ||
+        (vNode.properties.style && vNode.properties.style['column-span']);
+      const previousSpanObject = rowSpanMap.get(columnIndex.index);
+      rowSpanMap.set(
+        columnIndex.index,
+        // eslint-disable-next-line prefer-object-spread
+        Object.assign({}, previousSpanObject, {
+          colSpan: parseInt(modifiedAttributes.colSpan as unknown as string) || 0,
+        }),
+      );
+      columnIndex.index += parseInt(modifiedAttributes.colSpan as unknown as string) - 1;
+    }
+    if (vNode.properties.style) {
+      modifiedAttributes = {
+        ...modifiedAttributes,
+        ...modifiedStyleAttributesBuilder(docxDocumentInstance, vNode, attributes),
+      };
+
+      fixupTableCellBorder(vNode, modifiedAttributes);
+    }
+  }
+  const tableCellPropertiesFragment = buildTableCellProperties(modifiedAttributes);
+  tableCellFragment.import(tableCellPropertiesFragment);
+  if (vNodeHasChildren(vNode)) {
+    for (let index = 0; index < vNode.children.length; index++) {
+      const childVNode = asVNode(vNode.children[index]!);
+      if (isVNode(childVNode) && childVNode.tagName === 'img') {
+        const imageFragment = await buildImage(
+          docxDocumentInstance,
+          childVNode,
+          modifiedAttributes.maximumWidth,
+        );
+        if (imageFragment) {
+          tableCellFragment.import(imageFragment);
+        }
+      } else if (isVNode(childVNode) && childVNode.tagName === 'figure') {
+        if (vNodeHasChildren(childVNode)) {
+          // eslint-disable-next-line no-plusplus
+          for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
+            const grandChildVNode = asVNode(childVNode.children[iteratorIndex]!);
+            if (grandChildVNode.tagName === 'img') {
+              const imageFragment = await buildImage(
+                docxDocumentInstance,
+                grandChildVNode,
+                modifiedAttributes.maximumWidth,
+              );
+              if (imageFragment) {
+                tableCellFragment.import(imageFragment);
+              }
+            }
+          }
+        }
+      } else if (isVNode(childVNode) && ['ul', 'ol'].includes(childVNode.tagName)) {
+        // render list in table
+        if (vNodeHasChildren(childVNode)) {
+          await buildList(childVNode, docxDocumentInstance, tableCellFragment);
+        }
+      } else {
+        const paragraphFragment = await buildParagraph(
+          childVNode,
+          modifiedAttributes,
+          docxDocumentInstance,
+        );
+
+        tableCellFragment.import(paragraphFragment);
+      }
+    }
+  } else {
+    // TODO: Figure out why building with buildParagraph() isn't working
+    const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+      .ele('@w', 'p')
+      .up();
+    tableCellFragment.import(paragraphFragment);
+  }
+  tableCellFragment.up();
+
+  return tableCellFragment;
+};
+
+export const buildRowSpanCell = (
+  rowSpanMap: RowSpanMap,
+  columnIndex: ColumnIndex,
+  attributes: BuilderAttributes,
+) => {
+  const rowSpanCellFragments = [];
+  let spanObject = rowSpanMap.get(columnIndex.index);
+  while (spanObject && spanObject.rowSpan) {
+    const rowSpanCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
+
+    const tableCellPropertiesFragment = buildTableCellProperties({
+      ...attributes,
+      rowSpan: 'continue',
+      colSpan: spanObject.colSpan ? spanObject.colSpan : 0,
+    });
+    rowSpanCellFragment.import(tableCellPropertiesFragment);
+
+    const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+      .ele('@w', 'p')
+      .up();
+    rowSpanCellFragment.import(paragraphFragment);
+    rowSpanCellFragment.up();
+
+    rowSpanCellFragments.push(rowSpanCellFragment);
+
+    if (spanObject.rowSpan - 1 === 0) {
+      rowSpanMap.delete(columnIndex.index);
+    } else {
+      rowSpanMap.set(columnIndex.index, {
+        rowSpan: spanObject.rowSpan - 1,
+        colSpan: spanObject.colSpan || 0,
+      });
+    }
+    columnIndex.index += spanObject.colSpan || 1;
+    spanObject = rowSpanMap.get(columnIndex.index);
+  }
+
+  return rowSpanCellFragments;
+};
+
+export const buildTableRowProperties = (attributes: BuilderAttributes) => {
+  const tableRowPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'trPr',
+  );
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      switch (key) {
+        case 'tableRowHeight':
+          const tableRowHeightFragment = buildTableRowHeight(attributes[key]!);
+          tableRowPropertiesFragment.import(tableRowHeightFragment);
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.tableRowHeight;
+          break;
+        case 'rowCantSplit':
+          if (attributes.rowCantSplit) {
+            const cantSplitFragment = fragment({ namespaceAlias: { w: namespaces.w } })
+              .ele('@w', 'cantSplit')
+              .up();
+            tableRowPropertiesFragment.import(cantSplitFragment);
+            // eslint-disable-next-line no-param-reassign
+            delete attributes.rowCantSplit;
+          }
+          break;
+      }
+    });
+  }
+  tableRowPropertiesFragment.up();
+  return tableRowPropertiesFragment;
+};
+
+export const buildTableRow = async (
+  vNode: VNodeType,
+  attributes: BuilderAttributes,
+  rowSpanMap: RowSpanMap,
+  docxDocumentInstance: DocxDocument,
+) => {
+  const tableRowFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tr');
+  const modifiedAttributes = { ...attributes };
+  if (isVNode(vNode) && vNode.properties) {
+    // FIXME: find a better way to get row height from cell style
+    if (
+      (vNode.properties.style && vNode.properties.style.height) ||
+      (vNode.children[0] &&
+        isVNode(vNode.children[0]) &&
+        vNode.children[0].properties.style &&
+        vNode.children[0].properties.style.height)
+    ) {
+      modifiedAttributes.tableRowHeight = fixupRowHeight(
+        (vNode.properties.style && vNode.properties.style.height) ||
+          (vNode.children[0] &&
+          isVNode(vNode.children[0]) &&
+          vNode.children[0].properties.style &&
+          vNode.children[0].properties.style.height
+            ? vNode.children[0].properties.style.height
+            : undefined),
+      );
+    }
+    if (vNode.properties.style) {
+      fixupTableCellBorder(vNode, modifiedAttributes);
+    }
+  }
+
+  const tableRowPropertiesFragment = buildTableRowProperties(modifiedAttributes);
+  tableRowFragment.import(tableRowPropertiesFragment);
+
+  const columnIndex = { index: 0 };
+
+  if (vNodeHasChildren(vNode)) {
+    const tableColumns = vNode.children.filter((childVNode) =>
+      ['td', 'th'].includes(asVNode(childVNode).tagName),
+    ) as VNodeType[];
+    const maximumColumnWidth = docxDocumentInstance.availableDocumentSpace / tableColumns.length;
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const column of tableColumns) {
+      const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
+      if (Array.isArray(rowSpanCellFragments)) {
+        for (let iteratorIndex = 0; iteratorIndex < rowSpanCellFragments.length; iteratorIndex++) {
+          const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
+
+          tableRowFragment.import(rowSpanCellFragment);
+        }
+      }
+      const tableCellFragment = await buildTableCell(
+        column,
+        { ...modifiedAttributes, maximumWidth: maximumColumnWidth },
+        rowSpanMap,
+        columnIndex,
+        docxDocumentInstance,
+      );
+      columnIndex.index++;
+
+      tableRowFragment.import(tableCellFragment);
+    }
+  }
+
+  if (columnIndex.index < rowSpanMap.size) {
+    const rowSpanCellFragments = buildRowSpanCell(rowSpanMap, columnIndex, modifiedAttributes);
+    if (Array.isArray(rowSpanCellFragments)) {
+      for (let iteratorIndex = 0; iteratorIndex < rowSpanCellFragments.length; iteratorIndex++) {
+        const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
+
+        tableRowFragment.import(rowSpanCellFragment);
+      }
+    }
+  }
+
+  tableRowFragment.up();
+
+  return tableRowFragment;
+};
+
+export const buildTableGridCol = (gridWidth: number) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'gridCol')
+    .att('@w', 'w', attr(String(gridWidth)));
+
+export const buildTableGrid = (vNode: VNodeType, attributes: BuilderAttributes) => {
+  const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
+  if (vNodeHasChildren(vNode)) {
+    const gridColumns = vNode.children.filter(
+      (childVNode) => asVNode(childVNode).tagName === 'col',
+    );
+    const gridWidth = attributes.maximumWidth! / gridColumns.length;
+
+    for (let index = 0; index < gridColumns.length; index++) {
+      const tableGridColFragment = buildTableGridCol(gridWidth);
+      tableGridFragment.import(tableGridColFragment);
+    }
+  }
+  tableGridFragment.up();
+
+  return tableGridFragment;
+};
+
+export const buildTableGridFromTableRow = (vNode: VNodeType, attributes: BuilderAttributes) => {
+  const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
+  if (vNodeHasChildren(vNode)) {
+    const numberOfGridColumns = vNode.children.reduce((accumulator: number, childVNode) => {
+      const colSpan =
+        asVNode(childVNode).properties.colSpan ||
+        (asVNode(childVNode).properties.style &&
+          asVNode(childVNode).properties.style['column-span']);
+
+      return accumulator + (colSpan ? parseInt(colSpan) : 1);
+    }, 0);
+    const gridWidth = attributes.maximumWidth! / numberOfGridColumns;
+
+    for (let index = 0; index < numberOfGridColumns; index++) {
+      const tableGridColFragment = buildTableGridCol(gridWidth);
+      tableGridFragment.import(tableGridColFragment);
+    }
+  }
+  tableGridFragment.up();
+
+  return tableGridFragment;
+};
+
+export const buildTableBorders = (tableBorder: BorderSpec) => {
+  const tableBordersFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tblBorders',
+  );
+
+  const { color, stroke, ...borders } = tableBorder;
+
+  Object.keys(borders).forEach((border) => {
+    if (borders[border]) {
+      const borderFragment = buildBorder(border, borders[border], 0, color, stroke);
+      tableBordersFragment.import(borderFragment);
+    }
+  });
+
+  tableBordersFragment.up();
+
+  return tableBordersFragment;
+};
+
+export const buildTableWidth = (tableWidth: number | string) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'tblW')
+    .att('@w', 'type', attr('dxa'))
+    .att('@w', 'w', attr(String(tableWidth)))
+    .up();
+
+export const buildCellMargin = (side: string, margin: number) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', side)
+    .att('@w', 'type', attr('dxa'))
+    .att('@w', 'w', attr(String(margin)))
+    .up();
+
+export const buildTableCellMargins = (margin: number) => {
+  const tableCellMarFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tblCellMar',
+  );
+
+  ['top', 'bottom'].forEach((side) => {
+    const marginFragment = buildCellMargin(side, margin / 2);
+    tableCellMarFragment.import(marginFragment);
+  });
+  ['left', 'right'].forEach((side) => {
+    const marginFragment = buildCellMargin(side, margin);
+    tableCellMarFragment.import(marginFragment);
+  });
+
+  return tableCellMarFragment;
+};
+
+export const buildTableProperties = (attributes: BuilderAttributes) => {
+  const tablePropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
+    '@w',
+    'tblPr',
+  );
+
+  if (attributes && attributes.constructor === Object) {
+    Object.keys(attributes).forEach((key) => {
+      switch (key) {
+        case 'tableBorder':
+          const tableBordersFragment = buildTableBorders(attributes[key]!);
+          tablePropertiesFragment.import(tableBordersFragment);
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.tableBorder;
+          break;
+        case 'tableCellSpacing':
+          const tableCellSpacingFragment = buildTableCellSpacing(attributes[key]!);
+          tablePropertiesFragment.import(tableCellSpacingFragment);
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.tableCellSpacing;
+          break;
+        case 'width':
+          if (attributes[key]) {
+            const tableWidthFragment = buildTableWidth(attributes[key]);
+            tablePropertiesFragment.import(tableWidthFragment);
+          }
+          // eslint-disable-next-line no-param-reassign
+          delete attributes.width;
+          break;
+      }
+    });
+  }
+  const tableCellMarginFragment = buildTableCellMargins(160);
+  tablePropertiesFragment.import(tableCellMarginFragment);
+
+  // by default, all tables are center aligned.
+  const alignmentFragment = buildHorizontalAlignment('center');
+  tablePropertiesFragment.import(alignmentFragment);
+
+  tablePropertiesFragment.up();
+
+  return tablePropertiesFragment;
+};
+
+export const buildTable = async (
+  vNode: VNodeType,
+  attributes: BuilderAttributes,
+  docxDocumentInstance: DocxDocument,
+) => {
+  const tableFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tbl');
+  const modifiedAttributes = { ...attributes };
+  if (isVNode(vNode) && vNode.properties) {
+    const tableAttributes = vNode.properties.attributes || {};
+    const tableStyles = vNode.properties.style || {};
+    const tableBorders: BorderSpec = {};
+    const tableCellBorders: BorderSpec = {};
+    let [borderSize, borderStrike, borderColor]: [number | string, string, string] = [
+      2,
+      'single',
+      '000000',
+    ];
+
+    // eslint-disable-next-line no-restricted-globals
+    if (!isNaN(tableAttributes.border as unknown as number)) {
+      borderSize = parseInt(tableAttributes.border!, 10);
+    }
+
+    // css style overrides table border properties
+    if (tableStyles.border) {
+      const [cssSize, cssStroke, cssColor] = cssBorderParser(tableStyles.border);
+      borderSize = cssSize || borderSize;
+      borderColor = cssColor || borderColor;
+      borderStrike = cssStroke || borderStrike;
+    }
+
+    tableBorders.top = borderSize;
+    tableBorders.bottom = borderSize;
+    tableBorders.left = borderSize;
+    tableBorders.right = borderSize;
+    tableBorders.stroke = borderStrike;
+    tableBorders.color = borderColor;
+
+    if (tableStyles['border-collapse'] === 'collapse') {
+      tableBorders.insideV = borderSize;
+      tableBorders.insideH = borderSize;
+    } else {
+      tableBorders.insideV = 0;
+      tableBorders.insideH = 0;
+      tableCellBorders.top = 1;
+      tableCellBorders.bottom = 1;
+      tableCellBorders.left = 1;
+      tableCellBorders.right = 1;
+    }
+
+    modifiedAttributes.tableBorder = tableBorders;
+    modifiedAttributes.tableCellSpacing = 0;
+
+    if (Object.keys(tableCellBorders).length) {
+      modifiedAttributes.tableCellBorder = tableCellBorders;
+    }
+
+    let minimumWidth;
+    let maximumWidth;
+    let width;
+    // Calculate minimum width of table
+    if (pixelRegex.test(tableStyles['min-width'])) {
+      minimumWidth = pixelToTWIP(tableStyles['min-width'].match(pixelRegex)[1]);
+    } else if (percentageRegex.test(tableStyles['min-width'])) {
+      const percentageValue = tableStyles['min-width'].match(percentageRegex)[1];
+      minimumWidth = Math.round((percentageValue / 100) * attributes.maximumWidth!);
+    }
+
+    // Calculate maximum width of table
+    if (pixelRegex.test(tableStyles['max-width'])) {
+      pixelRegex.lastIndex = 0;
+      maximumWidth = pixelToTWIP(tableStyles['max-width'].match(pixelRegex)[1]);
+    } else if (percentageRegex.test(tableStyles['max-width'])) {
+      percentageRegex.lastIndex = 0;
+      const percentageValue = tableStyles['max-width'].match(percentageRegex)[1];
+      maximumWidth = Math.round((percentageValue / 100) * attributes.maximumWidth!);
+    }
+
+    // Calculate specified width of table
+    if (pixelRegex.test(tableStyles.width)) {
+      pixelRegex.lastIndex = 0;
+      width = pixelToTWIP(tableStyles.width.match(pixelRegex)[1]);
+    } else if (percentageRegex.test(tableStyles.width)) {
+      percentageRegex.lastIndex = 0;
+      const percentageValue = tableStyles.width.match(percentageRegex)[1];
+      width = Math.round((percentageValue / 100) * attributes.maximumWidth!);
+    }
+
+    // If width isn't supplied, we should have min-width as the width.
+    if (width) {
+      modifiedAttributes.width = width;
+      if (maximumWidth) {
+        modifiedAttributes.width = Math.min(modifiedAttributes.width, maximumWidth);
+      }
+      if (minimumWidth) {
+        modifiedAttributes.width = Math.max(modifiedAttributes.width, minimumWidth);
+      }
+    } else if (minimumWidth) {
+      modifiedAttributes.width = minimumWidth;
+    }
+    if (modifiedAttributes.width) {
+      modifiedAttributes.width = Math.min(
+        modifiedAttributes.width as number,
+        attributes.maximumWidth!,
+      );
+    }
+  }
+  const tablePropertiesFragment = buildTableProperties(modifiedAttributes);
+  tableFragment.import(tablePropertiesFragment);
+
+  const rowSpanMap: RowSpanMap = new Map();
+
+  if (vNodeHasChildren(vNode)) {
+    for (let index = 0; index < vNode.children.length; index++) {
+      const childVNode = asVNode(vNode.children[index]!);
+      if (childVNode.tagName === 'colgroup') {
+        const tableGridFragment = buildTableGrid(childVNode, modifiedAttributes);
+        tableFragment.import(tableGridFragment);
+      } else if (childVNode.tagName === 'thead') {
+        for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
+          const grandChildVNode = asVNode(childVNode.children[iteratorIndex]!);
+          if (grandChildVNode.tagName === 'tr') {
+            if (iteratorIndex === 0) {
+              const tableGridFragment = buildTableGridFromTableRow(
+                grandChildVNode,
+                modifiedAttributes,
+              );
+              tableFragment.import(tableGridFragment);
+            }
+            const tableRowFragment = await buildTableRow(
+              grandChildVNode,
+              modifiedAttributes,
+              rowSpanMap,
+              docxDocumentInstance,
+            );
+            tableFragment.import(tableRowFragment);
+          }
+        }
+      } else if (childVNode.tagName === 'tbody') {
+        for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
+          const grandChildVNode = asVNode(childVNode.children[iteratorIndex]!);
+          if (grandChildVNode.tagName === 'tr') {
+            if (iteratorIndex === 0) {
+              const tableGridFragment = buildTableGridFromTableRow(
+                grandChildVNode,
+                modifiedAttributes,
+              );
+              tableFragment.import(tableGridFragment);
+            }
+            const tableRowFragment = await buildTableRow(
+              grandChildVNode,
+              modifiedAttributes,
+              rowSpanMap,
+              docxDocumentInstance,
+            );
+            tableFragment.import(tableRowFragment);
+          }
+        }
+      } else if (childVNode.tagName === 'tr') {
+        if (index === 0) {
+          const tableGridFragment = buildTableGridFromTableRow(childVNode, modifiedAttributes);
+          tableFragment.import(tableGridFragment);
+        }
+        const tableRowFragment = await buildTableRow(
+          childVNode,
+          modifiedAttributes,
+          rowSpanMap,
+          docxDocumentInstance,
+        );
+        tableFragment.import(tableRowFragment);
+      }
+    }
+  }
+  tableFragment.up();
+
+  return tableFragment;
+};
