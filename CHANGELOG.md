@@ -8,10 +8,11 @@ All notable changes to this project will be documented in this file. See [standa
 ### ⚠ BREAKING CHANGES
 
 * requires a runtime with global structuredClone (Node.js 17+, all current browsers); Node.js 22+ is already required.
-* the UMD build (dist/html-to-docx.umd.js) and the bundled Node built-in polyfills are removed. Node.js 22+ is required. Browser users must bundle the package themselves and provide a Buffer polyfill until Buffer usage is removed.
+* the UMD build (dist/html-to-docx.umd.js) is removed and Node.js 22+ is required. Use the package entry point (`import` / `require('html-to-docx')`); browser bundlers automatically use the new self-contained browser build, so remove any Node polyfills added for 1.x. See [MIGRATION.md](./MIGRATION.md).
 
 ### Features
 
+* TypeScript type definitions, ES module and CommonJS builds, and a self-contained browser build selected through the `browser` export condition (fixes `Class extends value undefined is not a constructor or null`, [#128](https://github.com/privateOmega/html-to-docx/issues/128), [#242](https://github.com/privateOmega/html-to-docx/issues/242))
 * add Buffer-free base64 helpers ([19d06d2](https://github.com/privateOmega/html-to-docx/commit/19d06d28eac8b2f13b2faed2502952e133f062ef))
 * test cases ([712c887](https://github.com/privateOmega/html-to-docx/commit/712c88704d1ad0f663f0d2ab490b50433e6e94e8))
 
