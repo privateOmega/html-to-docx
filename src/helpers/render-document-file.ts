@@ -9,7 +9,7 @@ import isVText from 'virtual-dom/vnode/is-vtext.js';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
 import sizeOf from 'image-size';
-import imageToBase64 from 'image-to-base64';
+import { fetchImageAsBase64 } from '../utils/image';
 import mimeTypes from 'mime-types';
 
 // FIXME: remove the cyclic dependency
@@ -53,7 +53,7 @@ export const buildImage = async (
   try {
     const imageSource = vNode.properties.src;
     if (isValidUrl(imageSource)) {
-      const base64String = await imageToBase64(imageSource).catch((error) => {
+      const base64String = await fetchImageAsBase64(imageSource).catch((error) => {
         // FIXME: console.warning does not exist, so this throws and the outer
         // catch silently skips the image. Kept as-is to preserve behaviour.
         // eslint-disable-next-line no-console
