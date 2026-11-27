@@ -9,8 +9,7 @@
       "include-component-in-tag": false,
       "versioning": "prerelease",
       "prerelease-type": "beta",
-      "prerelease": true,
-      "release-as": "2.0.0-beta.1"
+      "prerelease": true
     }
   }
 }
