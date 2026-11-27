@@ -77,7 +77,7 @@
     "html-entities": "^2.3.3",
     "html-to-vdom": "^0.7.0",
     "image-size": "^2.2.0",
-    "jszip": "^3.7.1",
+    "jszip": "^3.10.2",
     "mime-types": "^2.1.35",
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "2.1.2"
