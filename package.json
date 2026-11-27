@@ -12,8 +12,6 @@
   ],
   "scripts": {
     "test": "vitest run",
-    "prerelease": "tsdown",
-    "release": "standard-version",
     "lint": "oxlint",
     "validate": "pnpm lint && pnpm format:check",
     "build": "tsdown",
@@ -63,7 +61,6 @@
     "oxfmt": "0.80.0",
     "oxlint": "^1.95.0",
     "publint": "^0.3.25",
-    "standard-version": "^9.3.1",
     "tsdown": "0.23.7",
     "typescript": "7.0.2",
     "vitest": "^5.1.2"
