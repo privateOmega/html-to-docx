@@ -55,11 +55,10 @@ async function generateContainer(
   await addFilesToContainer(zip, contentHTML, documentOptions, headerHTML, footerHTML);
 
   const buffer = await zip.generateAsync({ type: 'arraybuffer' });
-  if (Object.prototype.hasOwnProperty.call(global, 'Buffer')) {
+  if (Object.prototype.hasOwnProperty.call(globalThis, 'Buffer')) {
     return Buffer.from(new Uint8Array(buffer));
   }
-  if (Object.prototype.hasOwnProperty.call(global, 'Blob')) {
-    // eslint-disable-next-line no-undef
+  if (Object.prototype.hasOwnProperty.call(globalThis, 'Blob')) {
     return new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     });
