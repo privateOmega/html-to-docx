@@ -75,12 +75,35 @@ export const buildTableCellBorders = (tableCellBorder: BorderSpec) => {
   return tableCellBordersFragment;
 };
 
-export const buildTableCellWidth = (tableCellWidth: number | string) =>
-  fragment({ namespaceAlias: { w: namespaces.w } })
+/**
+ * Builds <w:tcW> for a CSS width. Absolute units become twips (dxa);
+ * percentages use fiftieths of a percent (5000 = 100%), the unit every Word
+ * version understands; `auto` is kept. Other values (em, unitless, …) return
+ * null so the cell sizes automatically.
+ */
+export const buildTableCellWidth = (tableCellWidth: number | string) => {
+  const widthString = String(tableCellWidth).trim();
+  let width: number;
+  let type: string;
+  const twips = fixupColumnWidth(tableCellWidth);
+  if (twips !== undefined) {
+    width = twips;
+    type = 'dxa';
+  } else if (percentageRegex.test(widthString)) {
+    width = Math.round(Number(widthString.match(percentageRegex)![1]) * 50);
+    type = 'pct';
+  } else if (widthString === 'auto') {
+    width = 0;
+    type = 'auto';
+  } else {
+    return null;
+  }
+  return fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'tcW')
-    .att('@w', 'w', attr(fixupColumnWidth(tableCellWidth)))
-    .att('@w', 'type', attr('dxa'))
+    .att('@w', 'w', attr(width))
+    .att('@w', 'type', attr(type))
     .up();
+};
 
 export const buildTableCellProperties = (attributes: BuilderAttributes) => {
   const tableCellPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
@@ -122,7 +145,9 @@ export const buildTableCellProperties = (attributes: BuilderAttributes) => {
           break;
         case 'width':
           const widthFragment = buildTableCellWidth(attributes[key]!);
-          tableCellPropertiesFragment.import(widthFragment);
+          if (widthFragment) {
+            tableCellPropertiesFragment.import(widthFragment);
+          }
           delete attributes.width;
           break;
       }
