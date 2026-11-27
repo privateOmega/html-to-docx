@@ -41,6 +41,12 @@ Named type exports are available: `import HTMLtoDOCX, { type DocumentOptions } f
 - **Embedded media file names** inside the `.docx` (`word/media/image-….png`) use a 32-character hex id instead of a 21-character id. They are internal to the document.
 - **Remote images** are downloaded with the built-in `fetch` instead of `node-fetch`. Redirects are still followed and the response status is still not checked. `.jxl` images now get the `image/jxl` type.
 
+## Fixes that change behaviour
+
+- **Images that cannot be loaded or read are skipped** with a `console.warn`, instead of failing the whole conversion. This covers a remote URL that returns something other than an image (such as a 404 page), a `data:` URI that is not an image, and a failed download. Content around a skipped image is kept.
+- **`HTMLtoDOCX('')` returns an empty document** instead of throwing.
+- **Non-string `htmlString`** (`null`, `undefined`, numbers, objects) rejects with `TypeError: HTMLtoDOCX: htmlString must be a string` instead of an error from inside the HTML parser.
+
 ## Removed dependencies
 
 `lodash`, `nanoid`, `image-to-base64` (and `node-fetch`) are no longer dependencies, and `xmlbuilder2` is no longer pinned to 2.1.2 with `@oozcitak` overrides.
