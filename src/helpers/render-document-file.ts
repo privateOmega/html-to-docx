@@ -8,7 +8,7 @@ import isVNode from 'virtual-dom/vnode/is-vnode.js';
 import isVText from 'virtual-dom/vnode/is-vtext.js';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
-import sizeOf from 'image-size';
+import { imageSize } from 'image-size';
 import { fetchImageAsBase64 } from '../utils/image';
 import mimeTypes from 'mime-types';
 
@@ -90,7 +90,7 @@ export const buildImage = async (
     );
 
     const imageBuffer = Buffer.from(response.fileContent, 'base64');
-    const imageProperties = sizeOf(imageBuffer);
+    const imageProperties = imageSize(imageBuffer);
 
     const imageFragment = await xmlBuilder.buildParagraph(
       vNode,

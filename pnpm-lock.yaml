@@ -205,8 +205,8 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0
       image-size:
-        specifier: ^1.0.0
-        version: 1.0.2
+        specifier: ^2.2.0
+        version: 2.2.0
       jszip:
         specifier: ^3.7.1
         version: 3.10.1
@@ -1311,9 +1311,9 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  image-size@1.0.2:
-    resolution: {integrity: sha512-xfOoWjceHntRb3qFCrh5ZFORYH8XCdYpASltMhZ/Q0KZiOwjdE/Yl2QCiWdwD+lygV5bMCvauzgu5PxBX/Yerg==}
-    engines: {node: '>=14.0.0'}
+  image-size@2.2.0:
+    resolution: {integrity: sha512-93QTtmEv0UD26RTJfmxQvWzhlauWO1TizNPjCumqzlACXYmI7TlwRWWT2+M4at7kZwnj+WkMOW9XKI76eX0dWw==}
+    engines: {node: '>=22'}
     hasBin: true
 
   immediate@3.0.6:
@@ -1598,9 +1598,6 @@ packages:
 
   quansync@1.0.0:
     resolution: {integrity: sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA==}
-
-  queue@6.0.2:
-    resolution: {integrity: sha512-iHZWu+q3IdFZFX36ro/lKBkSvfkztY5Y7HMiPlOUjhupPcG2JMfst2KKEpu5XndviX/3UhFbRngUPNKtgvtZiA==}
 
   readable-stream@2.3.7:
     resolution: {integrity: sha512-Ebho8K4jIbHAxnuxi7o42OrZgF/ZTNcsZj6nRKyUmkhLFq8CHItp/fy6hQZuZmP/n3yZ9VBUbp4zz/mX8hmYPw==}
@@ -2776,9 +2773,7 @@ snapshots:
 
   husky@9.1.7: {}
 
-  image-size@1.0.2:
-    dependencies:
-      queue: 6.0.2
+  image-size@2.2.0: {}
 
   immediate@3.0.6: {}
 
@@ -3033,10 +3028,6 @@ snapshots:
       sade: 1.8.1
 
   quansync@1.0.0: {}
-
-  queue@6.0.2:
-    dependencies:
-      inherits: 2.0.4
 
   readable-stream@2.3.7:
     dependencies:

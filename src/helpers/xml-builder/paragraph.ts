@@ -7,7 +7,7 @@
 import { fragment } from 'xmlbuilder2';
 import { fetchImageAsBase64 } from '../../utils/image';
 import mimeTypes from 'mime-types';
-import sizeOf from 'image-size';
+import { imageSize } from 'image-size';
 import namespaces from '../../namespaces';
 import { pixelToEMU, pixelRegex, TWIPToEMU, percentageRegex } from '../../utils/unit-conversion';
 import { paragraphBordersObject } from '../../constants';
@@ -371,7 +371,7 @@ export const buildParagraph = async (
             base64String = imageSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)![2];
           }
           const imageBuffer = Buffer.from(decodeURIComponent(base64String as string), 'base64');
-          const imageProperties = sizeOf(imageBuffer);
+          const imageProperties = imageSize(imageBuffer);
 
           modifiedAttributes.maximumWidth =
             modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
@@ -424,7 +424,7 @@ export const buildParagraph = async (
       }
 
       const imageBuffer = Buffer.from(decodeURIComponent(base64String), 'base64');
-      const imageProperties = sizeOf(imageBuffer);
+      const imageProperties = imageSize(imageBuffer);
 
       modifiedAttributes.maximumWidth =
         modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
