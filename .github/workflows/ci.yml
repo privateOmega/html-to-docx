@@ -44,3 +44,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm build
+      - name: Smoke-test CJS build
+        run: node -e "require('./dist/index.cjs')('<p>ok</p>').then((b) => console.log('cjs', b.length))"
+      - name: Smoke-test ESM build
+        run: node --input-type=module -e "import h from './dist/index.mjs'; console.log('esm', (await h('<p>ok</p>')).length)"
