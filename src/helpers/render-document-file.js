@@ -45,7 +45,7 @@ export const buildImage = async (docxDocumentInstance, vNode, maximumWidth = nul
     if (base64Uri) {
       response = docxDocumentInstance.createMediaFile(base64Uri);
     }
-  } catch (error) {
+  } catch {
     // NOOP
   }
   if (response) {
@@ -146,12 +146,12 @@ export const buildList = async (vNode, docxDocumentInstance, xmlFragment) => {
               isVNode(childVNode) && childVNode.properties && parentVNodeProperties
                 ? {
                     attributes: {
-                      ...(parentVNodeProperties.attributes || {}),
-                      ...(childVNode.properties.attributes || {}),
+                      ...parentVNodeProperties.attributes,
+                      ...childVNode.properties.attributes,
                     },
                     style: {
-                      ...(parentVNodeProperties.style || {}),
-                      ...(childVNode.properties.style || {}),
+                      ...parentVNodeProperties.style,
+                      ...childVNode.properties.style,
                     },
                   }
                 : null, // copy properties for styling purposes
