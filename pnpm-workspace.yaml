@@ -1,7 +1,0 @@
-# Pin xmlbuilder2's @oozcitak dependencies to the versions it was tested
-# with. Newer patch releases break xmlbuilder2 2.1.2 (see the
-# revert-168-upgrades-xmlbuilder2-version branch). Matches the previous
-# npm `overrides` / yarn `resolutions`.
-overrides:
-  '@oozcitak/dom': 1.15.6
-  '@oozcitak/util': 8.3.4

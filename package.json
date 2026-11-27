@@ -71,8 +71,6 @@
     "vitest": "^5.1.2"
   },
   "dependencies": {
-    "@oozcitak/dom": "1.15.6",
-    "@oozcitak/util": "8.3.4",
     "color-name": "^1.1.4",
     "html-entities": "^2.6.0",
     "html-to-vdom": "^0.7.0",
@@ -80,7 +78,7 @@
     "jszip": "^3.10.2",
     "mime-types": "^3.0.2",
     "virtual-dom": "^2.1.1",
-    "xmlbuilder2": "2.1.2"
+    "xmlbuilder2": "^4.0.3"
   },
   "lint-staged": {
     "src/**/*.js": [
