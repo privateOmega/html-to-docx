@@ -106,3 +106,6 @@ tmp/
 temp/
 # Generated example output
 example/example.docx
+
+# Vitest run output
+.vitest/
