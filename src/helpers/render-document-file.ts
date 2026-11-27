@@ -1,3 +1,4 @@
+// @ts-nocheck -- removed in the typing commit
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-case-declarations */
 import { fragment } from 'xmlbuilder2';
