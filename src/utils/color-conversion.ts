@@ -1,4 +1,3 @@
-// @ts-nocheck -- removed in the typing commit
 /* eslint-disable no-param-reassign */
 
 export const rgbRegex = /rgb\((\d+),\s*([\d.]+),\s*([\d.]+)\)/i;
@@ -7,29 +6,38 @@ export const hexRegex = /#([0-9A-F]{6})/i;
 export const hex3Regex = /#([0-9A-F])([0-9A-F])([0-9A-F])/i;
 
 // eslint-disable-next-line import/prefer-default-export
-export const rgbToHex = (red, green, blue) => {
+export const rgbToHex = (
+  red: number | string,
+  green: number | string,
+  blue: number | string,
+): string => {
   const hexColorCode = [red, green, blue]
     .map((x) => {
       // eslint-disable-next-line radix, no-param-reassign
-      x = parseInt(x).toString(16);
-      return x.length === 1 ? `0${x}` : x;
+      const hex = parseInt(String(x)).toString(16);
+      return hex.length === 1 ? `0${hex}` : hex;
     })
     .join('');
 
   return hexColorCode;
 };
 
-export const hslToHex = (hue, saturation, luminosity) => {
-  hue /= 360;
-  saturation /= 100;
-  luminosity /= 100;
+// Callers pass regex match groups (strings); they are coerced exactly as `/=` did.
+export const hslToHex = (
+  hueValue: number | string,
+  saturationValue: number | string,
+  luminosityValue: number | string,
+): string => {
+  const hue = Number(hueValue) / 360;
+  const saturation = Number(saturationValue) / 100;
+  const luminosity = Number(luminosityValue) / 100;
   // eslint-disable-next-line one-var
-  let red, green, blue;
+  let red: number, green: number, blue: number;
   if (saturation === 0) {
     // eslint-disable-next-line no-multi-assign
     red = green = blue = luminosity; // achromatic
   } else {
-    const hue2rgb = (p, q, t) => {
+    const hue2rgb = (p: number, q: number, t: number): number => {
       if (t < 0) t += 1;
       if (t > 1) t -= 1;
       if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -54,7 +62,7 @@ export const hslToHex = (hue, saturation, luminosity) => {
     .join('');
 };
 
-export const hex3ToHex = (red, green, blue) => {
+export const hex3ToHex = (red: string, green: string, blue: string): string => {
   const hexColorCode = [red, green, blue].map((x) => `${x}${x}`).join('');
 
   return hexColorCode;

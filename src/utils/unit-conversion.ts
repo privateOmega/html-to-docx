@@ -1,54 +1,54 @@
-// @ts-nocheck -- removed in the typing commit
 export const pixelRegex = /([\d.]+)px/i;
 export const percentageRegex = /([\d.]+)%/i;
 export const pointRegex = /([\d.]+)pt/i;
 export const cmRegex = /([\d.]+)cm/i;
 export const inchRegex = /([\d.]+)in/i;
 
-export const pixelToEMU = (pixelValue) => Math.round(pixelValue * 9525);
+export const pixelToEMU = (pixelValue: number): number => Math.round(pixelValue * 9525);
 
-export const EMUToPixel = (EMUValue) => Math.round(EMUValue / 9525);
+export const EMUToPixel = (EMUValue: number): number => Math.round(EMUValue / 9525);
 
-export const TWIPToEMU = (TWIPValue) => Math.round(TWIPValue * 635);
+export const TWIPToEMU = (TWIPValue: number): number => Math.round(TWIPValue * 635);
 
-export const EMUToTWIP = (EMUValue) => Math.round(EMUValue / 635);
+export const EMUToTWIP = (EMUValue: number): number => Math.round(EMUValue / 635);
 
-export const pointToTWIP = (pointValue) => Math.round(pointValue * 20);
+export const pointToTWIP = (pointValue: number): number => Math.round(pointValue * 20);
 
-export const TWIPToPoint = (TWIPValue) => Math.round(TWIPValue / 20);
+export const TWIPToPoint = (TWIPValue: number): number => Math.round(TWIPValue / 20);
 
-export const pointToHIP = (pointValue) => Math.round(pointValue * 2);
+export const pointToHIP = (pointValue: number): number => Math.round(pointValue * 2);
 
-export const HIPToPoint = (HIPValue) => Math.round(HIPValue / 2);
+export const HIPToPoint = (HIPValue: number): number => Math.round(HIPValue / 2);
 
-export const HIPToTWIP = (HIPValue) => Math.round(HIPValue * 10);
+export const HIPToTWIP = (HIPValue: number): number => Math.round(HIPValue * 10);
 
-export const TWIPToHIP = (TWIPValue) => Math.round(TWIPValue / 10);
+export const TWIPToHIP = (TWIPValue: number): number => Math.round(TWIPValue / 10);
 
-export const pixelToTWIP = (pixelValue) => EMUToTWIP(pixelToEMU(pixelValue));
+export const pixelToTWIP = (pixelValue: number): number => EMUToTWIP(pixelToEMU(pixelValue));
 
-export const TWIPToPixel = (TWIPValue) => EMUToPixel(TWIPToEMU(TWIPValue));
+export const TWIPToPixel = (TWIPValue: number): number => EMUToPixel(TWIPToEMU(TWIPValue));
 
-export const pixelToHIP = (pixelValue) => TWIPToHIP(EMUToTWIP(pixelToEMU(pixelValue)));
+export const pixelToHIP = (pixelValue: number): number =>
+  TWIPToHIP(EMUToTWIP(pixelToEMU(pixelValue)));
 
-export const HIPToPixel = (HIPValue) => EMUToPixel(TWIPToEMU(HIPToTWIP(HIPValue)));
+export const HIPToPixel = (HIPValue: number): number => EMUToPixel(TWIPToEMU(HIPToTWIP(HIPValue)));
 
-export const inchToPoint = (inchValue) => Math.round(inchValue * 72);
+export const inchToPoint = (inchValue: number): number => Math.round(inchValue * 72);
 
-export const inchToTWIP = (inchValue) => pointToTWIP(inchToPoint(inchValue));
+export const inchToTWIP = (inchValue: number): number => pointToTWIP(inchToPoint(inchValue));
 
-export const cmToInch = (cmValue) => cmValue * 0.3937008;
+export const cmToInch = (cmValue: number): number => cmValue * 0.3937008;
 
-export const cmToTWIP = (cmValue) => inchToTWIP(cmToInch(cmValue));
+export const cmToTWIP = (cmValue: number): number => inchToTWIP(cmToInch(cmValue));
 
-export const pixelToPoint = (pixelValue) => HIPToPoint(pixelToHIP(pixelValue));
+export const pixelToPoint = (pixelValue: number): number => HIPToPoint(pixelToHIP(pixelValue));
 
-export const pointToPixel = (pointValue) => HIPToPixel(pointToHIP(pointValue));
+export const pointToPixel = (pointValue: number): number => HIPToPixel(pointToHIP(pointValue));
 
-export const EIPToPoint = (EIPValue) => Math.round(EIPValue / 8);
+export const EIPToPoint = (EIPValue: number): number => Math.round(EIPValue / 8);
 
-export const pointToEIP = (PointValue) => Math.round(PointValue * 8);
+export const pointToEIP = (PointValue: number): number => Math.round(PointValue * 8);
 
-export const pixelToEIP = (pixelValue) => pointToEIP(pixelToPoint(pixelValue));
+export const pixelToEIP = (pixelValue: number): number => pointToEIP(pixelToPoint(pixelValue));
 
-export const EIPToPixel = (EIPValue) => pointToPixel(EIPToPoint(EIPValue));
+export const EIPToPixel = (EIPValue: number): number => pointToPixel(EIPToPoint(EIPValue));

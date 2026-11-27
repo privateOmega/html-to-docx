@@ -1,4 +1,3 @@
-// @ts-nocheck -- removed in the typing commit
 import cloneDeep from 'lodash/cloneDeep.js';
 
 const applicationName = 'html-to-docx';

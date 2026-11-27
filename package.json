@@ -55,6 +55,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
+    "@types/lodash": "^4.17.27",
     "@types/node": "^22.20.7",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.2",

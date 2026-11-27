@@ -1,13 +1,18 @@
-// @ts-nocheck -- removed in the typing commit
+export interface NumberingDefaults {
+  defaultOrderedListStyleType: string;
+}
+
 class ListStyleBuilder {
+  defaults: NumberingDefaults;
+
   // defaults is an object passed in from constants.js / numbering with the following properties:
   // defaultOrderedListStyleType: 'decimal' (unless otherwise specified)
-  constructor(defaults) {
+  constructor(defaults?: NumberingDefaults) {
     this.defaults = defaults || { defaultOrderedListStyleType: 'decimal' };
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getListStyleType(listType) {
+  getListStyleType(listType: string | undefined): string {
     switch (listType) {
       case 'upper-roman':
         return 'upperRoman';
@@ -27,7 +32,7 @@ class ListStyleBuilder {
     }
   }
 
-  getListPrefixSuffix(style, lvl) {
+  getListPrefixSuffix(style: Record<string, string> | undefined, lvl: number): string {
     let listType = this.defaults.defaultOrderedListStyleType;
 
     if (style && style['list-style-type']) {
