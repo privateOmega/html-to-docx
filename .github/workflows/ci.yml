@@ -59,3 +59,18 @@ jobs:
         run: node --input-type=module -e "import h from './dist/index.mjs'; console.log('esm', (await h(process.env.SMOKE_HTML)).length)"
         env:
           SMOKE_HTML: ${{ env.SMOKE_HTML }}
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium-headless-shell
+      # Converts a document in headless Chromium with the browser build.
+      - run: pnpm test:browser
