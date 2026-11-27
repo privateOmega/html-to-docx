@@ -60,11 +60,13 @@
     "@types/color-name": "^1.1.5",
     "@types/node": "^22.20.7",
     "@types/virtual-dom": "^2.1.4",
+    "events": "^3.3.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.2",
     "oxfmt": "0.80.0",
     "oxlint": "^1.95.0",
     "publint": "^0.3.25",
+    "punycode": "^2.3.1",
     "tsdown": "0.23.7",
     "typescript": "7.0.2",
     "vitest": "^5.1.2"
@@ -89,6 +91,10 @@
   "module": "./dist/index.mjs",
   "exports": {
     ".": {
+      "browser": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.browser.mjs"
+      },
       "import": {
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"

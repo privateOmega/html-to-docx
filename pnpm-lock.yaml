@@ -225,6 +225,9 @@ importers:
       '@types/virtual-dom':
         specifier: ^2.1.4
         version: 2.1.4
+      events:
+        specifier: ^3.3.0
+        version: 3.3.0
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -240,6 +243,9 @@ importers:
       publint:
         specifier: ^0.3.25
         version: 0.3.25
+      punycode:
+        specifier: ^2.3.1
+        version: 2.3.1
       tsdown:
         specifier: 0.23.7
         version: 0.23.7(@arethetypeswrong/core@0.18.5)(publint@0.3.25)(typescript@7.0.2)
@@ -1214,6 +1220,10 @@ packages:
   ev-store@7.0.0:
     resolution: {integrity: sha512-otazchNRnGzp2YarBJ+GXKVGvhxVATB1zmaStxJBYet0Dyq7A9VhH8IUEB/gRcL6Ch52lfpgPTRJ2m49epyMsQ==}
 
+  events@3.3.0:
+    resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
+    engines: {node: '>=0.8.x'}
+
   expect-type@1.4.0:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
     engines: {node: '>=12.0.0'}
@@ -1564,6 +1574,10 @@ packages:
     resolution: {integrity: sha512-WMMbn/d7JqRlfXQL/JUI4n5skC8cJ5WVr8/wT5mmiYWkUdENkZr1I5rgs2+dQPVRgoJd+JRYtB46MTsuDylw9g==}
     engines: {node: '>=18'}
     hasBin: true
+
+  punycode@2.3.1:
+    resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
+    engines: {node: '>=6'}
 
   quansync@1.0.0:
     resolution: {integrity: sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA==}
@@ -2678,6 +2692,8 @@ snapshots:
     dependencies:
       individual: 3.0.0
 
+  events@3.3.0: {}
+
   expect-type@1.4.0: {}
 
   fast-deep-equal@3.1.3: {}
@@ -2983,6 +2999,8 @@ snapshots:
       package-manager-detector: 1.9.0
       picocolors: 1.1.1
       sade: 1.8.1
+
+  punycode@2.3.1: {}
 
   quansync@1.0.0: {}
 
