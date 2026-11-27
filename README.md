@@ -124,6 +124,15 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to branch new branches off of develop for contribution.
 
+This project uses [pnpm](https://pnpm.io). The required version is pinned in the `packageManager` field of `package.json`; run `corepack enable` (or install pnpm 12+) and then:
+
+```sh
+pnpm install
+pnpm test
+```
+
+Node.js 22 or newer is required for development.
+
 ## Support
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/privateOmega)
