@@ -7,7 +7,7 @@ import HTMLtoDOCX from '../index';
 describe('known bugs', () => {
   it('percentage width on a table cell throws (see PR #256)', async () => {
     await expect(
-      HTMLtoDOCX('<table><tr><td style="width: 50%;">x</td><td>y</td></tr></table>')
+      HTMLtoDOCX('<table><tr><td style="width: 50%;">x</td><td>y</td></tr></table>'),
     ).rejects.toThrow('Invalid XML name: @w');
   });
 });

@@ -94,7 +94,7 @@ const normalizeDocumentOptions = (documentOptions) => {
       case 'margins':
         normalizedDocumentOptions[key] = normalizeUnits(
           documentOptions[key],
-          defaultDocumentOptions[key]
+          defaultDocumentOptions[key],
         );
         break;
       case 'fontSize':
@@ -114,7 +114,7 @@ async function addFilesToContainer(
   htmlString,
   suppliedDocumentOptions,
   headerHTMLString,
-  footerHTMLString
+  footerHTMLString,
 ) {
   const normalizedDocumentOptions = normalizeDocumentOptions(suppliedDocumentOptions);
   const documentOptions = mergeOptions(defaultDocumentOptions, normalizedDocumentOptions);
@@ -142,7 +142,7 @@ async function addFilesToContainer(
     .file(
       '.rels',
       create({ encoding: 'UTF-8', standalone: true }, relsXML).toString({ prettyPrint: true }),
-      { createFolders: false }
+      { createFolders: false },
     );
 
   zip.folder('docProps').file('core.xml', docxDocument.generateCoreXML(), {
@@ -161,7 +161,7 @@ async function addFilesToContainer(
       docxDocument.relationshipFilename,
       headerType,
       fileNameWithExt,
-      internalRelationship
+      internalRelationship,
     );
 
     zip.folder(wordFolder).file(fileNameWithExt, headerXML.toString({ prettyPrint: true }), {
@@ -182,7 +182,7 @@ async function addFilesToContainer(
       docxDocument.relationshipFilename,
       footerType,
       fileNameWithExt,
-      internalRelationship
+      internalRelationship,
     );
 
     zip.folder(wordFolder).file(fileNameWithExt, footerXML.toString({ prettyPrint: true }), {
@@ -196,7 +196,7 @@ async function addFilesToContainer(
     docxDocument.relationshipFilename,
     themeType,
     `${themeFolder}/${themeFileNameWithExt}`,
-    internalRelationship
+    internalRelationship,
   );
   zip
     .folder(wordFolder)

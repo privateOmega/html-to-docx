@@ -26,7 +26,7 @@ npm install html-to-docx
 ## Usage
 
 ```js
-await HTMLtoDOCX(htmlString, headerHTMLString, documentOptions, footerHTMLString)
+await HTMLtoDOCX(htmlString, headerHTMLString, documentOptions, footerHTMLString);
 ```
 
 full fledged examples can be found under `example/`
@@ -88,15 +88,17 @@ full fledged examples can be found under `example/`
 
 Currently page break can be implemented by having div with classname "page-break" or style "page-break-after" despite the values of the "page-break-after", and contents inside the div element will be ignored. `<div class="page-break" style="page-break-after: always;"></div>`
 
-
 CSS list-style-type for `<ol>` element are now supported. Just do something like this in the HTML:
+
 ```
   <ol style="list-style-type:lower-alpha;">
     <li>List item</li>
     ...
   </ol>
 ```
+
 List of supported list-style-types:
+
 - upper-alpha, will result in `A. List item`
 - lower-alpha, will result in `a. List item`
 - upper-roman, will result in `I. List item`
@@ -109,7 +111,6 @@ List of supported list-style-types:
 Also you could add attribute `data-start="n"` to start the numbering from the n-th.
 
 `<ol data-start="2">` will start the numbering from ( B. b. II. ii. 2. )
-
 
 Font family doesnt work consistently for all word processor softwares
 
@@ -133,23 +134,23 @@ MIT
 
 [npm-image]: https://img.shields.io/npm/v/html-to-docx.svg
 [npm-url]: https://npmjs.org/package/html-to-docx
-[html-docx-js]: https://github.com/evidenceprime/html-docx-js "html-docx-js"
-[altchunks]: https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.altchunk?view=openxml-2.8.1 "altchunks"
-[libtidy]: https://github.com/jure/node-libtidy "libtidy"
-[String]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type "String"
-[Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object "Object"
-[Number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type "Number"
-[TWIP]: https://en.wikipedia.org/wiki/Twip "TWIP"
-[Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array "Array"
-[Date]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date "Date"
-[Boolean]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type "Boolean"
-[Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise "Promise"
-[Buffer]: https://nodejs.org/api/buffer.html#buffer_buffer "Buffer"
-[Blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob "Blob"
-[pixel]: https://en.wikipedia.org/wiki/Pixel#:~:text=Pixels%2C%20abbreviated%20as%20%22px%22,what%20screen%20resolution%20views%20it. "pixel"
-[cm]: https://en.wikipedia.org/wiki/Centimetre "cm"
-[inch]: https://en.wikipedia.org/wiki/Inch "inch"
-[pt]: https://en.wikipedia.org/wiki/Point_(typography) "pt"
+[html-docx-js]: https://github.com/evidenceprime/html-docx-js 'html-docx-js'
+[altchunks]: https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.altchunk?view=openxml-2.8.1 'altchunks'
+[libtidy]: https://github.com/jure/node-libtidy 'libtidy'
+[String]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type 'String'
+[Object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object 'Object'
+[Number]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type 'Number'
+[TWIP]: https://en.wikipedia.org/wiki/Twip 'TWIP'
+[Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array 'Array'
+[Date]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date 'Date'
+[Boolean]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type 'Boolean'
+[Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise 'Promise'
+[Buffer]: https://nodejs.org/api/buffer.html#buffer_buffer 'Buffer'
+[Blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob 'Blob'
+[pixel]: https://en.wikipedia.org/wiki/Pixel#:~:text=Pixels%2C%20abbreviated%20as%20%22px%22,what%20screen%20resolution%20views%20it. 'pixel'
+[cm]: https://en.wikipedia.org/wiki/Centimetre 'cm'
+[inch]: https://en.wikipedia.org/wiki/Inch 'inch'
+[pt]: https://en.wikipedia.org/wiki/Point_(typography) 'pt'
 
 ## Contributors
 
