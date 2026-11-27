@@ -1,3 +1,5 @@
+import { bytesToBase64 } from './base64';
+
 /**
  * Downloads a remote image and returns its body base64-encoded.
  *
@@ -6,5 +8,5 @@
  */
 export const fetchImageAsBase64 = async (url: string): Promise<string> => {
   const response = await fetch(url);
-  return Buffer.from(await response.arrayBuffer()).toString('base64');
+  return bytesToBase64(new Uint8Array(await response.arrayBuffer()));
 };
