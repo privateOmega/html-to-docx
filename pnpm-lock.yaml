@@ -199,8 +199,8 @@ importers:
         specifier: ^1.1.4
         version: 1.1.4
       html-entities:
-        specifier: ^2.3.3
-        version: 2.3.3
+        specifier: ^2.6.0
+        version: 2.6.0
       html-to-vdom:
         specifier: ^0.7.0
         version: 0.7.0
@@ -1297,8 +1297,8 @@ packages:
   hookable@6.1.2:
     resolution: {integrity: sha512-+abwxtiEA52GCVIsQqut3S/uKTbUwYIp4Pe/vv+6py5XiXBCqMZHg6pA6Y5qhgLSEys0/cYuPbO0z1QFj5ZCmg==}
 
-  html-entities@2.3.3:
-    resolution: {integrity: sha512-DV5Ln36z34NNTDgnz0EWGBLZENelNAtkiFA4kyNOG2tDI6Mz1uSWiq1wAKdyjnJwyDiDO7Fa2SO1CTxPXL8VxA==}
+  html-entities@2.6.0:
+    resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
 
   html-to-vdom@0.7.0:
     resolution: {integrity: sha512-k+d2qNkbx0JO00KezQsNcn6k2I/xSBP4yXYFLvXbcasTTDh+RDLUJS3puxqyNnpdyXWRHFGoKU7cRmby8/APcQ==}
@@ -2755,7 +2755,7 @@ snapshots:
 
   hookable@6.1.2: {}
 
-  html-entities@2.3.3: {}
+  html-entities@2.6.0: {}
 
   html-to-vdom@0.7.0:
     dependencies:
