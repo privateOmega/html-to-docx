@@ -1,4 +1,3 @@
-// @ts-nocheck -- removed in the typing commit
 import { defaultFont } from '../constants';
 
 const generateThemeXML = (font = defaultFont) => `
