@@ -17,10 +17,10 @@
     "prerelease": "rollup -c",
     "release": "standard-version",
     "lint": "oxlint",
-    "validate": "npm run lint && npm run format:check",
+    "validate": "pnpm lint && pnpm format:check",
     "build": "rollup -c",
     "prepare": "husky",
-    "example": "npm run build && node example/example-node.js",
+    "example": "pnpm build && node example/example-node.js",
     "format": "oxfmt",
     "format:check": "oxfmt --check"
   },
@@ -86,12 +86,5 @@
       "oxfmt --no-error-on-unmatched-pattern"
     ]
   },
-  "resolutions": {
-    "@oozcitak/util": "8.3.4",
-    "@oozcitak/dom": "1.15.6"
-  },
-  "overrides": {
-    "@oozcitak/util": "8.3.4",
-    "@oozcitak/dom": "1.15.6"
-  }
+  "packageManager": "pnpm@12.23.0"
 }
