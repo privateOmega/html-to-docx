@@ -5,10 +5,10 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import isVNode from 'virtual-dom/vnode/is-vnode';
-import isVText from 'virtual-dom/vnode/is-vtext';
+import isVNode from 'virtual-dom/vnode/is-vnode.js';
+import isVText from 'virtual-dom/vnode/is-vtext.js';
 import colorNames from 'color-name';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep.js';
 import imageToBase64 from 'image-to-base64';
 import mimeTypes from 'mime-types';
 import sizeOf from 'image-size';
