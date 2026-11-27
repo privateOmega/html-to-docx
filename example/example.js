@@ -2,7 +2,7 @@
 import fs from 'fs';
 // FIXME: Incase you have the npm package
 // import HTMLtoDOCX from 'html-to-docx';
-import HTMLtoDOCX from '../dist/html-to-docx.esm';
+import HTMLtoDOCX from '../dist/index.mjs';
 
 const filePath = './example.docx';
 

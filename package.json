@@ -10,17 +10,15 @@
     "office",
     "word"
   ],
-  "main": "dist/html-to-docx.umd.js",
-  "module": "dist/html-to-docx.esm.js",
   "scripts": {
     "test": "vitest run",
-    "prerelease": "rollup -c",
+    "prerelease": "tsdown",
     "release": "standard-version",
     "lint": "oxlint",
     "validate": "pnpm lint && pnpm format:check",
-    "build": "rollup -c",
+    "build": "tsdown",
     "prepare": "husky",
-    "example": "pnpm build && node example/example-node.js",
+    "example": "pnpm build && node example/example.js && node example/example-node.cjs",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "typecheck": "tsc"
@@ -45,6 +43,13 @@
     "tasola"
   ],
   "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "bugs": {
     "url": "https://github.com/privateOmega/html-to-docx/issues"
   },
@@ -52,19 +57,14 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
-    "@rollup/plugin-commonjs": "^12.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.1.1",
     "@types/node": "^22.20.7",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.2",
     "oxfmt": "0.80.0",
     "oxlint": "^1.95.0",
-    "rollup": "^2.62.0",
-    "rollup-plugin-cleaner": "^1.0.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-terser": "^7.0.2",
+    "publint": "^0.3.25",
     "standard-version": "^9.3.1",
+    "tsdown": "0.23.7",
     "typescript": "7.0.2",
     "vitest": "^5.1.2"
   },
@@ -89,5 +89,14 @@
       "oxfmt --no-error-on-unmatched-pattern"
     ]
   },
-  "packageManager": "pnpm@12.23.0"
+  "packageManager": "pnpm@12.23.0",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  }
 }
