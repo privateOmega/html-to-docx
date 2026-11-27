@@ -154,7 +154,11 @@ export const fixupMargin = (marginString: string) => {
 export const cssBorderParser = (
   borderString: string,
 ): [number | string | undefined, string, string | undefined] => {
-  let [size, stroke, color]: (number | string | undefined)[] = borderString.split(' ');
+  const trimmed = String(borderString).trim();
+  if (trimmed === 'none' || trimmed === '0') {
+    return [0, 'none', undefined];
+  }
+  let [size, stroke, color]: (number | string | undefined)[] = trimmed.split(/\s+/);
 
   if (pointRegex.test(size as string)) {
     const matchedParts = (size as string).match(pointRegex);
@@ -164,8 +168,10 @@ export const cssBorderParser = (
     const matchedParts = (size as string).match(pixelRegex);
     // convert pixels to eighth of a point
     size = pixelToEIP(Number(matchedParts![1]));
+  } else if (/^\d+(?:\.\d+)?$/.test(size as string)) {
+    size = pixelToEIP(Number(size));
   }
-  stroke = stroke && ['dashed', 'dotted', 'double'].includes(stroke as string) ? stroke : 'single';
+  stroke = stroke && ['dashed', 'dotted', 'double', 'none'].includes(stroke as string) ? stroke : 'single';
 
   color = color && fixupColorCode(color as string).toUpperCase();
 
