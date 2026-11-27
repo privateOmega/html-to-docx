@@ -58,7 +58,6 @@
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@types/color-name": "^1.1.5",
-    "@types/mime-types": "^3.0.1",
     "@types/node": "^22.20.7",
     "@types/virtual-dom": "^2.1.4",
     "husky": "^9.1.7",
@@ -76,7 +75,6 @@
     "html-to-vdom": "^0.7.0",
     "image-size": "^2.2.0",
     "jszip": "^3.10.2",
-    "mime-types": "^3.0.2",
     "virtual-dom": "^2.1.1",
     "xmlbuilder2": "^4.0.3"
   },

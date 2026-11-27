@@ -5,8 +5,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import { fetchImageAsBase64, measureImage } from '../../utils/image';
-import mimeTypes from 'mime-types';
+import { fetchImageAsDataUri, measureImage } from '../../utils/image';
 import namespaces from '../../namespaces';
 import { pixelToEMU, pixelRegex, TWIPToEMU, percentageRegex } from '../../utils/unit-conversion';
 import { paragraphBordersObject } from '../../constants';
@@ -357,12 +356,11 @@ export const buildParagraph = async (
           let base64String: string | void;
           const imageSource = asVNode(childVNode).properties.src;
           if (isValidUrl(imageSource)) {
-            base64String = await fetchImageAsBase64(imageSource).catch(warnImageSkipped);
+            const dataUri = await fetchImageAsDataUri(imageSource).catch(warnImageSkipped);
 
-            if (base64String && mimeTypes.lookup(imageSource)) {
-              asVNode(childVNode).properties.src = `data:${mimeTypes.lookup(
-                imageSource,
-              )};base64, ${base64String}`;
+            if (dataUri) {
+              asVNode(childVNode).properties.src = dataUri;
+              base64String = dataUri.slice(dataUri.indexOf(',') + 1);
             } else {
               // Skip this image but keep the rest of the paragraph.
               continue;
@@ -415,10 +413,11 @@ export const buildParagraph = async (
       const imageSource = vNode.properties.src;
       let base64String = imageSource;
       if (isValidUrl(imageSource)) {
-        base64String = await fetchImageAsBase64(imageSource).catch(warnImageSkipped);
+        const dataUri = await fetchImageAsDataUri(imageSource).catch(warnImageSkipped);
 
-        if (base64String && mimeTypes.lookup(imageSource)) {
-          vNode.properties.src = `data:${mimeTypes.lookup(imageSource)};base64, ${base64String}`;
+        if (dataUri) {
+          vNode.properties.src = dataUri;
+          base64String = dataUri.slice(dataUri.indexOf(',') + 1);
         } else {
           paragraphFragment.up();
 
