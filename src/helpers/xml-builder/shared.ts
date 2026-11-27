@@ -22,14 +22,11 @@ export const isVText = (value: unknown): value is VTextType => isVTextImpl(value
 // children have no tagName/properties (undefined), as before.
 
 export const asVNode = (vTree: VTree) => vTree as VNodeType;
-// FIXME: console.warning does not exist, so calling it throws and the image is
-// skipped silently. Kept as-is to preserve behaviour.
-
-export const warnImageSkipped = (error: unknown) =>
+/** Warns that an image could not be downloaded or read and is left out. */
+export const warnImageSkipped = (error: unknown) => {
   // eslint-disable-next-line no-console
-  (console as unknown as { warning: (message: string) => void }).warning(
-    `skipping image download and conversion due to ${error}`,
-  );
+  console.warn(`html-to-docx: skipping image that could not be loaded: ${error}`);
+};
 
 /** Border widths per side plus shared stroke and color, as built by buildTable. */
 export interface BorderSpec {
