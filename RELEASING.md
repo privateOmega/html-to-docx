@@ -13,9 +13,8 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 
 ## 2.0 prerelease series
 
-`release-please-config.json` currently sets `"release-as": "2.0.0-beta.1"` with prerelease versioning:
+`release-please-config.json` uses prerelease versioning, so each release bumps the beta number (`2.0.0-beta.2`, `2.0.0-beta.3`, …).
 
-- After `2.0.0-beta.1` is released, **remove `release-as`**; following releases bump to `2.0.0-beta.2`, and so on.
 - For the stable release, set `"release-as": "2.0.0"`, remove `"prerelease"`, `"versioning"` and `"prerelease-type"`, release, then remove `release-as` again.
 
 ## One-time setup
