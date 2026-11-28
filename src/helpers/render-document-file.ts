@@ -15,7 +15,6 @@ import { unsupportedImageSource, warnImageSkipped } from './xml-builder/shared';
 // eslint-disable-next-line import/no-cycle
 import * as xmlBuilder from './xml-builder';
 import namespaces from '../namespaces';
-import { imageType, internalRelationship } from '../constants';
 import { vNodeHasChildren } from '../utils/vnode';
 import { base64DataUriPayload, isValidUrl } from '../utils/url';
 import type DocxDocument from '../docx-document';
@@ -46,67 +45,45 @@ const convertHTML = HTMLToVDOM({
   VText,
 });
 
-// eslint-disable-next-line consistent-return, no-shadow
+// A paragraph holding one image, or undefined when the image cannot be
+// loaded. Only checks the image here: buildParagraph embeds it, so each image
+// is written (and downloaded) once.
 export const buildImage = async (
   docxDocumentInstance: DocxDocument,
   vNode: VNodeType,
   maximumWidth: number | null = null,
 ) => {
-  let response = null;
-  let base64Uri = null;
-  try {
-    const imageSource = vNode.properties.src;
-    if (isValidUrl(imageSource)) {
-      base64Uri = (await fetchImageAsDataUri(imageSource).catch(warnImageSkipped)) || null;
-    } else if (base64DataUriPayload(imageSource)) {
-      base64Uri = decodeURIComponent(imageSource);
-    } else {
-      warnImageSkipped(unsupportedImageSource(imageSource));
-    }
-    if (base64Uri) {
-      response = docxDocumentInstance.createMediaFile(base64Uri);
-    }
-  } catch {
-    // NOOP
+  const imageSource = vNode.properties.src;
+  let dataUri: string | null = null;
+  if (isValidUrl(imageSource)) {
+    dataUri = (await fetchImageAsDataUri(imageSource).catch(warnImageSkipped)) || null;
+  } else if (base64DataUriPayload(imageSource)) {
+    dataUri = decodeURIComponent(imageSource);
+  } else {
+    warnImageSkipped(unsupportedImageSource(imageSource));
   }
-  // Measure before writing anything, so unreadable data (e.g. an HTML error
-  // page served for an image URL) is skipped without leaving a media file.
-  const imageProperties = response ? measureImage(base64ToBytes(response.fileContent)) : null;
-  if (response && !imageProperties) {
-    warnImageSkipped(`unsupported image data (${vNode.properties.src})`);
+  if (!dataUri) {
+    return undefined;
   }
-  if (response && imageProperties) {
-    docxDocumentInstance.zip
-      .folder('word')!
-      .folder('media')!
-      .file(response.fileNameWithExtension, base64ToBytes(response.fileContent), {
-        createFolders: false,
-      });
-
-    const documentRelsId = docxDocumentInstance.createDocumentRelationships(
-      docxDocumentInstance.relationshipFilename,
-      imageType,
-      `media/${response.fileNameWithExtension}`,
-      internalRelationship,
-    );
-
-    const imageFragment = await xmlBuilder.buildParagraph(
-      vNode,
-      {
-        type: 'picture',
-        inlineOrAnchored: true,
-        relationshipId: documentRelsId,
-        ...response,
-        description: vNode.properties.alt,
-        maximumWidth: maximumWidth || docxDocumentInstance.availableDocumentSpace,
-        originalWidth: imageProperties.width,
-        originalHeight: imageProperties.height,
-      },
-      docxDocumentInstance,
-    );
-
-    return imageFragment;
+  // Unreadable data (e.g. an HTML error page served for an image URL) is
+  // skipped without leaving a media file.
+  if (!measureImage(base64ToBytes(base64DataUriPayload(dataUri) ?? ''))) {
+    warnImageSkipped(`unsupported image data (${imageSource})`);
+    return undefined;
   }
+
+  // buildParagraph must not download the image again.
+  vNode.properties.src = dataUri;
+
+  return xmlBuilder.buildParagraph(
+    vNode,
+    {
+      type: 'picture',
+      description: vNode.properties.alt,
+      maximumWidth: maximumWidth || docxDocumentInstance.availableDocumentSpace,
+    },
+    docxDocumentInstance,
+  );
 };
 
 export const buildList = async (

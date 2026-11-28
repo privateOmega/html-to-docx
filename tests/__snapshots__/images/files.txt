@@ -9,7 +9,6 @@ word/media/image-id2.png
 word/media/image-id3.png
 word/media/image-id4.png
 word/media/image-id5.png
-word/media/image-id6.png
 word/numbering.xml
 word/settings.xml
 word/styles.xml

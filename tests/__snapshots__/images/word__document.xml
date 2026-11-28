@@ -180,16 +180,16 @@
           <wp:inline distB="0" distL="0" distR="0" distT="0">
             <wp:extent cx="9525" cy="9525"/>
             <wp:effectExtent b="0" l="0" r="0" t="0"/>
-            <wp:docPr id="6" name="image-id6.png"/>
+            <wp:docPr id="5" name="image-id5.png"/>
             <a:graphic>
               <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
                 <pic:pic>
                   <pic:nvPicPr>
-                    <pic:cNvPr id="6" name="image-id6.png" descr="figure"/>
+                    <pic:cNvPr id="5" name="image-id5.png" descr="figure"/>
                     <pic:cNvPicPr/>
                   </pic:nvPicPr>
                   <pic:blipFill>
-                    <a:blip r:embed="rId11" cstate="print"/>
+                    <a:blip r:embed="rId10" cstate="print"/>
                     <a:srcRect b="0" l="0" r="0" t="0"/>
                     <a:stretch>
                       <a:fillRect/>
