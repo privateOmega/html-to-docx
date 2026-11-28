@@ -23,6 +23,18 @@ const rows = async (html) => {
 };
 
 describe('table rows', () => {
+  // #86: a <w:tr> without any <w:tc> makes Word reject the document.
+  it('leaves out rows without cells', async () => {
+    expect(await rows('<table><tr></tr><tr><td>a</td></tr><tr></tr></table>')).toEqual([['a']]);
+  });
+
+  it('keeps a row that only continues a cell from the row above', async () => {
+    expect(await rows('<table><tr><td rowspan="2">a</td></tr><tr></tr></table>')).toEqual([
+      ['a vMerge=restart'],
+      ['vMerge=continue'],
+    ]);
+  });
+
   // #223, #251: continued cells were written with gridSpan 0, which is invalid.
   it('writes a grid span only for cells that span columns', async () => {
     expect(
