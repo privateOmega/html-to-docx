@@ -160,7 +160,11 @@ export const buildTableCellProperties = (attributes: BuilderAttributes) => {
 
 export const fixupTableCellBorder = (vNode: VNodeType, attributes: BuilderAttributes) => {
   if (Object.prototype.hasOwnProperty.call(vNode.properties.style, 'border')) {
-    if (vNode.properties.style.border === 'none' || vNode.properties.style.border === 0) {
+    if (
+      vNode.properties.style.border === 'none' ||
+      vNode.properties.style.border === 0 ||
+      vNode.properties.style.border === '0'
+    ) {
       attributes.tableCellBorder = {};
     } else {
       // eslint-disable-next-line no-use-before-define
@@ -696,9 +700,9 @@ export const buildTable = async (
     }
 
     // css style overrides table border properties
-    if (tableStyles.border) {
+    if (tableStyles.border !== undefined) {
       const [cssSize, cssStroke, cssColor] = cssBorderParser(tableStyles.border);
-      borderSize = cssSize || borderSize;
+      borderSize = cssSize !== undefined && cssSize !== '' ? cssSize : borderSize;
       borderColor = cssColor || borderColor;
       borderStrike = cssStroke || borderStrike;
     }
