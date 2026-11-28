@@ -197,7 +197,6 @@
               <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
             </w:tcBorders>
             <w:vMerge w:val="continue"/>
-            <w:gridSpan w:val="0"/>
           </w:tcPr>
           <w:p/>
         </w:tc>
