@@ -222,6 +222,17 @@ export const buildList = async (
   return listElements;
 };
 
+function pageBreakParagraphFragment() {
+  return fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', 'p')
+    .ele('@w', 'r')
+    .ele('@w', 'br')
+    .att('@w', 'type', 'page')
+    .up()
+    .up()
+    .up();
+}
+
 async function findXMLEquivalent(
   docxDocumentInstance: DocxDocument,
   vNode: VNodeType,
@@ -232,17 +243,14 @@ async function findXMLEquivalent(
     (vNode.properties.attributes!.class === 'page-break' ||
       (vNode.properties.style && vNode.properties.style['page-break-after']))
   ) {
-    const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } })
-      .ele('@w', 'p')
-      .ele('@w', 'r')
-      .ele('@w', 'br')
-      .att('@w', 'type', 'page')
-      .up()
-      .up()
-      .up();
-
-    xmlFragment.import(paragraphFragment);
+    xmlFragment.import(pageBreakParagraphFragment());
     return;
+  }
+
+  // An element styled `page-break-before: always` must start on a new page,
+  // so emit a page break and keep rendering the element itself.
+  if (vNode.properties.style && vNode.properties.style['page-break-before']) {
+    xmlFragment.import(pageBreakParagraphFragment());
   }
 
   switch (vNode.tagName) {
