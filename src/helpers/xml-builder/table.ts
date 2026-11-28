@@ -486,6 +486,7 @@ export const buildTableRow = async (
   tableRowFragment.import(tableRowPropertiesFragment);
 
   const columnIndex = { index: 0 };
+  let cellCount = 0;
 
   if (vNodeHasChildren(vNode)) {
     const tableColumns = vNode.children.filter((childVNode) =>
@@ -501,6 +502,7 @@ export const buildTableRow = async (
           const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
 
           tableRowFragment.import(rowSpanCellFragment);
+          cellCount++;
         }
       }
       const tableCellFragment = await buildTableCell(
@@ -513,6 +515,7 @@ export const buildTableRow = async (
       columnIndex.index++;
 
       tableRowFragment.import(tableCellFragment);
+      cellCount++;
     }
   }
 
@@ -523,13 +526,15 @@ export const buildTableRow = async (
         const rowSpanCellFragment = rowSpanCellFragments[iteratorIndex];
 
         tableRowFragment.import(rowSpanCellFragment);
+        cellCount++;
       }
     }
   }
 
   tableRowFragment.up();
 
-  return tableRowFragment;
+  // A row without cells (e.g. an empty <tr>) is invalid in Word; leave it out.
+  return cellCount ? tableRowFragment : null;
 };
 
 export const buildTableGridCol = (gridWidth: number) =>
@@ -812,7 +817,11 @@ export const buildTable = async (
               rowSpanMap,
               docxDocumentInstance,
             );
-            tableFragment.import(tableRowFragment);
+            if (tableRowFragment) {
+              if (tableRowFragment) {
+                tableFragment.import(tableRowFragment);
+              }
+            }
           }
         }
       } else if (childVNode.tagName === 'tbody') {
@@ -832,7 +841,11 @@ export const buildTable = async (
               rowSpanMap,
               docxDocumentInstance,
             );
-            tableFragment.import(tableRowFragment);
+            if (tableRowFragment) {
+              if (tableRowFragment) {
+                tableFragment.import(tableRowFragment);
+              }
+            }
           }
         }
       } else if (childVNode.tagName === 'tr') {
@@ -846,7 +859,9 @@ export const buildTable = async (
           rowSpanMap,
           docxDocumentInstance,
         );
-        tableFragment.import(tableRowFragment);
+        if (tableRowFragment) {
+          tableFragment.import(tableRowFragment);
+        }
       }
     }
   }
