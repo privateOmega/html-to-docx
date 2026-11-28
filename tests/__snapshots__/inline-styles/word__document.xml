@@ -152,7 +152,7 @@
       </w:r>
       <w:r>
         <w:rPr>
-          <w:rFonts w:ascii="Arial" w:hAnsi="Arial"/>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Arial" w:cs="Arial"/>
           <w:sz w:val="27"/>
         </w:rPr>
         <w:t xml:space="preserve">Arial 18px</w:t>
@@ -266,7 +266,7 @@
       </w:pPr>
       <w:r>
         <w:rPr>
-          <w:rFonts w:ascii="Courier" w:hAnsi="Courier"/>
+          <w:rFonts w:ascii="Courier" w:hAnsi="Courier" w:eastAsia="Courier" w:cs="Courier"/>
         </w:rPr>
         <w:t xml:space="preserve">preformatted   text</w:t>
       </w:r>

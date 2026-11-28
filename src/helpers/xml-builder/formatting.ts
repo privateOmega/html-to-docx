@@ -13,11 +13,16 @@ import { isVNode } from './shared';
 import type { VTree, BuilderAttributes } from './shared';
 import { fixupColorCode, fixupLineHeight, fixupFontSize, fixupMargin } from './fixups';
 
+// The same font for every script: ASCII, other Latin/Greek/Cyrillic (hAnsi),
+// East Asian and complex scripts. Otherwise e.g. accented letters and CJK
+// text fall back to another font.
 export const buildRunFontFragment = (fontName = defaultFont) =>
   fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'rFonts')
     .att('@w', 'ascii', attr(fontName))
     .att('@w', 'hAnsi', attr(fontName))
+    .att('@w', 'eastAsia', attr(fontName))
+    .att('@w', 'cs', attr(fontName))
     .up();
 
 export const buildRunStyleFragment = (type = 'Hyperlink') =>
