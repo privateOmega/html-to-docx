@@ -31,6 +31,10 @@ interface ListItem {
   level: number;
   type: string;
   numberingId: number;
+  // A paragraph made up to hold inline content; following inline siblings join it.
+  synthetic?: boolean;
+  // A further paragraph of the same list item: indented like the item's text, not numbered.
+  continuation?: boolean;
 }
 
 // Elements are VNodes at runtime wherever `tagName` is read below; VText
@@ -134,9 +138,14 @@ export const buildList = async (
     ) {
       const paragraphFragment = await xmlBuilder.buildParagraph(
         tempVNodeObject.node,
-        {
-          numbering: { levelId: tempVNodeObject.level, numberingId: tempVNodeObject.numberingId },
-        },
+        tempVNodeObject.continuation
+          ? { indentation: { left: (tempVNodeObject.level + 1) * 720 } }
+          : {
+              numbering: {
+                levelId: tempVNodeObject.level,
+                numberingId: tempVNodeObject.numberingId,
+              },
+            },
         docxDocumentInstance,
       );
 
@@ -148,9 +157,13 @@ export const buildList = async (
       tempVNodeObject.node.children.length &&
       ['ul', 'ol', 'li'].includes(tempVNodeObject.node.tagName)
     ) {
+      const isListItem = tempVNodeObject.node.tagName === 'li';
+      let itemHasParagraph = false;
       const tempVNodeObjects = tempVNodeObject.node.children.reduce<ListItem[]>(
         (accumulator, childVNode) => {
-          if (['ul', 'ol'].includes(asVNode(childVNode).tagName)) {
+          const tagName = isVNode(childVNode) ? childVNode.tagName.toLowerCase() : null;
+          const last = accumulator[accumulator.length - 1];
+          if (tagName === 'ul' || tagName === 'ol') {
             accumulator.push({
               node: asVNode(childVNode),
               level: tempVNodeObject.level + 1,
@@ -160,57 +173,48 @@ export const buildList = async (
                 asVNode(childVNode).properties,
               ),
             });
+          } else if (tagName === 'li') {
+            accumulator.push({
+              node: asVNode(childVNode),
+              level: tempVNodeObject.level,
+              type: tempVNodeObject.type,
+              numberingId: tempVNodeObject.numberingId,
+            });
+          } else if (tagName !== 'p' && last?.synthetic) {
+            last.node.children.push(childVNode);
+          } else if (isVText(childVNode) && !childVNode.text.trim()) {
+            // Whitespace between blocks would only add an empty paragraph.
           } else {
-            // eslint-disable-next-line no-lonely-if
-            if (
-              accumulator.length > 0 &&
-              isVNode(accumulator[accumulator.length - 1].node) &&
-              accumulator[accumulator.length - 1]!.node.tagName.toLowerCase() === 'p'
-            ) {
-              accumulator[accumulator.length - 1]!.node.children.push(childVNode);
-            } else {
-              const paragraphVNode = new VNode(
-                'p',
-                isVNode(childVNode) && childVNode.properties && parentVNodeProperties
-                  ? {
-                      attributes: {
-                        ...parentVNodeProperties.attributes,
-                        ...childVNode.properties.attributes,
-                      },
-                      style: {
-                        ...parentVNodeProperties.style,
-                        ...childVNode.properties.style,
-                      },
-                    }
-                  : // virtual-dom accepts null properties at runtime
-                    (null as unknown as VirtualDOM.VProperties), // copy properties for styling purposes
-
-                // eslint-disable-next-line no-nested-ternary
-                isVText(childVNode)
-                  ? [childVNode]
-                  : // eslint-disable-next-line no-nested-ternary
-                    isVNode(childVNode)
-                    ? childVNode.tagName.toLowerCase() === 'li'
-                      ? [...childVNode.children]
-                      : [childVNode]
-                    : [],
-              );
-              accumulator.push({
-                // eslint-disable-next-line prettier/prettier, no-nested-ternary
-                node: isVNode(childVNode)
-                  ? // eslint-disable-next-line prettier/prettier, no-nested-ternary
-                    childVNode.tagName.toLowerCase() === 'li'
-                    ? childVNode
-                    : childVNode.tagName.toLowerCase() !== 'p'
-                      ? paragraphVNode
-                      : childVNode
-                  : // eslint-disable-next-line prettier/prettier
-                    paragraphVNode,
-                level: tempVNodeObject.level,
-                type: tempVNodeObject.type,
-                numberingId: tempVNodeObject.numberingId,
-              });
-            }
+            const node =
+              tagName === 'p'
+                ? asVNode(childVNode)
+                : new VNode(
+                    'p',
+                    isVNode(childVNode) && childVNode.properties && parentVNodeProperties
+                      ? {
+                          attributes: {
+                            ...parentVNodeProperties.attributes,
+                            ...childVNode.properties.attributes,
+                          },
+                          style: {
+                            ...parentVNodeProperties.style,
+                            ...childVNode.properties.style,
+                          },
+                        }
+                      : // virtual-dom accepts null properties at runtime
+                        (null as unknown as VirtualDOM.VProperties), // copy properties for styling purposes
+                    [childVNode],
+                  );
+            accumulator.push({
+              node,
+              level: tempVNodeObject.level,
+              type: tempVNodeObject.type,
+              numberingId: tempVNodeObject.numberingId,
+              synthetic: tagName !== 'p',
+              // Only the first paragraph of a list item carries its number.
+              continuation: isListItem && itemHasParagraph,
+            });
+            itemHasParagraph = true;
           }
 
           return accumulator;
