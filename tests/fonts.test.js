@@ -27,4 +27,9 @@ describe('fonts', () => {
     const rFonts = styles.match(/<w:rPrDefault>.*?<w:rFonts ([^>]*)\/>/s)[1];
     expect(fonts(rFonts)).toEqual(everyScript('Garamond'));
   });
+
+  it('uses an inline font-family for every script', async () => {
+    const { document } = await parts('<p><span style="font-family: SimSun">中文 âț</span></p>');
+    expect(fonts(document.match(/<w:rFonts ([^>]*)\/>/)[1])).toEqual(everyScript('SimSun'));
+  });
 });
