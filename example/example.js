@@ -1,10 +1,104 @@
 /* eslint-disable no-console */
-import fs from 'fs';
+// Writes example/example.docx: a general showcase, followed by one section per
+// behaviour fixed for 2.0, each saying what it should look like, so the output
+// can be checked by eye in Microsoft Word, LibreOffice or Google Docs.
+//
+//   pnpm build && node example/example.js
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 // FIXME: Incase you have the npm package
 // import HTMLtoDOCX from 'html-to-docx';
 import HTMLtoDOCX from '../dist/index.mjs';
 
-const filePath = './example.docx';
+const filePath = fileURLToPath(new URL('./example.docx', import.meta.url));
+
+// 80x40 solid-colour PNGs.
+const png = (base64) => `data:image/png;base64,${base64}`;
+const BLUE = png(
+  'iVBORw0KGgoAAAANSUhEUgAAAFAAAAAoCAIAAADmAupWAAAARElEQVR42u3PQQ0AAAgEoEtiMBMbyxZ+ZKMAqZ5XIiwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsfGsBlf+g4hGpyTkAAAAASUVORK5CYII=',
+);
+const GREEN = png(
+  'iVBORw0KGgoAAAANSUhEUgAAAFAAAAAoCAIAAADmAupWAAAARElEQVR42u3PQQ0AAAgEoItjHCMa1RZ+ZKMAqelXIiwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsfGsBt6GsxOWoQOQAAAAASUVORK5CYII=',
+);
+const ORANGE = png(
+  'iVBORw0KGgoAAAANSUhEUgAAAFAAAAAoCAIAAADmAupWAAAARElEQVR42u3PQQ0AAAgEoEtiWMOawxZ+ZKMAma5XIiwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsfGsBCZ4MHnhb9EgAAAAASUVORK5CYII=',
+);
+
+const expect = (text) =>
+  `<p style="color: #666666; font-size: 9pt;"><em>Expected: ${text}</em></p>`;
+
+const sections = [
+  [
+    'Opens in Word (#225, #199, #57)',
+    'this document sets only the top and left page margins. It used to be rejected by Word as corrupt.',
+    '<p>If you can read this in Word, partial margins work. Top margin: 0.5 in, left: 1.5 in; the others keep their defaults.</p>',
+  ],
+  [
+    'Inline formatting tags (#330, #237, #226)',
+    'each word formatted as named.',
+    '<p><em>em italic</em>, <i>i italic</i>, <ins>ins underlined</ins>, <u>u underlined</u>, <s>s struck</s>, <del>del struck</del>, <strike>strike struck</strike>, <mark>mark highlighted</mark>, <code>code grey</code>, <sub>sub</sub>script, <sup>sup</sup>erscript.</p>',
+  ],
+  [
+    'Nested formatting (#236)',
+    '"bold underlined", then bold "a", bold italic "b", bold "c" and plain "d".',
+    '<p><strong><u>bold underlined</u></strong></p><p><b>a <i>b</i> c</b> d</p><p><b style="color: #c00000;">bold red via style on &lt;b&gt;</b></p>',
+  ],
+  [
+    'Spaces between inline elements (#103)',
+    '"Bosch arrived late and had to park" with spaces between the words.',
+    '<p><strong>Bosch</strong> <em>arrived</em> <u>late</u> and had to park.</p>',
+  ],
+  [
+    'Links inside inline elements (#54)',
+    'three working links: inside a span, a bold link, and one link whose bold and italic parts are all clickable.',
+    '<p><span>In a span: <a href="https://example.com/one">link one</a></span></p><p><b>In bold: <a href="https://example.com/two">link two</a></b></p><p><a href="https://example.com/three"><strong>bold part</strong> and <em>italic part</em></a></p>',
+  ],
+  [
+    'Fonts for every script (#214, #216)',
+    'the whole line in Arial, including âțșî and the Chinese text; the second line entirely in SimSun if installed.',
+    '<p style="font-family: Arial;">Arial: Română âțșî, Français éèçà, 中文测试</p><p><span style="font-family: SimSun;">SimSun: 中文测试 and Latin text</span></p>',
+  ],
+  [
+    'Several paragraphs in a list item (#243, #87)',
+    'item 1 has three paragraphs, only the first numbered; "after the nested list" continues item 2 without a new number.',
+    '<ol><li><p>Item 1, first paragraph</p><p>Item 1, second paragraph</p><p>Item 1, third paragraph</p></li><li>Item 2<ul><li>nested</li></ul>after the nested list</li><li>Item 3</li></ol>',
+  ],
+  [
+    'Images inside inline elements (#233) and embedded once',
+    'a blue image inside spans, a green image that is a link, and an orange image on its own line. Each image is stored once in the file.',
+    `<p>Before <span style="font-size: 11pt;"><span style="color: black;"><img src="${BLUE}" alt="blue"></span></span> after</p><p><a href="https://example.com"><img src="${GREEN}" alt="green link"></a></p><img src="${ORANGE}" alt="orange">`,
+  ],
+  [
+    'Unsupported image sources are skipped (#211)',
+    'the sentence below is complete; the relative-path image is left out (with a console warning) instead of failing the conversion.',
+    '<p>Text before <img src="/images/relative.png" alt="relative"> text after.</p>',
+  ],
+  [
+    'Column widths (#105, #266, #331, #345)',
+    'first table 30% / 70%; second table columns in a 1 : 3 ratio; third table first cell spans two equal columns.',
+    '<table style="width: 100%;"><tr><td style="width: 30%;">30%</td><td style="width: 70%;">70%</td></tr></table>' +
+      '<p></p><table><tr><th style="width: 100px;">100px</th><th style="width: 300px;">300px</th></tr><tr><td>a</td><td>b</td></tr></table>' +
+      '<p></p><table style="width: 100%;"><tr><td colspan="2" style="width: 50%;">colspan 2, 50%</td><td>rest</td></tr><tr><td>a</td><td>b</td><td>c</td></tr></table>',
+  ],
+  [
+    'Merged cells and empty rows (#223, #86)',
+    'A spans two rows, B spans two columns; the empty <tr> is left out.',
+    '<table style="width: 100%;"><tr><td rowspan="2">A (2 rows)</td><td colspan="2">B (2 columns)</td></tr><tr><td>c</td><td>d</td></tr><tr></tr><tr><td>e</td><td>f</td><td>g</td></tr></table>',
+  ],
+  [
+    'Blockquote with a font (#338)',
+    'an indented quote with "Georgia" in Georgia.',
+    '<blockquote>A quote with <span style="font-family: Georgia;">Georgia</span> in it.</blockquote>',
+  ],
+  [
+    'Repeated table header (#332)',
+    'the next page starts with the "Number | Square" header row again.',
+    `<table style="width: 60%;"><thead><tr><th>Number</th><th>Square</th></tr></thead><tbody>${Array.from(
+      { length: 60 },
+      (_, index) => `<tr><td>${index + 1}</td><td>${(index + 1) ** 2}</td></tr>`,
+    ).join('')}</tbody></table>`,
+  ],
+];
 
 const htmlString = `<!DOCTYPE html>
 <html lang="en">
@@ -232,12 +326,21 @@ const htmlString = `<!DOCTYPE html>
                 <span style="font-size:30pt"><span style="color:#cc1177">Never surrender, no mercy, and never give up!</span></span>
             </li>
         </ul>
+        <div class="page-break" style="page-break-after: always"></div>
+        <h1>html-to-docx 2.0: checks for Word</h1>
+        <p>Each section names the issue or PR it covers and what it should look like.</p>
+        ${sections
+          .map(([title, expected, body]) => `<h2>${title}</h2>${expect(expected)}${body}`)
+          .join('\n')}
     </body>
 </html>`;
 
 (async () => {
   const fileBuffer = await HTMLtoDOCX(htmlString, null, {
-    table: { row: { cantSplit: true } },
+    title: 'html-to-docx example',
+    // Only some margins: the others keep their defaults (#225).
+    margins: { top: '0.5in', left: '1.5in' },
+    table: { row: { cantSplit: true, repeatTableHeader: true } },
     footer: true,
     pageNumber: true,
   });
@@ -247,6 +350,6 @@ const htmlString = `<!DOCTYPE html>
       console.log('Docx file creation failed');
       return;
     }
-    console.log('Docx file created successfully');
+    console.log(`Docx file created successfully: ${filePath}`);
   });
 })();
