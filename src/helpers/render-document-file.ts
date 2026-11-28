@@ -9,7 +9,7 @@ import isVText from 'virtual-dom/vnode/is-vtext.js';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
 import { fetchImageAsDataUri, measureImage } from '../utils/image';
-import { warnImageSkipped } from './xml-builder/shared';
+import { unsupportedImageSource, warnImageSkipped } from './xml-builder/shared';
 
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
@@ -17,7 +17,7 @@ import * as xmlBuilder from './xml-builder';
 import namespaces from '../namespaces';
 import { imageType, internalRelationship } from '../constants';
 import { vNodeHasChildren } from '../utils/vnode';
-import { isValidUrl } from '../utils/url';
+import { base64DataUriPayload, isValidUrl } from '../utils/url';
 import type DocxDocument from '../docx-document';
 import type { NumberingObject } from '../types';
 import { base64ToBytes } from '../utils/base64';
@@ -54,8 +54,10 @@ export const buildImage = async (
     const imageSource = vNode.properties.src;
     if (isValidUrl(imageSource)) {
       base64Uri = (await fetchImageAsDataUri(imageSource).catch(warnImageSkipped)) || null;
+    } else if (base64DataUriPayload(imageSource)) {
+      base64Uri = decodeURIComponent(imageSource);
     } else {
-      base64Uri = decodeURIComponent(vNode.properties.src);
+      warnImageSkipped(unsupportedImageSource(imageSource));
     }
     if (base64Uri) {
       response = docxDocumentInstance.createMediaFile(base64Uri);
