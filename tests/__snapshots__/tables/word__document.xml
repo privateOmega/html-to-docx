@@ -365,6 +365,7 @@
             </w:pPr>
             <w:r>
               <w:rPr/>
+              <w:t xml:space="preserve">nested table</w:t>
             </w:r>
           </w:p>
         </w:tc>
