@@ -22,6 +22,27 @@ const firstCellBorders = async (html) => {
 };
 
 describe('table cell borders', () => {
+  // #177: cells continuing a rowspan got the default borders instead of the
+  // merged cell's, so its edges changed width part of the way down.
+  it('gives the rows of a merged cell the merged cell borders', async () => {
+    const rows = await firstCellBorders(
+      '<table><tr><td rowspan="3" style="border: 1pt solid black">merged</td><td>a</td></tr>' +
+        '<tr><td>b</td></tr><tr><td>c</td></tr></table>',
+    );
+    expect(rows).toHaveLength(3);
+    expect(rows[1]).toEqual(rows[0]);
+    expect(rows[2]).toEqual(rows[0]);
+    expect(rows[0].left).toBe('single/8');
+  });
+
+  it('keeps "no border" on the rows of a merged cell', async () => {
+    const rows = await firstCellBorders(
+      '<table style="border: none"><tr><td rowspan="2" style="border: none">x</td><td style="border: none">a</td></tr>' +
+        '<tr><td style="border: none">b</td></tr></table>',
+    );
+    expect(rows[1]).toEqual(rows[0]);
+  });
+
   // `border-top: none` wrote w:sz="none", which is not a valid width.
   it('writes no border for a side set to none or 0', async () => {
     const [cell] = await firstCellBorders(
