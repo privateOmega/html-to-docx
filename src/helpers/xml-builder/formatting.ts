@@ -256,6 +256,10 @@ export const buildFormatting = (htmlTag: string, options?: BuilderAttributes) =>
 
 export const buildRunProperties = (attributes: BuilderAttributes) => {
   const runPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'rPr');
+  // A property element may appear only once in <w:rPr>; when several
+  // attributes map to the same element (e.g. <pre> and the Courier font set
+  // for it), the first one wins.
+  const emitted = new Set<string>();
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
       const options: BuilderAttributes = {};
@@ -269,7 +273,11 @@ export const buildRunProperties = (attributes: BuilderAttributes) => {
 
       const formattingFragment = buildFormatting(key, options);
       if (formattingFragment) {
-        runPropertiesFragment.import(formattingFragment);
+        const element = (formattingFragment.first().node as unknown as Element).nodeName;
+        if (!emitted.has(element)) {
+          emitted.add(element);
+          runPropertiesFragment.import(formattingFragment);
+        }
       }
     });
   }
