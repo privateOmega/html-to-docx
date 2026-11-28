@@ -335,13 +335,7 @@ export const buildParagraph = async (
         paragraphFragment.import(runOrHyperlinkFragments);
       }
     } else if (vNode.tagName === 'blockquote') {
-      // FIXME: docxDocumentInstance is not passed here, so a blockquote with an
-      // inline font-family crashes on createFont. Kept as-is to preserve behaviour.
-      const runFragmentOrFragments = await buildRun(
-        vNode,
-        attributes,
-        undefined as unknown as DocxDocument,
-      );
+      const runFragmentOrFragments = await buildRun(vNode, attributes, docxDocumentInstance);
       if (Array.isArray(runFragmentOrFragments)) {
         for (let index = 0; index < runFragmentOrFragments.length; index++) {
           paragraphFragment.import(runFragmentOrFragments[index]);
