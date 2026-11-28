@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-beta.2](https://github.com/privateOmega/html-to-docx/compare/v2.0.0-beta.1...v2.0.0-beta.2) (2026-11-28)
+
+
+### Features
+
+* add table.row.repeatTableHeader to repeat &lt;thead&gt; rows on each page ([a345fee](https://github.com/privateOmega/html-to-docx/commit/a345fee8bd53804157723caae5684dc6b1ed0844))
+
+
+### Bug Fixes
+
+* add an empty paragraph after a table only where Word needs one ([24dcee5](https://github.com/privateOmega/html-to-docx/commit/24dcee5fbd32490dd203be5806f4c5272912093c)), closes [#138](https://github.com/privateOmega/html-to-docx/issues/138)
+* apply em, ins, s/del/strike, mark and code formatting in runs ([f812fe0](https://github.com/privateOmega/html-to-docx/commit/f812fe011b96deecccedb3e4835156fe1a89fdc3))
+* apply inline font families to every script ([32e2982](https://github.com/privateOmega/html-to-docx/commit/32e2982bdd6a5d2f28f58cbab63fd4ae185fae34)), closes [#216](https://github.com/privateOmega/html-to-docx/issues/216)
+* build one table grid from the column widths ([6b48312](https://github.com/privateOmega/html-to-docx/commit/6b48312ade950b6eeb45c52cd6c1d150bbfcb562))
+* collapse runs of whitespace in text like a browser ([b46b868](https://github.com/privateOmega/html-to-docx/commit/b46b86887ea5754262bc65b154197e9081024563))
+* detect image URLs without a lookbehind regular expression ([fa9eb75](https://github.com/privateOmega/html-to-docx/commit/fa9eb756dee918a38ffa79d6a568a0f7052f9853))
+* do not write gridSpan 0 for continued row-span cells ([9f1a34d](https://github.com/privateOmega/html-to-docx/commit/9f1a34d8cd7b21d8c05ddab64f1359917e443d6d)), closes [#223](https://github.com/privateOmega/html-to-docx/issues/223)
+* embed images nested inside inline elements ([06a2ddd](https://github.com/privateOmega/html-to-docx/commit/06a2ddd593e3de0ad33a2784dbe91740a0b9a86d)), closes [#233](https://github.com/privateOmega/html-to-docx/issues/233)
+* embed images outside paragraphs only once ([773fc7d](https://github.com/privateOmega/html-to-docx/commit/773fc7d7f28e8d3d32c8372dba3f462ec9bcf539))
+* emit each run property element at most once ([48520a7](https://github.com/privateOmega/html-to-docx/commit/48520a733d561772c3d69bb20f837f9d61609b41))
+* keep default margins for sides that are not given ([fad88ce](https://github.com/privateOmega/html-to-docx/commit/fad88ce367685df13f3da7e5a582e2d98178406e))
+* keep every paragraph of a list item ([7efa4fe](https://github.com/privateOmega/html-to-docx/commit/7efa4fec879bbbab340c54d2d9131ba9761821ce))
+* keep formatting and links of nested inline elements ([94913ae](https://github.com/privateOmega/html-to-docx/commit/94913aeb0e294ea5731f9c7118eeb6b2f26b1e71))
+* keep table border widths within what Word draws ([536b784](https://github.com/privateOmega/html-to-docx/commit/536b784e9aa93b83ca496295635e6aa793079e8b))
+* keep the space between inline elements ([378b33f](https://github.com/privateOmega/html-to-docx/commit/378b33fc881671458861aa583d8d6641751e63d5)), closes [#103](https://github.com/privateOmega/html-to-docx/issues/103)
+* leave out table rows without cells ([9656060](https://github.com/privateOmega/html-to-docx/commit/96560608a8f259e0be93edd0214f4f77a4f13573)), closes [#86](https://github.com/privateOmega/html-to-docx/issues/86)
+* pass the document to runs inside a blockquote ([8214dd6](https://github.com/privateOmega/html-to-docx/commit/8214dd6c3bbd8db1dc202f636e475a9edf6a8750))
+* repeat a merged cell's borders on the rows it spans ([c488210](https://github.com/privateOmega/html-to-docx/commit/c488210c2628bc79dfe3db9d3e239cd677ea5199)), closes [#177](https://github.com/privateOmega/html-to-docx/issues/177)
+* skip images whose src is not a URL or base64 data URI ([359f17c](https://github.com/privateOmega/html-to-docx/commit/359f17c2ebaf58d78fc3a95d93bea47a76cad541)), closes [#211](https://github.com/privateOmega/html-to-docx/issues/211)
+* support percentage and auto table cell widths ([0e1f0b6](https://github.com/privateOmega/html-to-docx/commit/0e1f0b616016e47bdb70a68c1779fb7cc2222ca1))
+* use the document font for every script ([2feb131](https://github.com/privateOmega/html-to-docx/commit/2feb131e332c5944161bc13dde9eeecddd191005)), closes [#214](https://github.com/privateOmega/html-to-docx/issues/214)
+* write no border for table sides set to none or 0 ([3d063ae](https://github.com/privateOmega/html-to-docx/commit/3d063ae26db080b94c5991152c7b81f93eec9885))
+* write no table cell spacing unless there is some ([e610123](https://github.com/privateOmega/html-to-docx/commit/e610123bace32e0c877dfe4b1acc1ccd13796f80)), closes [#201](https://github.com/privateOmega/html-to-docx/issues/201)
+
 ## [2.0.0-beta.1](https://github.com/privateOmega/html-to-docx/compare/v1.8.0...v2.0.0-beta.1) (2026-11-27)
 
 
