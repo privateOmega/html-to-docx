@@ -56,6 +56,13 @@ export const buildTableCellSpacing = (cellSpacing = 0) =>
     .att('@w', 'type', attr('dxa'))
     .up();
 
+// Word draws line borders from 1/4 pt to 12 pt (w:sz 2 to 96, in eighths of
+// a point); thinner borders are drawn unevenly, with parts missing.
+const lineBorderSize = (size: number | string) => {
+  const value = Number(size);
+  return Number.isFinite(value) ? Math.min(Math.max(value, 2), 96) : size;
+};
+
 export const buildTableCellBorders = (tableCellBorder: BorderSpec) => {
   const tableCellBordersFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
@@ -65,7 +72,13 @@ export const buildTableCellBorders = (tableCellBorder: BorderSpec) => {
   const { color, stroke, ...borders } = tableCellBorder;
   Object.keys(borders).forEach((border) => {
     if (tableCellBorder[border]) {
-      const borderFragment = buildBorder(border, tableCellBorder[border], 0, color, stroke);
+      const borderFragment = buildBorder(
+        border,
+        lineBorderSize(tableCellBorder[border]!),
+        0,
+        color,
+        stroke,
+      );
       tableCellBordersFragment.import(borderFragment);
     }
   });
@@ -658,7 +671,13 @@ export const buildTableBorders = (tableBorder: BorderSpec) => {
 
   Object.keys(borders).forEach((border) => {
     if (borders[border]) {
-      const borderFragment = buildBorder(border, borders[border], 0, color, stroke);
+      const borderFragment = buildBorder(
+        border,
+        lineBorderSize(borders[border]!),
+        0,
+        color,
+        stroke,
+      );
       tableBordersFragment.import(borderFragment);
     }
   });
@@ -792,10 +811,10 @@ export const buildTable = async (
     } else {
       tableBorders.insideV = 0;
       tableBorders.insideH = 0;
-      tableCellBorders.top = 1;
-      tableCellBorders.bottom = 1;
-      tableCellBorders.left = 1;
-      tableCellBorders.right = 1;
+      tableCellBorders.top = 2;
+      tableCellBorders.bottom = 2;
+      tableCellBorders.left = 2;
+      tableCellBorders.right = 2;
     }
 
     modifiedAttributes.tableBorder = tableBorders;
