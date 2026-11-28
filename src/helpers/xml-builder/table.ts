@@ -63,6 +63,16 @@ const lineBorderSize = (size: number | string) => {
   return Number.isFinite(value) ? Math.min(Math.max(value, 2), 96) : size;
 };
 
+// CSS border widths that mean "no border".
+const isNoBorder = (size: unknown) =>
+  typeof size === 'string' && ['none', 'hidden'].includes(size.trim().toLowerCase());
+
+const buildNoBorder = (side: string) =>
+  fragment({ namespaceAlias: { w: namespaces.w } })
+    .ele('@w', side)
+    .att('@w', 'val', 'nil')
+    .up();
+
 export const buildTableCellBorders = (tableCellBorder: BorderSpec) => {
   const tableCellBordersFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele(
     '@w',
@@ -71,7 +81,12 @@ export const buildTableCellBorders = (tableCellBorder: BorderSpec) => {
 
   const { color, stroke, ...borders } = tableCellBorder;
   Object.keys(borders).forEach((border) => {
-    if (tableCellBorder[border]) {
+    const size = tableCellBorder[border];
+    // A side set to 0 or none has no border; left out, it would take the
+    // table's border instead.
+    if (size === 0 || size === '0' || isNoBorder(size)) {
+      tableCellBordersFragment.import(buildNoBorder(border));
+    } else if (size) {
       const borderFragment = buildBorder(
         border,
         lineBorderSize(tableCellBorder[border]!),
@@ -670,7 +685,9 @@ export const buildTableBorders = (tableBorder: BorderSpec) => {
   const { color, stroke, ...borders } = tableBorder;
 
   Object.keys(borders).forEach((border) => {
-    if (borders[border]) {
+    if (isNoBorder(borders[border])) {
+      tableBordersFragment.import(buildNoBorder(border));
+    } else if (borders[border]) {
       const borderFragment = buildBorder(
         border,
         lineBorderSize(borders[border]!),
