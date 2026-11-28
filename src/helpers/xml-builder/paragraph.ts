@@ -5,19 +5,16 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-else-return */
 import { fragment } from 'xmlbuilder2';
-import { fetchImageAsDataUri, measureImage } from '../../utils/image';
 import namespaces from '../../namespaces';
 import { paragraphBordersObject } from '../../constants';
 import { vNodeHasChildren } from '../../utils/vnode';
-import { base64DataUriPayload, isValidUrl } from '../../utils/url';
 import { attr } from '../../utils/xml';
 import type DocxDocument from '../../docx-document';
-import { isVNode, asVNode, unsupportedImageSource, warnImageSkipped } from './shared';
+import { isVNode } from './shared';
 import type { VTree, BuilderAttributes } from './shared';
 import { buildShading, buildBorder, modifiedStyleAttributesBuilder } from './formatting';
 import { buildRun, buildRunOrRuns, buildRunOrHyperLink } from './run';
-import { computeImageDimensions } from './image';
-import { base64ToBytes } from '../../utils/base64';
+import { prepareImage } from './image';
 
 export const buildNumberingProperties = (levelId: number, numberingId: number) =>
   fragment({ namespaceAlias: { w: namespaces.w } })
@@ -187,14 +184,9 @@ export const buildParagraph = async (
   docxDocumentInstance: DocxDocument,
 ) => {
   const paragraphFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'p');
-  const modifiedAttributes = modifiedStyleAttributesBuilder(
-    docxDocumentInstance,
-    vNode,
-    attributes,
-    {
-      isParagraph: true,
-    },
-  );
+  let modifiedAttributes = modifiedStyleAttributesBuilder(docxDocumentInstance, vNode, attributes, {
+    isParagraph: true,
+  });
   const paragraphPropertiesFragment = buildParagraphProperties(modifiedAttributes);
   paragraphFragment.import(paragraphPropertiesFragment);
   if (isVNode(vNode) && vNodeHasChildren(vNode)) {
@@ -248,48 +240,10 @@ export const buildParagraph = async (
     } else {
       for (let index = 0; index < vNode.children.length; index++) {
         const childVNode = vNode.children[index]!;
-        if (asVNode(childVNode).tagName === 'img') {
-          let base64String: string | void;
-          const imageSource = asVNode(childVNode).properties.src;
-          if (isValidUrl(imageSource)) {
-            const dataUri = await fetchImageAsDataUri(imageSource).catch(warnImageSkipped);
-
-            if (dataUri) {
-              asVNode(childVNode).properties.src = dataUri;
-              base64String = dataUri.slice(dataUri.indexOf(',') + 1);
-            } else {
-              // Skip this image but keep the rest of the paragraph.
-              continue;
-            }
-          } else {
-            const payload = base64DataUriPayload(imageSource);
-            if (!payload) {
-              warnImageSkipped(unsupportedImageSource(imageSource));
-              // Skip this image but keep the rest of the paragraph.
-              continue;
-            }
-            base64String = payload;
-          }
-          const imageProperties = measureImage(
-            base64ToBytes(decodeURIComponent(base64String as string)),
-          );
-          if (!imageProperties) {
-            warnImageSkipped(`unsupported image data (${imageSource})`);
-            continue;
-          }
-
-          modifiedAttributes.maximumWidth =
-            modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
-          modifiedAttributes.originalWidth = imageProperties.width;
-          modifiedAttributes.originalHeight = imageProperties.height;
-
-          computeImageDimensions(asVNode(childVNode), modifiedAttributes);
-        }
+        // Images (at any depth) are loaded and sized while building the runs.
         const runOrHyperlinkFragments = await buildRunOrHyperLink(
           childVNode,
-          isVNode(childVNode) && childVNode.tagName === 'img'
-            ? { ...modifiedAttributes, type: 'picture', description: childVNode.properties.alt }
-            : modifiedAttributes,
+          modifiedAttributes,
           docxDocumentInstance,
         );
         if (Array.isArray(runOrHyperlinkFragments)) {
@@ -311,46 +265,14 @@ export const buildParagraph = async (
     // In case paragraphs has to be rendered where vText is present. Eg. table-cell
     // Or in case the vNode is something like img
     if (isVNode(vNode) && vNode.tagName === 'img') {
-      const imageSource = vNode.properties.src;
-      let base64String = imageSource;
-      if (isValidUrl(imageSource)) {
-        const dataUri = await fetchImageAsDataUri(imageSource).catch(warnImageSkipped);
-
-        if (dataUri) {
-          vNode.properties.src = dataUri;
-          base64String = dataUri.slice(dataUri.indexOf(',') + 1);
-        } else {
-          paragraphFragment.up();
-
-          return paragraphFragment;
-        }
-      } else {
-        const payload = base64DataUriPayload(imageSource);
-        if (!payload) {
-          // Same as a failed download: an empty paragraph without the image.
-          warnImageSkipped(unsupportedImageSource(imageSource));
-          paragraphFragment.up();
-
-          return paragraphFragment;
-        }
-        base64String = payload;
-      }
-
-      const imageProperties = measureImage(base64ToBytes(decodeURIComponent(base64String)));
-      if (!imageProperties) {
+      const imageAttributes = await prepareImage(vNode, modifiedAttributes, docxDocumentInstance);
+      if (!imageAttributes) {
         // Same as a failed download: an empty paragraph without the image.
-        warnImageSkipped(`unsupported image data (${imageSource})`);
         paragraphFragment.up();
 
         return paragraphFragment;
       }
-
-      modifiedAttributes.maximumWidth =
-        modifiedAttributes.maximumWidth || docxDocumentInstance.availableDocumentSpace;
-      modifiedAttributes.originalWidth = imageProperties.width;
-      modifiedAttributes.originalHeight = imageProperties.height;
-
-      computeImageDimensions(vNode, modifiedAttributes);
+      modifiedAttributes = imageAttributes;
     }
     const runFragments = await buildRunOrRuns(vNode, modifiedAttributes, docxDocumentInstance);
     if (Array.isArray(runFragments)) {

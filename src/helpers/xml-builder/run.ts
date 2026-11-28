@@ -18,6 +18,7 @@ import {
   buildRunProperties,
 } from './formatting';
 import { buildDrawing } from './drawing';
+import { prepareImage } from './image';
 import { base64ToBytes } from '../../utils/base64';
 
 // Inline elements that add run formatting (see buildFormatting): strong/b,
@@ -136,6 +137,13 @@ const buildInlineRuns = async (
   attributes: BuilderAttributes,
   docxDocumentInstance: DocxDocument,
 ): Promise<XMLBuilder[]> => {
+  // An image anywhere inside inline elements, e.g. <span><img></span>.
+  if (isVNode(vNode) && vNode.tagName === 'img' && attributes.type !== 'picture') {
+    const imageAttributes = await prepareImage(vNode, attributes, docxDocumentInstance);
+    return imageAttributes
+      ? [await buildLeafRun(vNode, imageAttributes, docxDocumentInstance)]
+      : [];
+  }
   if (
     !isVNode(vNode) ||
     vNode.tagName === 'br' ||
