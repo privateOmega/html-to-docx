@@ -57,7 +57,13 @@ const minifyHTMLString = (htmlString: unknown): string | null => {
         })
         .replace(/\>[\t ]+$/g, '>');
 
-      return minifiedHTMLString;
+      // Runs of whitespace inside text collapse to one space, as in a browser;
+      // otherwise the source's line breaks and indentation show up as gaps.
+      // The content of <pre> is left as it is.
+      return minifiedHTMLString
+        .split(/(<pre[\s>][\s\S]*?<\/pre>)/i)
+        .map((part, index) => (index % 2 ? part : part.replace(/[\t ]{2,}/g, ' ')))
+        .join('');
     }
 
     throw new Error('invalid html string');
