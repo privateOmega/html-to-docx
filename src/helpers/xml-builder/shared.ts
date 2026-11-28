@@ -84,6 +84,8 @@ export interface BuilderAttributes {
   tableCellSpacing?: number;
   tableRowHeight?: number;
   rowCantSplit?: boolean;
+  repeatTableHeader?: boolean;
+  tableHeaderRow?: boolean;
   rowSpan?: number | string;
   colSpan?: number;
   // images

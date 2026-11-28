@@ -196,6 +196,7 @@ class DocxDocument {
   complexScriptFontSize: number;
   lang: string;
   tableRowCantSplit: boolean;
+  tableRowRepeatHeader: boolean;
   pageNumber: boolean;
   skipFirstHeaderFooter: boolean;
   lineNumber: Partial<LineNumberOptions> | null | undefined;
@@ -259,6 +260,7 @@ class DocxDocument {
     this.lang = properties.lang || defaultLang;
     this.tableRowCantSplit =
       (properties.table && properties.table.row && properties.table.row.cantSplit) || false;
+    this.tableRowRepeatHeader = properties.table?.row?.repeatTableHeader || false;
     this.pageNumber = properties.pageNumber || false;
     this.skipFirstHeaderFooter = properties.skipFirstHeaderFooter || false;
     this.lineNumber = properties.lineNumber ? properties.lineNumberOptions : null;

@@ -430,6 +430,17 @@ export const buildTableRowProperties = (attributes: BuilderAttributes) => {
             delete attributes.rowCantSplit;
           }
           break;
+        case 'tableHeaderRow':
+          if (attributes.tableHeaderRow) {
+            tableRowPropertiesFragment.import(
+              fragment({ namespaceAlias: { w: namespaces.w } })
+                .ele('@w', 'tblHeader')
+                .up(),
+            );
+            // eslint-disable-next-line no-param-reassign
+            delete attributes.tableHeaderRow;
+          }
+          break;
       }
     });
   }
@@ -792,7 +803,10 @@ export const buildTable = async (
             }
             const tableRowFragment = await buildTableRow(
               grandChildVNode,
-              modifiedAttributes,
+              // <thead> rows repeat at the top of each page when enabled.
+              modifiedAttributes.repeatTableHeader
+                ? { ...modifiedAttributes, tableHeaderRow: true }
+                : modifiedAttributes,
               rowSpanMap,
               docxDocumentInstance,
             );
