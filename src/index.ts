@@ -2,6 +2,44 @@
 import JSZip from 'jszip';
 import addFilesToContainer from './html-to-docx';
 
+// Inline elements: whitespace between two of them is a word separator and
+// must survive minification, e.g. `<b>a</b> <i>b</i>`.
+const inlineTags = new Set([
+  'a',
+  'abbr',
+  'b',
+  'bdi',
+  'bdo',
+  'cite',
+  'code',
+  'data',
+  'del',
+  'dfn',
+  'em',
+  'font',
+  'i',
+  'img',
+  'ins',
+  'kbd',
+  'mark',
+  'q',
+  's',
+  'samp',
+  'small',
+  'span',
+  'strike',
+  'strong',
+  'sub',
+  'sup',
+  'time',
+  'u',
+  'var',
+]);
+
+// Name of the tag starting at `index` (`<b ...>` or `</b>`), lower-cased.
+const tagNameAt = (html: string, index: number) =>
+  /^<\/?([a-zA-Z][\w-]*)/.exec(html.slice(index, index + 64))?.[1]?.toLowerCase();
+
 const minifyHTMLString = (htmlString: unknown): string | null => {
   try {
     if (typeof htmlString === 'string' || htmlString instanceof String) {
@@ -10,10 +48,22 @@ const minifyHTMLString = (htmlString: unknown): string | null => {
         .replace(/\r/g, ' ')
         .replace(/\r\n/g, ' ')
         .replace(/[\t]+\</g, '<')
-        .replace(/\>[\t ]+\</g, '><')
+        // Whitespace between tags is dropped, except between two inline
+        // elements, where it is collapsed to a single space.
+        .replace(/\>[\t ]+\</g, (match: string, offset: number, html: string) => {
+          const before = tagNameAt(html, html.lastIndexOf('<', offset));
+          const after = tagNameAt(html, offset + match.length - 1);
+          return before && after && inlineTags.has(before) && inlineTags.has(after) ? '> <' : '><';
+        })
         .replace(/\>[\t ]+$/g, '>');
 
-      return minifiedHTMLString;
+      // Runs of whitespace inside text collapse to one space, as in a browser;
+      // otherwise the source's line breaks and indentation show up as gaps.
+      // The content of <pre> is left as it is.
+      return minifiedHTMLString
+        .split(/(<pre[\s>][\s\S]*?<\/pre>)/i)
+        .map((part, index) => (index % 2 ? part : part.replace(/[\t ]{2,}/g, ' ')))
+        .join('');
     }
 
     throw new Error('invalid html string');
@@ -131,7 +181,17 @@ declare namespace generateContainer {
     fontSize?: number | string;
     /** Complex-script font size in half-points (HIP), or a string in `pt`. */
     complexScriptFontSize?: number | string;
-    table?: { row?: { cantSplit?: boolean } };
+    table?: {
+      row?: {
+        /** Prevent table rows from breaking across pages. Defaults to `false`. */
+        cantSplit?: boolean;
+        /**
+         * Repeat the rows of the table's `<thead>` at the top of every page the
+         * table spans. Defaults to `false`.
+         */
+        repeatTableHeader?: boolean;
+      };
+    };
     pageNumber?: boolean;
     skipFirstHeaderFooter?: boolean;
     lineNumber?: boolean;

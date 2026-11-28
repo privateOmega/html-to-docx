@@ -45,6 +45,7 @@ const defaultDocumentOptions = {
   table: {
     row: {
       cantSplit: false,
+      repeatTableHeader: false,
     },
   },
   pageSize: {

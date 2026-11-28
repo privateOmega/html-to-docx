@@ -17,12 +17,11 @@
     <w:tbl>
       <w:tblPr>
         <w:tblBorders>
-          <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-          <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-          <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-          <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+          <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+          <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+          <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+          <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
         </w:tblBorders>
-        <w:tblCellSpacing w:w="0" w:type="dxa"/>
         <w:tblW w:type="dxa" w:w="8640"/>
         <w:tblCellMar>
           <w:top w:type="dxa" w:w="80"/>
@@ -42,10 +41,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
           </w:tcPr>
           <w:p>
@@ -61,10 +60,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
           </w:tcPr>
           <w:p>
@@ -80,10 +79,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
           </w:tcPr>
           <w:p>
@@ -97,20 +96,15 @@
           </w:p>
         </w:tc>
       </w:tr>
-      <w:tblGrid>
-        <w:gridCol w:w="2880"/>
-        <w:gridCol w:w="2880"/>
-        <w:gridCol w:w="2880"/>
-      </w:tblGrid>
       <w:tr>
         <w:trPr/>
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
             <w:gridSpan w:val="2"/>
           </w:tcPr>
@@ -127,10 +121,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
             <w:vMerge w:val="restart"/>
           </w:tcPr>
@@ -150,10 +144,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
             <w:tcW w:w="3000" w:type="dxa"/>
           </w:tcPr>
@@ -170,10 +164,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
             <w:shd w:val="clear" w:fill="eeeeee"/>
             <w:vAlign w:val="center"/>
@@ -191,13 +185,12 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
             <w:vMerge w:val="continue"/>
-            <w:gridSpan w:val="0"/>
           </w:tcPr>
           <w:p/>
         </w:tc>
@@ -226,10 +219,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
           </w:tcPr>
           <w:p>
@@ -246,10 +239,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
           </w:tcPr>
           <w:p>
@@ -291,7 +284,6 @@
           <w:insideV w:val="single" w:sz="2" w:space="0" w:color="000000"/>
           <w:insideH w:val="single" w:sz="2" w:space="0" w:color="000000"/>
         </w:tblBorders>
-        <w:tblCellSpacing w:w="0" w:type="dxa"/>
         <w:tblW w:type="dxa" w:w="4500"/>
         <w:tblCellMar>
           <w:top w:type="dxa" w:w="80"/>
@@ -302,7 +294,7 @@
         <w:jc w:val="center"/>
       </w:tblPr>
       <w:tblGrid>
-        <w:gridCol w:w="8640"/>
+        <w:gridCol w:w="4500"/>
       </w:tblGrid>
       <w:tr>
         <w:trPr/>
@@ -336,7 +328,6 @@
           <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
           <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
         </w:tblBorders>
-        <w:tblCellSpacing w:w="0" w:type="dxa"/>
         <w:tblCellMar>
           <w:top w:type="dxa" w:w="80"/>
           <w:bottom w:type="dxa" w:w="80"/>
@@ -353,10 +344,10 @@
         <w:tc>
           <w:tcPr>
             <w:tcBorders>
-              <w:top w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:bottom w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
-              <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
+              <w:top w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:bottom w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
+              <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
             </w:tcBorders>
           </w:tcPr>
           <w:p>
@@ -365,6 +356,7 @@
             </w:pPr>
             <w:r>
               <w:rPr/>
+              <w:t xml:space="preserve">nested table</w:t>
             </w:r>
           </w:p>
         </w:tc>

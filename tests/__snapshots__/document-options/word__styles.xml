@@ -3,7 +3,7 @@
   <w:docDefaults>
     <w:rPrDefault>
       <w:rPr>
-        <w:rFonts w:ascii="Arial" w:eastAsiaTheme="minorHAnsi" w:hAnsiTheme="minorHAnsi" w:cstheme="minorBidi"/>
+        <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Arial" w:cs="Arial"/>
         <w:sz w:val="24"/>
         <w:szCs w:val="24"/>
         <w:lang w:val="en-GB" w:eastAsia="en-GB" w:bidi="ar-SA"/>

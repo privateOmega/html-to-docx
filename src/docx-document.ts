@@ -15,7 +15,7 @@ import {
   genericRelsXML as genericRelsXMLString,
   generateDocumentTemplate,
 } from './schemas';
-import { convertVTreeToXML } from './helpers';
+import { addParagraphsAfterTables, convertVTreeToXML } from './helpers';
 import namespaces from './namespaces';
 import {
   footerType as footerFileType,
@@ -145,6 +145,7 @@ async function generateSectionXML(
 
   const XMLFragment = fragment();
   await convertVTreeToXML(this, vTree, XMLFragment);
+  await addParagraphsAfterTables(XMLFragment, this);
   if (
     type === 'footer' &&
     (XMLFragment.first().node as unknown as Element).tagName === 'p' &&
@@ -196,6 +197,7 @@ class DocxDocument {
   complexScriptFontSize: number;
   lang: string;
   tableRowCantSplit: boolean;
+  tableRowRepeatHeader: boolean;
   pageNumber: boolean;
   skipFirstHeaderFooter: boolean;
   lineNumber: Partial<LineNumberOptions> | null | undefined;
@@ -259,6 +261,7 @@ class DocxDocument {
     this.lang = properties.lang || defaultLang;
     this.tableRowCantSplit =
       (properties.table && properties.table.row && properties.table.row.cantSplit) || false;
+    this.tableRowRepeatHeader = properties.table?.row?.repeatTableHeader || false;
     this.pageNumber = properties.pageNumber || false;
     this.skipFirstHeaderFooter = properties.skipFirstHeaderFooter || false;
     this.lineNumber = properties.lineNumber ? properties.lineNumberOptions : null;

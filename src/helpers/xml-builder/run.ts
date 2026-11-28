@@ -9,151 +9,45 @@ import namespaces from '../../namespaces';
 import { hyperlinkType, imageType, internalRelationship } from '../../constants';
 import type { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import type DocxDocument from '../../docx-document';
-import { isVNode, isVText, asVNode } from './shared';
+import { isVNode, isVText } from './shared';
 import type { VTree, VNodeType, BuilderAttributes } from './shared';
 import {
   buildLineBreak,
   buildTextElement,
   modifiedStyleAttributesBuilder,
-  buildFormatting,
   buildRunProperties,
 } from './formatting';
 import { buildDrawing } from './drawing';
+import { prepareImage } from './image';
 import { base64ToBytes } from '../../utils/base64';
 
-export const buildRun = async (
+// Inline elements that add run formatting (see buildFormatting): strong/b,
+// em/i, u/ins, s/del/strike, sub/sup, mark, code and pre.
+const formattingTags = new Set([
+  'strong',
+  'b',
+  'em',
+  'i',
+  'u',
+  'ins',
+  'strike',
+  'del',
+  's',
+  'sub',
+  'sup',
+  'mark',
+  'code',
+  'pre',
+]);
+
+// A single run: text, an image or a line break.
+const buildLeafRun = async (
   vNode: VTree | null,
   attributes: BuilderAttributes,
   docxDocumentInstance: DocxDocument,
-): Promise<XMLBuilder | XMLBuilder[]> => {
+): Promise<XMLBuilder> => {
   const runFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
   const runPropertiesFragment = buildRunProperties(structuredClone(attributes));
-
-  // case where we have recursive spans representing font changes
-  if (isVNode(vNode) && vNode.tagName === 'span') {
-    // eslint-disable-next-line no-use-before-define
-    return buildRunOrRuns(vNode, attributes, docxDocumentInstance);
-  }
-
-  if (
-    isVNode(vNode) &&
-    [
-      'strong',
-      'b',
-      'em',
-      'i',
-      'u',
-      'ins',
-      'strike',
-      'del',
-      's',
-      'sub',
-      'sup',
-      'mark',
-      'blockquote',
-      'code',
-      'pre',
-    ].includes(vNode.tagName)
-  ) {
-    const runFragmentsArray: XMLBuilder[] = [];
-
-    let vNodes: VTree[] = [vNode];
-    // create temp run fragments to split the paragraph into different runs
-    let tempAttributes: BuilderAttributes = structuredClone(attributes);
-    let tempRunFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
-    while (vNodes.length) {
-      const tempVNode = vNodes.shift()!;
-      if (isVText(tempVNode)) {
-        const textFragment = buildTextElement(tempVNode.text);
-        const tempRunPropertiesFragment = buildRunProperties({ ...attributes, ...tempAttributes });
-        tempRunFragment.import(tempRunPropertiesFragment);
-        tempRunFragment.import(textFragment);
-        runFragmentsArray.push(tempRunFragment);
-
-        // re initialize temp run fragments with new fragment
-        tempAttributes = structuredClone(attributes);
-        tempRunFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'r');
-      } else if (isVNode(tempVNode)) {
-        if (
-          [
-            'strong',
-            'b',
-            'em',
-            'i',
-            'u',
-            'ins',
-            'strike',
-            'del',
-            's',
-            'sub',
-            'sup',
-            'mark',
-            'code',
-            'pre',
-          ].includes(tempVNode.tagName)
-        ) {
-          tempAttributes = {};
-          switch (tempVNode.tagName) {
-            case 'strong':
-            case 'b':
-              tempAttributes.strong = true;
-              break;
-            case 'i':
-              tempAttributes.i = true;
-              break;
-            case 'u':
-              tempAttributes.u = true;
-              break;
-            case 'sub':
-              tempAttributes.sub = true;
-              break;
-            case 'sup':
-              tempAttributes.sup = true;
-              break;
-          }
-          // FIXME: passes the VNode instead of its tagName, so this never matches
-          // and returns null; formatting comes from tempAttributes instead. Kept
-          // as-is to preserve output.
-          const formattingFragment = buildFormatting(tempVNode as unknown as string);
-
-          if (formattingFragment) {
-            runPropertiesFragment.import(formattingFragment);
-          }
-          // go a layer deeper if there is a span somewhere in the children
-        } else if (tempVNode.tagName === 'span') {
-          // eslint-disable-next-line no-use-before-define
-          const spanFragment = await buildRunOrRuns(
-            tempVNode,
-            { ...attributes, ...tempAttributes },
-            docxDocumentInstance,
-          );
-
-          // if spanFragment is an array, we need to add each fragment to the runFragmentsArray. If the fragment is an array, perform a depth first search on the array to add each fragment to the runFragmentsArray
-          if (Array.isArray(spanFragment)) {
-            spanFragment.flat(Infinity);
-            runFragmentsArray.push(...spanFragment);
-          } else {
-            runFragmentsArray.push(spanFragment);
-          }
-
-          // do not slice and concat children since this is already accounted for in the buildRunOrRuns function
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-      }
-
-      if (isVNode(tempVNode) && tempVNode.children && tempVNode.children.length) {
-        if (tempVNode.children.length > 1) {
-          attributes = { ...attributes, ...tempAttributes };
-        }
-
-        vNodes = tempVNode.children.slice().concat(vNodes);
-      }
-    }
-    if (runFragmentsArray.length) {
-      return runFragmentsArray;
-    }
-  }
 
   runFragment.import(runPropertiesFragment);
   if (isVText(vNode)) {
@@ -202,72 +96,88 @@ export const buildRun = async (
   return runFragment;
 };
 
-export const buildRunOrRuns = async (
-  vNode: VTree | null,
+const buildHyperlink = async (
+  vNode: VNodeType,
   attributes: BuilderAttributes,
   docxDocumentInstance: DocxDocument,
-): Promise<XMLBuilder | XMLBuilder[]> => {
-  if (isVNode(vNode) && vNode.tagName === 'span') {
-    let runFragments: XMLBuilder[] = [];
+): Promise<XMLBuilder> => {
+  const relationshipId = docxDocumentInstance.createDocumentRelationships(
+    docxDocumentInstance.relationshipFilename,
+    hyperlinkType,
+    vNode.properties && vNode.properties.href ? vNode.properties.href : '',
+  );
+  const hyperlinkFragment = fragment({ namespaceAlias: { w: namespaces.w, r: namespaces.r } })
+    .ele('@w', 'hyperlink')
+    .att('@r', 'id', `rId${relationshipId}`);
 
-    for (let index = 0; index < vNode.children.length; index++) {
-      const childVNode = asVNode(vNode.children[index]!);
-      const modifiedAttributes = modifiedStyleAttributesBuilder(
-        docxDocumentInstance,
-        vNode,
-        attributes,
-      );
-      const tempRunFragments = await buildRun(childVNode, modifiedAttributes, docxDocumentInstance);
-      runFragments = runFragments.concat(
-        Array.isArray(tempRunFragments) ? tempRunFragments : [tempRunFragments],
-      );
+  const linkAttributes = { ...attributes, hyperlink: true };
+  for (const childVNode of vNode.children) {
+    // eslint-disable-next-line no-use-before-define
+    for (const runFragment of await buildInlineRuns(
+      childVNode,
+      linkAttributes,
+      docxDocumentInstance,
+    )) {
+      hyperlinkFragment.import(runFragment);
     }
-
-    return runFragments;
-  } else {
-    const tempRunFragments = await buildRun(vNode, attributes, docxDocumentInstance);
-    return tempRunFragments;
   }
+  hyperlinkFragment.up();
+
+  return hyperlinkFragment;
 };
 
-export const buildRunOrHyperLink = async (
+/**
+ * The runs (and hyperlinks) for an inline node and everything inside it.
+ * Each element passes its formatting and inline styles on to its own
+ * descendants only, so `<b>a<i>b</i>c</b>d` gives bold a, bold italic b,
+ * bold c and plain d.
+ */
+const buildInlineRuns = async (
   vNode: VTree | null,
   attributes: BuilderAttributes,
   docxDocumentInstance: DocxDocument,
-) => {
-  if (isVNode(vNode) && vNode.tagName === 'a') {
-    const relationshipId = docxDocumentInstance.createDocumentRelationships(
-      docxDocumentInstance.relationshipFilename,
-      hyperlinkType,
-      vNode.properties && vNode.properties.href ? vNode.properties.href : '',
-    );
-    const hyperlinkFragment = fragment({ namespaceAlias: { w: namespaces.w, r: namespaces.r } })
-      .ele('@w', 'hyperlink')
-      .att('@r', 'id', `rId${relationshipId}`);
-
-    const modifiedAttributes = { ...attributes };
-    modifiedAttributes.hyperlink = true;
-
-    const runFragments = await buildRunOrRuns(
-      vNode.children[0],
-      modifiedAttributes,
-      docxDocumentInstance,
-    );
-    if (Array.isArray(runFragments)) {
-      for (let index = 0; index < runFragments.length; index++) {
-        const runFragment = runFragments[index];
-
-        hyperlinkFragment.import(runFragment);
-      }
-    } else {
-      hyperlinkFragment.import(runFragments);
-    }
-    hyperlinkFragment.up();
-
-    return hyperlinkFragment;
+): Promise<XMLBuilder[]> => {
+  // An image anywhere inside inline elements, e.g. <span><img></span>.
+  if (isVNode(vNode) && vNode.tagName === 'img' && attributes.type !== 'picture') {
+    const imageAttributes = await prepareImage(vNode, attributes, docxDocumentInstance);
+    return imageAttributes
+      ? [await buildLeafRun(vNode, imageAttributes, docxDocumentInstance)]
+      : [];
+  }
+  if (
+    !isVNode(vNode) ||
+    vNode.tagName === 'br' ||
+    vNode.tagName === 'img' ||
+    attributes.type === 'picture'
+  ) {
+    return [await buildLeafRun(vNode, attributes, docxDocumentInstance)];
   }
 
-  const runFragments = await buildRunOrRuns(vNode, attributes, docxDocumentInstance);
+  let childAttributes = modifiedStyleAttributesBuilder(docxDocumentInstance, vNode, attributes);
+  if (vNode.tagName === 'a' && !attributes.hyperlink) {
+    return [await buildHyperlink(vNode, childAttributes, docxDocumentInstance)];
+  }
+  if (formattingTags.has(vNode.tagName)) {
+    childAttributes = { ...childAttributes, [vNode.tagName]: true };
+  }
+
+  // Other elements (span, small, abbr, nested links, …) keep their content.
+  const runFragments: XMLBuilder[] = [];
+  for (const childVNode of vNode.children ?? []) {
+    runFragments.push(
+      ...(await buildInlineRuns(childVNode, childAttributes, docxDocumentInstance)),
+    );
+  }
 
   return runFragments;
 };
+
+export const buildRun = async (
+  vNode: VTree | null,
+  attributes: BuilderAttributes,
+  docxDocumentInstance: DocxDocument,
+): Promise<XMLBuilder[]> => buildInlineRuns(vNode, attributes, docxDocumentInstance);
+
+// Kept as separate names for the callers; links and spans are handled by buildRun.
+export const buildRunOrRuns = buildRun;
+export const buildRunOrHyperLink = buildRun;

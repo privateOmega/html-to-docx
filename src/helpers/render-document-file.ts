@@ -9,15 +9,14 @@ import isVText from 'virtual-dom/vnode/is-vtext.js';
 // eslint-disable-next-line import/no-named-default
 import { default as HTMLToVDOM } from 'html-to-vdom';
 import { fetchImageAsDataUri, measureImage } from '../utils/image';
-import { warnImageSkipped } from './xml-builder/shared';
+import { unsupportedImageSource, warnImageSkipped } from './xml-builder/shared';
 
 // FIXME: remove the cyclic dependency
 // eslint-disable-next-line import/no-cycle
 import * as xmlBuilder from './xml-builder';
 import namespaces from '../namespaces';
-import { imageType, internalRelationship } from '../constants';
 import { vNodeHasChildren } from '../utils/vnode';
-import { isValidUrl } from '../utils/url';
+import { base64DataUriPayload, isValidUrl } from '../utils/url';
 import type DocxDocument from '../docx-document';
 import type { NumberingObject } from '../types';
 import { base64ToBytes } from '../utils/base64';
@@ -31,6 +30,10 @@ interface ListItem {
   level: number;
   type: string;
   numberingId: number;
+  // A paragraph made up to hold inline content; following inline siblings join it.
+  synthetic?: boolean;
+  // A further paragraph of the same list item: indented like the item's text, not numbered.
+  continuation?: boolean;
 }
 
 // Elements are VNodes at runtime wherever `tagName` is read below; VText
@@ -42,65 +45,45 @@ const convertHTML = HTMLToVDOM({
   VText,
 });
 
-// eslint-disable-next-line consistent-return, no-shadow
+// A paragraph holding one image, or undefined when the image cannot be
+// loaded. Only checks the image here: buildParagraph embeds it, so each image
+// is written (and downloaded) once.
 export const buildImage = async (
   docxDocumentInstance: DocxDocument,
   vNode: VNodeType,
   maximumWidth: number | null = null,
 ) => {
-  let response = null;
-  let base64Uri = null;
-  try {
-    const imageSource = vNode.properties.src;
-    if (isValidUrl(imageSource)) {
-      base64Uri = (await fetchImageAsDataUri(imageSource).catch(warnImageSkipped)) || null;
-    } else {
-      base64Uri = decodeURIComponent(vNode.properties.src);
-    }
-    if (base64Uri) {
-      response = docxDocumentInstance.createMediaFile(base64Uri);
-    }
-  } catch {
-    // NOOP
+  const imageSource = vNode.properties.src;
+  let dataUri: string | null = null;
+  if (isValidUrl(imageSource)) {
+    dataUri = (await fetchImageAsDataUri(imageSource).catch(warnImageSkipped)) || null;
+  } else if (base64DataUriPayload(imageSource)) {
+    dataUri = decodeURIComponent(imageSource);
+  } else {
+    warnImageSkipped(unsupportedImageSource(imageSource));
   }
-  // Measure before writing anything, so unreadable data (e.g. an HTML error
-  // page served for an image URL) is skipped without leaving a media file.
-  const imageProperties = response ? measureImage(base64ToBytes(response.fileContent)) : null;
-  if (response && !imageProperties) {
-    warnImageSkipped(`unsupported image data (${vNode.properties.src})`);
+  if (!dataUri) {
+    return undefined;
   }
-  if (response && imageProperties) {
-    docxDocumentInstance.zip
-      .folder('word')!
-      .folder('media')!
-      .file(response.fileNameWithExtension, base64ToBytes(response.fileContent), {
-        createFolders: false,
-      });
-
-    const documentRelsId = docxDocumentInstance.createDocumentRelationships(
-      docxDocumentInstance.relationshipFilename,
-      imageType,
-      `media/${response.fileNameWithExtension}`,
-      internalRelationship,
-    );
-
-    const imageFragment = await xmlBuilder.buildParagraph(
-      vNode,
-      {
-        type: 'picture',
-        inlineOrAnchored: true,
-        relationshipId: documentRelsId,
-        ...response,
-        description: vNode.properties.alt,
-        maximumWidth: maximumWidth || docxDocumentInstance.availableDocumentSpace,
-        originalWidth: imageProperties.width,
-        originalHeight: imageProperties.height,
-      },
-      docxDocumentInstance,
-    );
-
-    return imageFragment;
+  // Unreadable data (e.g. an HTML error page served for an image URL) is
+  // skipped without leaving a media file.
+  if (!measureImage(base64ToBytes(base64DataUriPayload(dataUri) ?? ''))) {
+    warnImageSkipped(`unsupported image data (${imageSource})`);
+    return undefined;
   }
+
+  // buildParagraph must not download the image again.
+  vNode.properties.src = dataUri;
+
+  return xmlBuilder.buildParagraph(
+    vNode,
+    {
+      type: 'picture',
+      description: vNode.properties.alt,
+      maximumWidth: maximumWidth || docxDocumentInstance.availableDocumentSpace,
+    },
+    docxDocumentInstance,
+  );
 };
 
 export const buildList = async (
@@ -132,9 +115,14 @@ export const buildList = async (
     ) {
       const paragraphFragment = await xmlBuilder.buildParagraph(
         tempVNodeObject.node,
-        {
-          numbering: { levelId: tempVNodeObject.level, numberingId: tempVNodeObject.numberingId },
-        },
+        tempVNodeObject.continuation
+          ? { indentation: { left: (tempVNodeObject.level + 1) * 720 } }
+          : {
+              numbering: {
+                levelId: tempVNodeObject.level,
+                numberingId: tempVNodeObject.numberingId,
+              },
+            },
         docxDocumentInstance,
       );
 
@@ -146,9 +134,13 @@ export const buildList = async (
       tempVNodeObject.node.children.length &&
       ['ul', 'ol', 'li'].includes(tempVNodeObject.node.tagName)
     ) {
+      const isListItem = tempVNodeObject.node.tagName === 'li';
+      let itemHasParagraph = false;
       const tempVNodeObjects = tempVNodeObject.node.children.reduce<ListItem[]>(
         (accumulator, childVNode) => {
-          if (['ul', 'ol'].includes(asVNode(childVNode).tagName)) {
+          const tagName = isVNode(childVNode) ? childVNode.tagName.toLowerCase() : null;
+          const last = accumulator[accumulator.length - 1];
+          if (tagName === 'ul' || tagName === 'ol') {
             accumulator.push({
               node: asVNode(childVNode),
               level: tempVNodeObject.level + 1,
@@ -158,57 +150,48 @@ export const buildList = async (
                 asVNode(childVNode).properties,
               ),
             });
+          } else if (tagName === 'li') {
+            accumulator.push({
+              node: asVNode(childVNode),
+              level: tempVNodeObject.level,
+              type: tempVNodeObject.type,
+              numberingId: tempVNodeObject.numberingId,
+            });
+          } else if (tagName !== 'p' && last?.synthetic) {
+            last.node.children.push(childVNode);
+          } else if (isVText(childVNode) && !childVNode.text.trim()) {
+            // Whitespace between blocks would only add an empty paragraph.
           } else {
-            // eslint-disable-next-line no-lonely-if
-            if (
-              accumulator.length > 0 &&
-              isVNode(accumulator[accumulator.length - 1].node) &&
-              accumulator[accumulator.length - 1]!.node.tagName.toLowerCase() === 'p'
-            ) {
-              accumulator[accumulator.length - 1]!.node.children.push(childVNode);
-            } else {
-              const paragraphVNode = new VNode(
-                'p',
-                isVNode(childVNode) && childVNode.properties && parentVNodeProperties
-                  ? {
-                      attributes: {
-                        ...parentVNodeProperties.attributes,
-                        ...childVNode.properties.attributes,
-                      },
-                      style: {
-                        ...parentVNodeProperties.style,
-                        ...childVNode.properties.style,
-                      },
-                    }
-                  : // virtual-dom accepts null properties at runtime
-                    (null as unknown as VirtualDOM.VProperties), // copy properties for styling purposes
-
-                // eslint-disable-next-line no-nested-ternary
-                isVText(childVNode)
-                  ? [childVNode]
-                  : // eslint-disable-next-line no-nested-ternary
-                    isVNode(childVNode)
-                    ? childVNode.tagName.toLowerCase() === 'li'
-                      ? [...childVNode.children]
-                      : [childVNode]
-                    : [],
-              );
-              accumulator.push({
-                // eslint-disable-next-line prettier/prettier, no-nested-ternary
-                node: isVNode(childVNode)
-                  ? // eslint-disable-next-line prettier/prettier, no-nested-ternary
-                    childVNode.tagName.toLowerCase() === 'li'
-                    ? childVNode
-                    : childVNode.tagName.toLowerCase() !== 'p'
-                      ? paragraphVNode
-                      : childVNode
-                  : // eslint-disable-next-line prettier/prettier
-                    paragraphVNode,
-                level: tempVNodeObject.level,
-                type: tempVNodeObject.type,
-                numberingId: tempVNodeObject.numberingId,
-              });
-            }
+            const node =
+              tagName === 'p'
+                ? asVNode(childVNode)
+                : new VNode(
+                    'p',
+                    isVNode(childVNode) && childVNode.properties && parentVNodeProperties
+                      ? {
+                          attributes: {
+                            ...parentVNodeProperties.attributes,
+                            ...childVNode.properties.attributes,
+                          },
+                          style: {
+                            ...parentVNodeProperties.style,
+                            ...childVNode.properties.style,
+                          },
+                        }
+                      : // virtual-dom accepts null properties at runtime
+                        (null as unknown as VirtualDOM.VProperties), // copy properties for styling purposes
+                    [childVNode],
+                  );
+            accumulator.push({
+              node,
+              level: tempVNodeObject.level,
+              type: tempVNodeObject.type,
+              numberingId: tempVNodeObject.numberingId,
+              synthetic: tagName !== 'p',
+              // Only the first paragraph of a list item carries its number.
+              continuation: isListItem && itemHasParagraph,
+            });
+            itemHasParagraph = true;
           }
 
           return accumulator;
@@ -293,17 +276,11 @@ async function findXMLEquivalent(
               {
                 maximumWidth: docxDocumentInstance.availableDocumentSpace,
                 rowCantSplit: docxDocumentInstance.tableRowCantSplit,
+                repeatTableHeader: docxDocumentInstance.tableRowRepeatHeader,
               },
               docxDocumentInstance,
             );
             xmlFragment.import(tableFragment);
-            // Adding empty paragraph for space after table
-            const emptyParagraphFragment = await xmlBuilder.buildParagraph(
-              null,
-              {},
-              docxDocumentInstance,
-            );
-            xmlFragment.import(emptyParagraphFragment);
           } else if (childVNode.tagName === 'img') {
             const imageFragment = await buildImage(docxDocumentInstance, childVNode);
             if (imageFragment) {
@@ -319,17 +296,11 @@ async function findXMLEquivalent(
         {
           maximumWidth: docxDocumentInstance.availableDocumentSpace,
           rowCantSplit: docxDocumentInstance.tableRowCantSplit,
+          repeatTableHeader: docxDocumentInstance.tableRowRepeatHeader,
         },
         docxDocumentInstance,
       );
       xmlFragment.import(tableFragment);
-      // Adding empty paragraph for space after table
-      const emptyParagraphFragment = await xmlBuilder.buildParagraph(
-        null,
-        {},
-        docxDocumentInstance,
-      );
-      xmlFragment.import(emptyParagraphFragment);
       return;
     case 'ol':
     case 'ul':
@@ -389,6 +360,29 @@ export async function convertVTreeToXML(
   return xmlFragment;
 }
 
+const isTable = (node: Node | null) => (node as Element | null)?.localName === 'tbl';
+
+/**
+ * Adds an empty paragraph after each table that is followed by another table
+ * or ends the content: Word merges adjacent tables into one, and a table must
+ * not be the last block of a document, header or footer.
+ */
+export const addParagraphsAfterTables = async (
+  xmlFragment: XMLBuilder,
+  docxDocumentInstance: DocxDocument,
+) => {
+  const parent = xmlFragment.node as unknown as Node;
+  for (const child of Array.from(parent.childNodes)) {
+    const next = child.nextSibling;
+    if (isTable(child) && (!next || isTable(next))) {
+      const paragraphFragment = await xmlBuilder.buildParagraph(null, {}, docxDocumentInstance);
+      parent.insertBefore(paragraphFragment.node as unknown as Node, next);
+    }
+  }
+
+  return xmlFragment;
+};
+
 async function renderDocumentFile(docxDocumentInstance: DocxDocument) {
   // html-to-vdom throws on input without any nodes; an empty body renders
   // as an empty tree.
@@ -398,7 +392,7 @@ async function renderDocumentFile(docxDocumentInstance: DocxDocument) {
 
   const populatedXmlFragment = await convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
 
-  return populatedXmlFragment;
+  return addParagraphsAfterTables(populatedXmlFragment as XMLBuilder, docxDocumentInstance);
 }
 
 export default renderDocumentFile;

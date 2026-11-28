@@ -13,11 +13,16 @@ import { isVNode } from './shared';
 import type { VTree, BuilderAttributes } from './shared';
 import { fixupColorCode, fixupLineHeight, fixupFontSize, fixupMargin } from './fixups';
 
+// The same font for every script: ASCII, other Latin/Greek/Cyrillic (hAnsi),
+// East Asian and complex scripts. Otherwise e.g. accented letters and CJK
+// text fall back to another font.
 export const buildRunFontFragment = (fontName = defaultFont) =>
   fragment({ namespaceAlias: { w: namespaces.w } })
     .ele('@w', 'rFonts')
     .att('@w', 'ascii', attr(fontName))
     .att('@w', 'hAnsi', attr(fontName))
+    .att('@w', 'eastAsia', attr(fontName))
+    .att('@w', 'cs', attr(fontName))
     .up();
 
 export const buildRunStyleFragment = (type = 'Hyperlink') =>
@@ -256,6 +261,10 @@ export const buildFormatting = (htmlTag: string, options?: BuilderAttributes) =>
 
 export const buildRunProperties = (attributes: BuilderAttributes) => {
   const runPropertiesFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'rPr');
+  // A property element may appear only once in <w:rPr>; when several
+  // attributes map to the same element (e.g. <pre> and the Courier font set
+  // for it), the first one wins.
+  const emitted = new Set<string>();
   if (attributes && attributes.constructor === Object) {
     Object.keys(attributes).forEach((key) => {
       const options: BuilderAttributes = {};
@@ -269,7 +278,11 @@ export const buildRunProperties = (attributes: BuilderAttributes) => {
 
       const formattingFragment = buildFormatting(key, options);
       if (formattingFragment) {
-        runPropertiesFragment.import(formattingFragment);
+        const element = (formattingFragment.first().node as unknown as Element).nodeName;
+        if (!emitted.has(element)) {
+          emitted.add(element);
+          runPropertiesFragment.import(formattingFragment);
+        }
       }
     });
   }

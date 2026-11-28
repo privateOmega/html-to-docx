@@ -55,6 +55,39 @@ describe('images that cannot be read are skipped', () => {
     });
   }
 
+  // #211: a relative src (or none at all) used to crash the whole conversion
+  // with "Cannot read properties of null (reading '2')".
+  const unsupportedSources = {
+    'absolute path': '/media/a.png',
+    'relative path': 'images/a.png',
+    'non-base64 data URI': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"/>',
+  };
+  for (const [kind, src] of Object.entries(unsupportedSources)) {
+    for (const [where, html] of Object.entries(positions(src))) {
+      it(`${kind} ${where}`, async () => {
+        const fetch = vi.fn();
+        vi.stubGlobal('fetch', fetch);
+        const { document, media } = await read(await HTMLtoDOCX(html));
+        expect(document).toContain('before');
+        expect(document).toContain('after');
+        expect(media).toEqual([]);
+        expect(fetch).not.toHaveBeenCalled();
+        expect(warn).toHaveBeenCalled();
+      });
+    }
+  }
+
+  it('skips an <img> without src', async () => {
+    const { document, media } = await read(
+      await HTMLtoDOCX(
+        '<p>before <img alt="x"/> after</p><img/><table><tr><td><img/></td></tr></table>',
+      ),
+    );
+    expect(document).toContain('before');
+    expect(document).toContain('after');
+    expect(media).toEqual([]);
+  });
+
   it('keeps the rest of the paragraph when a download fails', async () => {
     vi.stubGlobal(
       'fetch',

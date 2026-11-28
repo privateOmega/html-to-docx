@@ -28,6 +28,12 @@ export const warnImageSkipped = (error: unknown) => {
   console.warn(`html-to-docx: skipping image that could not be loaded: ${error}`);
 };
 
+/** Warning text for an image whose src is neither an http(s) URL nor a base64 data URI. */
+export const unsupportedImageSource = (source: unknown) =>
+  typeof source === 'string'
+    ? `unsupported image source (${source.length > 100 ? `${source.slice(0, 100)}…` : source})`
+    : 'image without src';
+
 /** Border widths per side plus shared stroke and color, as built by buildTable. */
 export interface BorderSpec {
   top?: number | string;
@@ -42,7 +48,11 @@ export interface BorderSpec {
 }
 
 /** Pending row spans keyed by column index. */
-export type RowSpanMap = Map<number, { rowSpan: number; colSpan: number }>;
+export type RowSpanMap = Map<
+  number,
+  // tableCellBorder: the borders of the merged cell, repeated on the rows it continues into.
+  { rowSpan: number; colSpan: number; tableCellBorder?: BorderSpec }
+>;
 
 /** Mutable column cursor shared while building a table row. */
 export interface ColumnIndex {
@@ -84,6 +94,8 @@ export interface BuilderAttributes {
   tableCellSpacing?: number;
   tableRowHeight?: number;
   rowCantSplit?: boolean;
+  repeatTableHeader?: boolean;
+  tableHeaderRow?: boolean;
   rowSpan?: number | string;
   colSpan?: number;
   // images

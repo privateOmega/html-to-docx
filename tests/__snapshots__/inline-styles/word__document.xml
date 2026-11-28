@@ -25,6 +25,10 @@
         <w:t xml:space="preserve">bold</w:t>
       </w:r>
       <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
+      </w:r>
+      <w:r>
         <w:rPr>
           <w:b/>
         </w:rPr>
@@ -32,13 +36,27 @@
       </w:r>
       <w:r>
         <w:rPr/>
+        <w:t xml:space="preserve"/>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:i/>
+        </w:rPr>
         <w:t xml:space="preserve">em</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
       </w:r>
       <w:r>
         <w:rPr>
           <w:i/>
         </w:rPr>
         <w:t xml:space="preserve">i</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
       </w:r>
       <w:r>
         <w:rPr>
@@ -48,17 +66,37 @@
       </w:r>
       <w:r>
         <w:rPr/>
+        <w:t xml:space="preserve"/>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:strike w:val="true"/>
+        </w:rPr>
         <w:t xml:space="preserve">strike</w:t>
       </w:r>
       <w:r>
         <w:rPr/>
+        <w:t xml:space="preserve"/>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:strike w:val="true"/>
+        </w:rPr>
         <w:t xml:space="preserve">del</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
       </w:r>
       <w:r>
         <w:rPr>
           <w:vertAlign w:val="subscript"/>
         </w:rPr>
         <w:t xml:space="preserve">sub</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
       </w:r>
       <w:r>
         <w:rPr>
@@ -78,10 +116,18 @@
         <w:t xml:space="preserve">named color</w:t>
       </w:r>
       <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
+      </w:r>
+      <w:r>
         <w:rPr>
           <w:color w:val="00ff00"/>
         </w:rPr>
         <w:t xml:space="preserve">hex color</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
       </w:r>
       <w:r>
         <w:rPr>
@@ -101,11 +147,19 @@
         <w:t xml:space="preserve">highlight</w:t>
       </w:r>
       <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
+      </w:r>
+      <w:r>
         <w:rPr>
-          <w:rFonts w:ascii="Arial" w:hAnsi="Arial"/>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Arial" w:cs="Arial"/>
           <w:sz w:val="27"/>
         </w:rPr>
         <w:t xml:space="preserve">Arial 18px</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"/>
       </w:r>
       <w:r>
         <w:rPr>
@@ -212,7 +266,7 @@
       </w:pPr>
       <w:r>
         <w:rPr>
-          <w:rFonts w:ascii="Courier" w:hAnsi="Courier"/>
+          <w:rFonts w:ascii="Courier" w:hAnsi="Courier" w:eastAsia="Courier" w:cs="Courier"/>
         </w:rPr>
         <w:t xml:space="preserve">preformatted   text</w:t>
       </w:r>
@@ -239,7 +293,9 @@
         <w:spacing w:lineRule="auto"/>
       </w:pPr>
       <w:r>
-        <w:rPr/>
+        <w:rPr>
+          <w:highlight w:val="lightGray"/>
+        </w:rPr>
         <w:t xml:space="preserve">inline code</w:t>
       </w:r>
     </w:p>
