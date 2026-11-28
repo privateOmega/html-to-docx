@@ -13,7 +13,7 @@ const generateStylesXML = (
 	<w:docDefaults>
 	  <w:rPrDefault>
 		<w:rPr>
-		  <w:rFonts w:ascii="${font}" w:eastAsiaTheme="minorHAnsi" w:hAnsiTheme="minorHAnsi" w:cstheme="minorBidi" />
+		  <w:rFonts w:ascii="${font}" w:hAnsi="${font}" w:eastAsia="${font}" w:cs="${font}" />
 		  <w:sz w:val="${fontSize}" />
 		  <w:szCs w:val="${complexScriptFontSize}" />
 		  <w:lang w:val="${lang}" w:eastAsia="${lang}" w:bidi="ar-SA" />
