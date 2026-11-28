@@ -48,7 +48,11 @@ export interface BorderSpec {
 }
 
 /** Pending row spans keyed by column index. */
-export type RowSpanMap = Map<number, { rowSpan: number; colSpan: number }>;
+export type RowSpanMap = Map<
+  number,
+  // tableCellBorder: the borders of the merged cell, repeated on the rows it continues into.
+  { rowSpan: number; colSpan: number; tableCellBorder?: BorderSpec }
+>;
 
 /** Mutable column cursor shared while building a table row. */
 export interface ColumnIndex {

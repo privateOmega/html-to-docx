@@ -295,6 +295,8 @@ export const buildTableCell = async (
   docxDocumentInstance: DocxDocument,
 ) => {
   const tableCellFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tc');
+  // The column this cell starts at; colspan moves columnIndex past it below.
+  const startColumn = columnIndex.index;
 
   let modifiedAttributes = { ...attributes };
   if (isVNode(vNode) && vNode.properties) {
@@ -336,6 +338,13 @@ export const buildTableCell = async (
       };
 
       fixupTableCellBorder(vNode, modifiedAttributes);
+    }
+    if (vNode.properties.rowSpan) {
+      // The rows this cell continues into repeat its borders.
+      rowSpanMap.set(startColumn, {
+        ...rowSpanMap.get(startColumn)!,
+        tableCellBorder: modifiedAttributes.tableCellBorder,
+      });
     }
   }
   const tableCellPropertiesFragment = buildTableCellProperties(modifiedAttributes);
@@ -410,6 +419,7 @@ export const buildRowSpanCell = (
       ...attributes,
       rowSpan: 'continue',
       colSpan: spanObject.colSpan ? spanObject.colSpan : 0,
+      tableCellBorder: spanObject.tableCellBorder ?? attributes.tableCellBorder,
     });
     rowSpanCellFragment.import(tableCellPropertiesFragment);
 
@@ -425,6 +435,7 @@ export const buildRowSpanCell = (
       rowSpanMap.delete(columnIndex.index);
     } else {
       rowSpanMap.set(columnIndex.index, {
+        ...spanObject,
         rowSpan: spanObject.rowSpan - 1,
         colSpan: spanObject.colSpan || 0,
       });
