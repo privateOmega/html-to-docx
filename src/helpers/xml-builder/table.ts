@@ -542,41 +542,106 @@ export const buildTableGridCol = (gridWidth: number) =>
     .ele('@w', 'gridCol')
     .att('@w', 'w', attr(String(gridWidth)));
 
-export const buildTableGrid = (vNode: VNodeType, attributes: BuilderAttributes) => {
-  const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
-  if (vNodeHasChildren(vNode)) {
-    const gridColumns = vNode.children.filter(
-      (childVNode) => asVNode(childVNode).tagName === 'col',
-    );
-    const gridWidth = attributes.maximumWidth! / gridColumns.length;
-
-    for (let index = 0; index < gridColumns.length; index++) {
-      const tableGridColFragment = buildTableGridCol(gridWidth);
-      tableGridFragment.import(tableGridColFragment);
-    }
+// Width of a column in twips from a CSS/HTML width, or null when it has none
+// (or one we cannot resolve, like `auto`). Percentages are of the table width.
+const columnWidthInTWIP = (width: unknown, tableWidth: number): number | null => {
+  if (width === undefined || width === null || width === '') {
+    return null;
   }
-  tableGridFragment.up();
-
-  return tableGridFragment;
+  // An HTML width attribute without a unit is in pixels.
+  const widthString = /^\d+(\.\d+)?$/.test(String(width).trim()) ? `${width}px` : String(width);
+  const twips = fixupColumnWidth(widthString);
+  if (twips !== undefined) {
+    return twips;
+  }
+  const percentage = widthString.trim().match(percentageRegex);
+  return percentage ? (Number(percentage[1]) / 100) * tableWidth : null;
 };
 
-export const buildTableGridFromTableRow = (vNode: VNodeType, attributes: BuilderAttributes) => {
-  const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
-  if (vNodeHasChildren(vNode)) {
-    const numberOfGridColumns = vNode.children.reduce((accumulator: number, childVNode) => {
-      const colSpan =
-        asVNode(childVNode).properties.colSpan ||
-        (asVNode(childVNode).properties.style &&
-          asVNode(childVNode).properties.style['column-span']);
+const elementWidth = (vNode: VNodeType) =>
+  (vNode.properties.style && vNode.properties.style.width) ||
+  (vNode.properties.attributes && vNode.properties.attributes.width);
 
-      return accumulator + (colSpan ? parseInt(colSpan) : 1);
-    }, 0);
-    const gridWidth = attributes.maximumWidth! / numberOfGridColumns;
+const columnSpan = (vNode: VNodeType, attributeName: string) =>
+  Math.max(
+    parseInt(
+      vNode.properties[attributeName] ||
+        (vNode.properties.attributes && vNode.properties.attributes[attributeName.toLowerCase()]) ||
+        (vNode.properties.style && vNode.properties.style['column-span']) ||
+        '1',
+      10,
+    ) || 1,
+    1,
+  );
 
-    for (let index = 0; index < numberOfGridColumns; index++) {
-      const tableGridColFragment = buildTableGridCol(gridWidth);
-      tableGridFragment.import(tableGridColFragment);
+/**
+ * The column widths of a table: from its <col> elements when it has a
+ * <colgroup>, otherwise from the cells of its first row with cells. Columns
+ * without a width share what is left of the table width; the result is scaled
+ * to fit within `availableWidth`, and up to an explicit table width.
+ */
+export const computeTableGridWidths = (
+  vNode: VNodeType,
+  availableWidth: number,
+  explicitWidth?: number,
+) => {
+  const tableWidth = explicitWidth || availableWidth;
+  const children = (vNode.children || []).filter(isVNode) as VNodeType[];
+  const rows = children.flatMap((child) =>
+    ['thead', 'tbody', 'tfoot'].includes(child.tagName)
+      ? ((child.children || []).filter(isVNode) as VNodeType[])
+      : [child],
+  );
+  const firstRowCells = rows
+    .filter((row) => row.tagName === 'tr')
+    .map((row) =>
+      ((row.children || []).filter(isVNode) as VNodeType[]).filter((cell) =>
+        ['td', 'th'].includes(cell.tagName),
+      ),
+    )
+    .find((cells) => cells.length);
+  const columns = children
+    .filter((child) => child.tagName === 'colgroup')
+    .flatMap((colgroup) =>
+      ((colgroup.children || []).filter(isVNode) as VNodeType[]).filter(
+        (col) => col.tagName === 'col',
+      ),
+    );
+
+  // [width or null] per grid column.
+  const widths: (number | null)[] = [];
+  const sources: [VNodeType, number][] = columns.length
+    ? columns.map((col) => [col, columnSpan(col, 'span')])
+    : (firstRowCells || []).map((cell) => [cell, columnSpan(cell, 'colSpan')]);
+  for (const [source, span] of sources) {
+    const width = columnWidthInTWIP(elementWidth(source), tableWidth);
+    for (let index = 0; index < span; index++) {
+      widths.push(width === null ? null : width / span);
     }
+  }
+  if (!widths.length) {
+    return [];
+  }
+
+  const known = widths.reduce<number>((sum, width) => sum + (width ?? 0), 0);
+  const unknownCount = widths.filter((width) => width === null).length;
+  const remaining = tableWidth - known;
+  const shareOfRest = remaining > 0 ? remaining / unknownCount : tableWidth / widths.length;
+  let resolved = widths.map((width) => width ?? shareOfRest);
+
+  const total = resolved.reduce((sum, width) => sum + width, 0);
+  if (total > availableWidth || (explicitWidth && total < explicitWidth)) {
+    const target = Math.min(tableWidth, availableWidth);
+    resolved = resolved.map((width) => (width * target) / total);
+  }
+
+  return resolved.map((width) => Math.round(width));
+};
+
+export const buildTableGrid = (gridWidths: number[]) => {
+  const tableGridFragment = fragment({ namespaceAlias: { w: namespaces.w } }).ele('@w', 'tblGrid');
+  for (const gridWidth of gridWidths) {
+    tableGridFragment.import(buildTableGridCol(gridWidth));
   }
   tableGridFragment.up();
 
@@ -786,28 +851,26 @@ export const buildTable = async (
       );
     }
   }
+  // Read before buildTableProperties, which consumes the width attribute.
+  const gridWidths = computeTableGridWidths(
+    vNode,
+    attributes.maximumWidth!,
+    modifiedAttributes.width as number | undefined,
+  );
   const tablePropertiesFragment = buildTableProperties(modifiedAttributes);
   tableFragment.import(tablePropertiesFragment);
+  // One grid per table, right after its properties.
+  tableFragment.import(buildTableGrid(gridWidths));
 
   const rowSpanMap: RowSpanMap = new Map();
 
   if (vNodeHasChildren(vNode)) {
     for (let index = 0; index < vNode.children.length; index++) {
       const childVNode = asVNode(vNode.children[index]!);
-      if (childVNode.tagName === 'colgroup') {
-        const tableGridFragment = buildTableGrid(childVNode, modifiedAttributes);
-        tableFragment.import(tableGridFragment);
-      } else if (childVNode.tagName === 'thead') {
+      if (childVNode.tagName === 'thead') {
         for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
           const grandChildVNode = asVNode(childVNode.children[iteratorIndex]!);
           if (grandChildVNode.tagName === 'tr') {
-            if (iteratorIndex === 0) {
-              const tableGridFragment = buildTableGridFromTableRow(
-                grandChildVNode,
-                modifiedAttributes,
-              );
-              tableFragment.import(tableGridFragment);
-            }
             const tableRowFragment = await buildTableRow(
               grandChildVNode,
               // <thead> rows repeat at the top of each page when enabled.
@@ -828,13 +891,6 @@ export const buildTable = async (
         for (let iteratorIndex = 0; iteratorIndex < childVNode.children.length; iteratorIndex++) {
           const grandChildVNode = asVNode(childVNode.children[iteratorIndex]!);
           if (grandChildVNode.tagName === 'tr') {
-            if (iteratorIndex === 0) {
-              const tableGridFragment = buildTableGridFromTableRow(
-                grandChildVNode,
-                modifiedAttributes,
-              );
-              tableFragment.import(tableGridFragment);
-            }
             const tableRowFragment = await buildTableRow(
               grandChildVNode,
               modifiedAttributes,
@@ -849,10 +905,6 @@ export const buildTable = async (
           }
         }
       } else if (childVNode.tagName === 'tr') {
-        if (index === 0) {
-          const tableGridFragment = buildTableGridFromTableRow(childVNode, modifiedAttributes);
-          tableFragment.import(tableGridFragment);
-        }
         const tableRowFragment = await buildTableRow(
           childVNode,
           modifiedAttributes,

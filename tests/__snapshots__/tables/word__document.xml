@@ -97,11 +97,6 @@
           </w:p>
         </w:tc>
       </w:tr>
-      <w:tblGrid>
-        <w:gridCol w:w="2880"/>
-        <w:gridCol w:w="2880"/>
-        <w:gridCol w:w="2880"/>
-      </w:tblGrid>
       <w:tr>
         <w:trPr/>
         <w:tc>
@@ -301,7 +296,7 @@
         <w:jc w:val="center"/>
       </w:tblPr>
       <w:tblGrid>
-        <w:gridCol w:w="8640"/>
+        <w:gridCol w:w="4500"/>
       </w:tblGrid>
       <w:tr>
         <w:trPr/>
