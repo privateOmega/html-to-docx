@@ -21,6 +21,10 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v5
         id: release
+        with:
+          # Releases are cut from master. Without this, release-please uses the
+          # repository's default branch, which is develop.
+          target-branch: master
 
   publish:
     needs: release-please

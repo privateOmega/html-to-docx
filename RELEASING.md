@@ -4,9 +4,9 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 
 ## Flow
 
-1. Work lands on `develop` through pull requests using [Conventional Commits](https://www.conventionalcommits.org).
+1. Work lands on `develop`, the repository's default branch, through pull requests using [Conventional Commits](https://www.conventionalcommits.org).
 2. When ready to release, merge `develop` into `master` (merge commit).
-3. On every push to `master`, release-please opens or updates a **release PR** with the version bump and `CHANGELOG.md` entry.
+3. On every push to `master`, release-please opens or updates a **release PR** against `master` (set with `target-branch` in `release.yml`) with the version bump and `CHANGELOG.md` entry.
 4. Merging the release PR tags the release (`vX.Y.Z`), creates a GitHub Release, and triggers the `publish` job, which tests, builds, and runs `npm publish --provenance`.
    - Prereleases (versions containing `-`, e.g. `2.0.0-beta.1`) are published under the `next` dist-tag; stable versions under `latest`.
 5. Merge `master` back into `develop` (merge commit) so the version bump and changelog are on `develop` too.
