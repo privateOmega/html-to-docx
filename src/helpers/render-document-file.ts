@@ -281,13 +281,6 @@ async function findXMLEquivalent(
               docxDocumentInstance,
             );
             xmlFragment.import(tableFragment);
-            // Adding empty paragraph for space after table
-            const emptyParagraphFragment = await xmlBuilder.buildParagraph(
-              null,
-              {},
-              docxDocumentInstance,
-            );
-            xmlFragment.import(emptyParagraphFragment);
           } else if (childVNode.tagName === 'img') {
             const imageFragment = await buildImage(docxDocumentInstance, childVNode);
             if (imageFragment) {
@@ -308,13 +301,6 @@ async function findXMLEquivalent(
         docxDocumentInstance,
       );
       xmlFragment.import(tableFragment);
-      // Adding empty paragraph for space after table
-      const emptyParagraphFragment = await xmlBuilder.buildParagraph(
-        null,
-        {},
-        docxDocumentInstance,
-      );
-      xmlFragment.import(emptyParagraphFragment);
       return;
     case 'ol':
     case 'ul':
@@ -374,6 +360,29 @@ export async function convertVTreeToXML(
   return xmlFragment;
 }
 
+const isTable = (node: Node | null) => (node as Element | null)?.localName === 'tbl';
+
+/**
+ * Adds an empty paragraph after each table that is followed by another table
+ * or ends the content: Word merges adjacent tables into one, and a table must
+ * not be the last block of a document, header or footer.
+ */
+export const addParagraphsAfterTables = async (
+  xmlFragment: XMLBuilder,
+  docxDocumentInstance: DocxDocument,
+) => {
+  const parent = xmlFragment.node as unknown as Node;
+  for (const child of Array.from(parent.childNodes)) {
+    const next = child.nextSibling;
+    if (isTable(child) && (!next || isTable(next))) {
+      const paragraphFragment = await xmlBuilder.buildParagraph(null, {}, docxDocumentInstance);
+      parent.insertBefore(paragraphFragment.node as unknown as Node, next);
+    }
+  }
+
+  return xmlFragment;
+};
+
 async function renderDocumentFile(docxDocumentInstance: DocxDocument) {
   // html-to-vdom throws on input without any nodes; an empty body renders
   // as an empty tree.
@@ -383,7 +392,7 @@ async function renderDocumentFile(docxDocumentInstance: DocxDocument) {
 
   const populatedXmlFragment = await convertVTreeToXML(docxDocumentInstance, vTree, xmlFragment);
 
-  return populatedXmlFragment;
+  return addParagraphsAfterTables(populatedXmlFragment as XMLBuilder, docxDocumentInstance);
 }
 
 export default renderDocumentFile;

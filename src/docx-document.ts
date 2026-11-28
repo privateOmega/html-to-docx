@@ -15,7 +15,7 @@ import {
   genericRelsXML as genericRelsXMLString,
   generateDocumentTemplate,
 } from './schemas';
-import { convertVTreeToXML } from './helpers';
+import { addParagraphsAfterTables, convertVTreeToXML } from './helpers';
 import namespaces from './namespaces';
 import {
   footerType as footerFileType,
@@ -145,6 +145,7 @@ async function generateSectionXML(
 
   const XMLFragment = fragment();
   await convertVTreeToXML(this, vTree, XMLFragment);
+  await addParagraphsAfterTables(XMLFragment, this);
   if (
     type === 'footer' &&
     (XMLFragment.first().node as unknown as Element).tagName === 'p' &&
