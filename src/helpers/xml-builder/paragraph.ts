@@ -10,10 +10,10 @@ import namespaces from '../../namespaces';
 import { pixelToEMU, pixelRegex, TWIPToEMU, percentageRegex } from '../../utils/unit-conversion';
 import { paragraphBordersObject } from '../../constants';
 import { vNodeHasChildren } from '../../utils/vnode';
-import { isValidUrl } from '../../utils/url';
+import { base64DataUriPayload, isValidUrl } from '../../utils/url';
 import { attr } from '../../utils/xml';
 import type DocxDocument from '../../docx-document';
-import { isVNode, asVNode, warnImageSkipped } from './shared';
+import { isVNode, asVNode, unsupportedImageSource, warnImageSkipped } from './shared';
 import type { VTree, VNodeType, BuilderAttributes } from './shared';
 import { buildShading, buildBorder, modifiedStyleAttributesBuilder } from './formatting';
 import { buildRun, buildRunOrRuns, buildRunOrHyperLink } from './run';
@@ -366,8 +366,13 @@ export const buildParagraph = async (
               continue;
             }
           } else {
-            // eslint-disable-next-line no-useless-escape, prefer-destructuring
-            base64String = imageSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)![2];
+            const payload = base64DataUriPayload(imageSource);
+            if (!payload) {
+              warnImageSkipped(unsupportedImageSource(imageSource));
+              // Skip this image but keep the rest of the paragraph.
+              continue;
+            }
+            base64String = payload;
           }
           const imageProperties = measureImage(
             base64ToBytes(decodeURIComponent(base64String as string)),
@@ -424,8 +429,15 @@ export const buildParagraph = async (
           return paragraphFragment;
         }
       } else {
-        // eslint-disable-next-line no-useless-escape, prefer-destructuring
-        base64String = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)[2];
+        const payload = base64DataUriPayload(imageSource);
+        if (!payload) {
+          // Same as a failed download: an empty paragraph without the image.
+          warnImageSkipped(unsupportedImageSource(imageSource));
+          paragraphFragment.up();
+
+          return paragraphFragment;
+        }
+        base64String = payload;
       }
 
       const imageProperties = measureImage(base64ToBytes(decodeURIComponent(base64String)));
