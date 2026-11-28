@@ -83,13 +83,12 @@ const normalizeUnits = (
       } else if (inchRegex.test(value)) {
         const matchedParts = value.match(inchRegex)!;
         result[key] = inchToTWIP(Number(matchedParts[1]));
-      } else if (dimensioningObject[key]) {
+      } else if (dimensioningObject[key] || dimensioningObject[key] === 0) {
         result[key] = dimensioningObject[key];
-      } else {
-        // incase value is something like 0
-        result[key] = defaultDimensionsProperty[key];
       }
     });
+    // Sides or dimensions that were not given keep their defaults.
+    normalizedUnitResult = { ...defaultDimensionsProperty, ...result };
   } else {
     // eslint-disable-next-line no-param-reassign
     normalizedUnitResult = null;
