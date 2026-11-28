@@ -22,7 +22,6 @@
           <w:left w:val="single" w:sz="1" w:space="0" w:color="000000"/>
           <w:right w:val="single" w:sz="1" w:space="0" w:color="000000"/>
         </w:tblBorders>
-        <w:tblCellSpacing w:w="0" w:type="dxa"/>
         <w:tblW w:type="dxa" w:w="8640"/>
         <w:tblCellMar>
           <w:top w:type="dxa" w:w="80"/>
@@ -285,7 +284,6 @@
           <w:insideV w:val="single" w:sz="2" w:space="0" w:color="000000"/>
           <w:insideH w:val="single" w:sz="2" w:space="0" w:color="000000"/>
         </w:tblBorders>
-        <w:tblCellSpacing w:w="0" w:type="dxa"/>
         <w:tblW w:type="dxa" w:w="4500"/>
         <w:tblCellMar>
           <w:top w:type="dxa" w:w="80"/>
@@ -330,7 +328,6 @@
           <w:left w:val="single" w:sz="2" w:space="0" w:color="000000"/>
           <w:right w:val="single" w:sz="2" w:space="0" w:color="000000"/>
         </w:tblBorders>
-        <w:tblCellSpacing w:w="0" w:type="dxa"/>
         <w:tblCellMar>
           <w:top w:type="dxa" w:w="80"/>
           <w:bottom w:type="dxa" w:w="80"/>

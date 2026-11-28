@@ -716,8 +716,12 @@ export const buildTableProperties = (attributes: BuilderAttributes) => {
           delete attributes.tableBorder;
           break;
         case 'tableCellSpacing':
-          const tableCellSpacingFragment = buildTableCellSpacing(attributes[key]!);
-          tablePropertiesFragment.import(tableCellSpacingFragment);
+          // Word treats any <w:tblCellSpacing>, even of 0, as separated
+          // borders (gaps where cell borders meet), so write it only for
+          // actual spacing.
+          if (Number(attributes[key]) > 0) {
+            tablePropertiesFragment.import(buildTableCellSpacing(attributes[key]!));
+          }
           // eslint-disable-next-line no-param-reassign
           delete attributes.tableCellSpacing;
           break;
