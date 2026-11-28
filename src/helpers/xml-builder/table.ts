@@ -126,8 +126,10 @@ export const buildTableCellProperties = (attributes: BuilderAttributes) => {
           delete attributes.verticalAlign;
           break;
         case 'colSpan':
-          const gridSpanFragment = buildGridSpanFragment(attributes[key]!);
-          tableCellPropertiesFragment.import(gridSpanFragment);
+          // A span of one column (or none, for continued row-span cells) is the default.
+          if (Number(attributes[key]) > 1) {
+            tableCellPropertiesFragment.import(buildGridSpanFragment(attributes[key]!));
+          }
           // eslint-disable-next-line no-param-reassign
           delete attributes.colSpan;
           break;
